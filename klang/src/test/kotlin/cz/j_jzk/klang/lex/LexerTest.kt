@@ -37,6 +37,15 @@ class LexerTest {
 		assertEquals(null, lexer.nextToken(input))
 	}
 
+	@Test fun testMaximalMunch() {
+		val lexer = Lexer(linkedMapOf(
+			re("a") to "singleA",
+			re("aa") to "doubleA"
+		))
+		val input = iter("aa")
+		assertEquals(Token("doubleA", "aa"), lexer.nextToken(input))
+	}
+
 	@Test fun testPrecedence() {
 		// case 1)
 		var input = iter("if")
