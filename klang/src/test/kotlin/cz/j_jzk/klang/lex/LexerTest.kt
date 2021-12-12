@@ -12,7 +12,7 @@ import cz.j_jzk.klang.lex.re.compileRegex
  */
 
 class LexerTest {
-	private val lexer = Lexer<String>(mapOf(
+	private val lexer = Lexer<String>(linkedMapOf(
 		re("if") to "if",
 		re("\\d+") to "int"
 	))
@@ -35,6 +35,24 @@ class LexerTest {
 		lexer.nextToken(input)
 
 		assertEquals(null, lexer.nextToken(input))
+	}
+
+	@Test fun testPrecedence() {
+		// case 1)
+		var input = iter("if")
+		var ambiguousLexer = Lexer<String>(linkedMapOf(
+			re("if") to "if",
+			re(".+") to "anything",
+		))
+		assertEquals(Token("if", "if"), ambiguousLexer.nextToken(input))
+
+		// case 2)
+		input = iter("if")
+		ambiguousLexer = Lexer<String>(linkedMapOf(
+			re(".+") to "anything",
+			re("if") to "if"
+		))
+		assertEquals(Token("anything", "if"), ambiguousLexer.nextToken(input))
 	}
 
 	private fun re(str: String) = compileRegex(str).fa
