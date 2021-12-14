@@ -3,7 +3,8 @@ package cz.j_jzk.klang.lex
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.Ignore
-import cz.j_jzk.klang.lex.re.compileRegex
+import cz.j_jzk.klang.testutils.re
+import cz.j_jzk.klang.testutils.iter
 
 /*
  * Correct matching doesn't need to be tested extensively because it is already
@@ -63,7 +64,4 @@ class LexerTest {
 		))
 		assertEquals(Token("anything", "if"), ambiguousLexer.nextToken(input))
 	}
-
-	private fun re(str: String) = compileRegex(str).fa
-	private fun iter(str: String) = str.toList().listIterator()
 }
