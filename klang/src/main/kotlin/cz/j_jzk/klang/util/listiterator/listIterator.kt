@@ -1,6 +1,5 @@
 package cz.j_jzk.klang.util.listiterator
 
-// TODO test this
 /**
  * Returns a string before the cursor of the iterator.
  * @param len Length of the string

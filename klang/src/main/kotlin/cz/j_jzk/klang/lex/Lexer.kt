@@ -4,14 +4,28 @@ import cz.j_jzk.klang.lex.re.fa.NFA
 import cz.j_jzk.klang.lex.re.MultipleMatcher
 import cz.j_jzk.klang.util.listiterator.previousString
 
-class Lexer<T>(val tokenDefs: LinkedHashMap<NFA, T>) {
-	val matcher = MultipleMatcher(tokenDefs.keys)
-	val precedenceTable: Map<NFA, Int>
+/**
+ * The class that does the lexing. You probably don't want to create this
+ * object directly, but insted use a builder (`cz.j_jzk.klang.lex.api.lexer()`)
+ * 
+ * The type parameter `T` is the token type identifier. Enums are the most
+ * suitable to this, but you may as well use anything you want.
+ * 
+ * The lexer isn't tied to an input stream, so you can use the same lexer object
+ * to parse multiple inputs in parallel.
+ */
+class Lexer<T>(private val tokenDefs: LinkedHashMap<NFA, T>) {
+	private val matcher = MultipleMatcher(tokenDefs.keys)
+	private val precedenceTable: Map<NFA, Int>
 	init {
 		var i = 0
 		precedenceTable = tokenDefs.map { (k, _) -> k to i++ }.toMap()
 	}
 
+	/**
+	 * Match a token from an input.
+	 * Returns `null` on EOF or no match.
+	 */
 	fun nextToken(input: ListIterator<Char>): Token<T>? {
 		val longestMatch = chooseMatch(matcher.nextMatch(input))
 
