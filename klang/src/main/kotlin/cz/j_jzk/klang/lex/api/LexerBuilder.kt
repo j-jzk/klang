@@ -36,10 +36,11 @@ fun <T>lexer(init: LexerBuilder<T>.() -> Unit): LexerBuilder<T> {
  */
 class LexerBuilder<T> {
 	private val tokenDefs = linkedMapOf<NFA, T>()
+	private val ignored = listOf<NFA>()
 
 	infix fun T.to(b: String) {
 		tokenDefs.set(compileRegex(b).fa, this)
 	}
 
-	fun getLexer(): Lexer<T> = Lexer(tokenDefs)
+	fun getLexer(): Lexer<T> = Lexer(tokenDefs, ignored)
 }

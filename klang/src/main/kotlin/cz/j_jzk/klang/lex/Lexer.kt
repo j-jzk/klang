@@ -14,8 +14,8 @@ import cz.j_jzk.klang.util.listiterator.previousString
  * The lexer isn't tied to an input stream, so you can use the same lexer object
  * to parse multiple inputs in parallel.
  */
-class Lexer<T>(private val tokenDefs: LinkedHashMap<NFA, T>) {
-	private val matcher = MultipleMatcher(tokenDefs.keys)
+class Lexer<T>(private val tokenDefs: LinkedHashMap<NFA, T>, private val ignored: List<NFA> = listOf()) {
+	private val matcher = MultipleMatcher(tokenDefs.keys + ignored)
 	private val precedenceTable: Map<NFA, Int>
 	init {
 		var i = 0
@@ -31,6 +31,9 @@ class Lexer<T>(private val tokenDefs: LinkedHashMap<NFA, T>) {
 
 		if (longestMatch == null)
 			return null
+
+		if (longestMatch.key in ignored)
+			return nextToken(input)
 
 		return Token(
 			tokenDefs[longestMatch.key]!!,
