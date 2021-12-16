@@ -13,11 +13,12 @@ class LexerIntegrationTest {
 			"NUMBER" to """\d+\.\d+"""
 			"IF" to "if"
 			"DOT" to "\\."
+			ignore(" ")
 		}.getLexer()
 
 		testLex(
 			lexer,
-			"if12.34if15if",
+			"if 12.34    if15 if ",
 			listOf(
 				Token("IF", "if"),
 				Token("NUMBER", "12.34"),
