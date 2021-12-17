@@ -6,7 +6,7 @@ import cz.j_jzk.klang.util.listiterator.previousString
 
 /**
  * The class that does the lexing. You probably don't want to create this
- * object directly, but insted use a builder (`cz.j_jzk.klang.lex.api.lexer()`)
+ * object directly, but instead use a builder (`cz.j_jzk.klang.lex.api.lexer()`)
  * 
  * The type parameter `T` is the token type identifier. Enums are the most
  * suitable to this, but you may as well use anything you want.
