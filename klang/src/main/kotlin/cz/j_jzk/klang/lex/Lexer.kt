@@ -3,6 +3,7 @@ package cz.j_jzk.klang.lex
 import cz.j_jzk.klang.lex.re.fa.NFA
 import cz.j_jzk.klang.lex.re.MultipleMatcher
 import cz.j_jzk.klang.util.listiterator.previousString
+import java.io.EOFException
 
 /**
  * The class that does the lexing. You probably don't want to create this
@@ -24,13 +25,14 @@ class Lexer<T>(private val tokenDefs: LinkedHashMap<NFA, T>, private val ignored
 
 	/**
 	 * Match a token from an input.
-	 * Returns `null` on EOF or no match.
+	 * Returns `null` on no match.
+	 * Throws an `EOFException` on EOF.
 	 */
 	fun nextToken(input: ListIterator<Char>): Token<T>? {
-		val longestMatch = chooseMatch(matcher.nextMatch(input))
+		if (!input.hasNext())
+			throw EOFException()
 
-		if (longestMatch == null)
-			return null
+		val longestMatch = chooseMatch(matcher.nextMatch(input)) ?: return null
 
 		if (longestMatch.key in ignored)
 			return nextToken(input)
