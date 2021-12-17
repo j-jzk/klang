@@ -2,6 +2,7 @@ package cz.j_jzk.klang.lex
 
 import cz.j_jzk.klang.lex.api.lexer
 import cz.j_jzk.klang.testutils.iter
+import cz.j_jzk.klang.testutils.testLex
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -12,11 +13,12 @@ class LexerIntegrationTest {
 			"NUMBER" to """\d+\.\d+"""
 			"IF" to "if"
 			"DOT" to "\\."
+			ignore(" ")
 		}.getLexer()
 
 		testLex(
 			lexer,
-			"if12.34if15if",
+			"if 12.34    if15 if ",
 			listOf(
 				Token("IF", "if"),
 				Token("NUMBER", "12.34"),
@@ -25,12 +27,5 @@ class LexerIntegrationTest {
 				Token("IF", "if")
 			)
 		)
-	}
-
-	private fun testLex(lexer: Lexer<String>, input: String, expectedTokens: List<Token<String>>) {
-		val inputIter = iter(input)
-		for (token in expectedTokens) {
-			assertEquals(token, lexer.nextToken(inputIter))
-		}
 	}
 }

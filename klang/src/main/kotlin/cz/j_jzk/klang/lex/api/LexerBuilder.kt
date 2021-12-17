@@ -17,6 +17,8 @@ import cz.j_jzk.klang.lex.Lexer
  *     TokenType.INT to "[0-9]+"
  *     // one token type may have multiple definitions
  *     TokenType.INT to "-[0-9]+"
+ *     // you can ignore tokens (e.g. whitespace, comments)
+ *     ignore("\\s", "#[^\\n]")
  * }
  * // you could do something else with the lexer builder here
  * // ...
@@ -36,10 +38,15 @@ fun <T>lexer(init: LexerBuilder<T>.() -> Unit): LexerBuilder<T> {
  */
 class LexerBuilder<T> {
 	private val tokenDefs = linkedMapOf<NFA, T>()
+	private val ignored = mutableListOf<NFA>()
 
 	infix fun T.to(b: String) {
 		tokenDefs.set(compileRegex(b).fa, this)
 	}
 
-	fun getLexer(): Lexer<T> = Lexer(tokenDefs)
+	fun ignore(vararg regex: String) {
+		ignored.addAll(regex.map { compileRegex(it).fa })
+	}
+
+	fun getLexer(): Lexer<T> = Lexer(tokenDefs, ignored)
 }

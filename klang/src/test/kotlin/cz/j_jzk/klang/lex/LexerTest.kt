@@ -5,6 +5,7 @@ import kotlin.test.assertEquals
 import kotlin.test.Ignore
 import cz.j_jzk.klang.testutils.re
 import cz.j_jzk.klang.testutils.iter
+import cz.j_jzk.klang.testutils.testLex
 
 /*
  * Correct matching doesn't need to be tested extensively because it is already
@@ -63,5 +64,27 @@ class LexerTest {
 			re("if") to "if"
 		))
 		assertEquals(Token("anything", "if"), ambiguousLexer.nextToken(input))
+	}
+
+	@Test fun testIgnore() {
+		val lexer = Lexer<String>(
+			linkedMapOf(
+				re("if") to "IF",
+				re("\\d+") to "INT"
+			),
+			listOf(re("\\s"))
+		)
+
+		testLex(
+			lexer,
+			"if 00\t0   0\nif",
+			listOf(
+				Token("IF", "if"),
+				Token("INT", "00"),
+				Token("INT", "0"),
+				Token("INT", "0"),
+				Token("IF", "if"),
+			)
+		)
 	}
 }
