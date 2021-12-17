@@ -6,6 +6,8 @@ import kotlin.test.Ignore
 import cz.j_jzk.klang.testutils.re
 import cz.j_jzk.klang.testutils.iter
 import cz.j_jzk.klang.testutils.testLex
+import java.io.EOFException
+import kotlin.test.assertFailsWith
 
 /*
  * Correct matching doesn't need to be tested extensively because it is already
@@ -26,16 +28,25 @@ class LexerTest {
 		assertEquals(Token("int", "123"), lexer.nextToken(input))
 	}
 
-	@Ignore @Test fun testNoMatch() {
-		// test if the lexer throws an error of some sort on no match
-		// (maybe don't check this in the lexer, but instead use some sort of error token)
-		TODO()
+	@Test fun testNoMatch() {
+		val input = iter("xyz")
+		assertEquals(null, lexer.nextToken(input))
 	}
 
 	@Test fun testEndOfInput() {
 		val input = iter("if")
 		lexer.nextToken(input)
 
+		assertFailsWith(EOFException::class) { lexer.nextToken(input) }
+	}
+
+	@Test fun testNoMatchWithIgnored() {
+		val lexer = Lexer<String>(
+			linkedMapOf(re("\\d+") to "INT"),
+			listOf(re(" "))
+		)
+
+		val input = iter("   a")
 		assertEquals(null, lexer.nextToken(input))
 	}
 
