@@ -8,12 +8,17 @@ class LexerWrapper<T>(val lexer: Lexer<T>, private val onNoMatch: (Char) -> Unit
 	 */
 	private fun nextMatch(input: ListIterator<Char>): Token<T>? {
 		val match = lexer.nextToken(input)
+		// TODO untangle this mess
 		if (match == null) {
-			onNoMatch(input.next())
-			return if (input.hasNext())
-				nextMatch(input)
-			else
-				null
+			if (input.hasNext()) {
+				onNoMatch(input.next())
+				return if (input.hasNext())
+					nextMatch(input)
+				else
+					null
+			} else {
+				return null
+			}
 		}
 
 		return match

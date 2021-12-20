@@ -36,7 +36,10 @@ class Lexer<T>(private val tokenDefs: LinkedHashMap<NFA, T>, private val ignored
 		val longestMatch = chooseMatch(matcher.nextMatch(input)) ?: return null
 
 		if (longestMatch.key in ignored)
-			return nextToken(input)
+			return if (input.hasNext())
+				nextToken(input)
+			else
+				null
 
 		return Token(
 			tokenDefs[longestMatch.key]!!,
