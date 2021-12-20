@@ -14,7 +14,19 @@ class LexerWrapperTest {
 
 	@Test fun testBasicIterator() {
 		testIterator(
-			" 1  23 4 ",
+			" 1  23 4",
+			listOf(
+				Token("INT", "1"),
+				Token("INT", "23"),
+				Token("INT", "4"),
+			),
+			0
+		)
+	}
+
+	@Test fun testIgnoredCharacterAtEndOfInput() {
+		testIterator(
+			" 1  23 4  ",
 			listOf(
 				Token("INT", "1"),
 				Token("INT", "23"),
