@@ -6,8 +6,9 @@ import cz.j_jzk.klang.util.listiterator.previousString
 import java.io.EOFException
 
 /**
- * The class that does the lexing. You probably don't want to create this
- * object directly, but instead use a builder (`cz.j_jzk.klang.lex.api.lexer()`)
+ * The class that does the lexing. You probably don't want to create or use this
+ * object directly, but instead use a builder (`cz.j_jzk.klang.lex.api.lexer()`),
+ * which returns a LexerWrapper.
  * 
  * The type parameter `T` is the token type identifier. Enums are the most
  * suitable to this, but you may as well use anything you want.
@@ -35,7 +36,10 @@ class Lexer<T>(private val tokenDefs: LinkedHashMap<NFA, T>, private val ignored
 		val longestMatch = chooseMatch(matcher.nextMatch(input)) ?: return null
 
 		if (longestMatch.key in ignored)
-			return nextToken(input)
+			return if (input.hasNext())
+				nextToken(input)
+			else
+				null
 
 		return Token(
 			tokenDefs[longestMatch.key]!!,

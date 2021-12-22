@@ -15,3 +15,9 @@ fun ListIterator<Char>.previousString(len: Int): String {
 
 	return builder.toString()
 }
+
+fun <T> ListIterator<T>.nextOrNull() =
+	if (hasNext())
+		next()
+	else
+		null
