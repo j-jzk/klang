@@ -53,6 +53,6 @@ class InputListIterator(val input: InputStream): ListIterator<Char> {
 		return value
 	}
 
-	override fun nextIndex() = index + 1
+	override fun nextIndex() = index
 	override fun previousIndex() = index - 1
 }

@@ -96,5 +96,5 @@ class InputListIteratorTest {
 		assertEquals('2', iterator.next())
 	}
 
-	private fun newIterator() = InputListIterator(ByteArrayInputStream("12345789".toByteArray()))
+	private fun newIterator() = InputListIterator(ByteArrayInputStream("123456789".toByteArray()))
 }
