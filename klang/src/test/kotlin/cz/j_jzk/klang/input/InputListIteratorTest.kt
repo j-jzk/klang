@@ -25,6 +25,22 @@ class InputListIteratorTest {
 			assertEquals(c, iterator.previous())
 	}
 
+	@Test fun testCombinedIteration() {
+		val iterator = newIterator()
+
+		for (c in "12345")
+			assertEquals(c, iterator.next())
+
+		for (c in "5432")
+			assertEquals(c, iterator.previous())
+
+		for (c in "23456789")
+			assertEquals(c, iterator.next())
+
+		for (c in "987654321")
+			assertEquals(c, iterator.previous())
+	}
+
 	@Test fun testHasNext() {
 		val iterator = newIterator()
 		assertTrue(iterator.hasNext())
