@@ -1,7 +1,7 @@
 package cz.j_jzk.klang.input
 
-import cz.j_jzk.klang.util.list.pop
 import java.io.InputStream
+import java.util.LinkedList
 
 class InputListIterator(val input: InputStream): ListIterator<Char> {
 	/* Buffers for moving backwards and forwards.
@@ -14,8 +14,8 @@ class InputListIterator(val input: InputStream): ListIterator<Char> {
 	 * and use it to shift backward and forward, but the standard implementation
 	 * of linked list in Java doesn't provide a node class.
 	 */
-	private val forwardBuffer = mutableListOf<Char>()
-	private val backwardBuffer = mutableListOf<Char>()
+	private val forwardBuffer = LinkedList<Char>()
+	private val backwardBuffer = LinkedList<Char>()
 	private var index = 0
 
 	override fun hasPrevious() = !backwardBuffer.isEmpty()
@@ -37,7 +37,7 @@ class InputListIterator(val input: InputStream): ListIterator<Char> {
 		index++
 
 		val value = if (!forwardBuffer.isEmpty())
-				forwardBuffer.pop()
+				forwardBuffer.removeLast()
 			else
 				input.read().toChar()
 
@@ -48,7 +48,7 @@ class InputListIterator(val input: InputStream): ListIterator<Char> {
 	override fun previous(): Char {
 		index--
 
-		val value = backwardBuffer.pop()
+		val value = backwardBuffer.removeLast()
 		forwardBuffer += value
 		return value
 	}
