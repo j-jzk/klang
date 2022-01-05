@@ -1,19 +1,22 @@
 package cz.j_jzk.klang.lex
 
+import cz.j_jzk.klang.input.IdentifiableInput
+
 class LexerWrapper<T>(val lexer: Lexer<T>, private val onNoMatch: (Char) -> Unit) {
 	/**
 	 * Matches one token and handles events (onNoMatch).
 	 * When there is no match, it automatically returns the next one, but can
 	 * still return null when there are no matches up to the end of input.
 	 */
-	private fun nextMatch(input: ListIterator<Char>): Token<T>? {
+	private fun nextMatch(idInput: IdentifiableInput): Token<T>? {
+		val input = idInput.input
 		val match = lexer.nextToken(input)
 		// TODO untangle this mess
 		if (match == null) {
 			if (input.hasNext()) {
 				onNoMatch(input.next())
 				return if (input.hasNext())
-					nextMatch(input)
+					nextMatch(idInput)
 				else
 					null
 			} else {
@@ -24,9 +27,9 @@ class LexerWrapper<T>(val lexer: Lexer<T>, private val onNoMatch: (Char) -> Unit
 		return match
 	}
 
-	fun iterator(input: ListIterator<Char>) = LexerIterator(input)
+	fun iterator(input: IdentifiableInput) = LexerIterator(input)
 
-	inner class LexerIterator(private val input: ListIterator<Char>): Iterator<Token<T>> {
+	inner class LexerIterator(private val input: IdentifiableInput): Iterator<Token<T>> {
 		/* We actually have to load tokens ahead of time to know if there are any
 		 * or if it's just invalid characters and EOF. */
 		private var nextValue: Token<T>? = null
@@ -36,7 +39,7 @@ class LexerWrapper<T>(val lexer: Lexer<T>, private val onNoMatch: (Char) -> Unit
 
 		private fun loadNextValue() {
 			nextValue =
-				if (input.hasNext())
+				if (input.input.hasNext())
 					nextMatch(input)
 				else
 					null
