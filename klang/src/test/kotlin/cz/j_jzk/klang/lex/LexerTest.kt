@@ -7,6 +7,9 @@ import cz.j_jzk.klang.testutils.re
 import cz.j_jzk.klang.testutils.iter
 import cz.j_jzk.klang.testutils.testLex
 import cz.j_jzk.klang.testutils.FToken
+import cz.j_jzk.klang.testutils.testLexWithPositions
+import cz.j_jzk.klang.input.InputFactory
+import cz.j_jzk.klang.util.PositionInfo
 import java.io.EOFException
 import kotlin.test.assertFailsWith
 
@@ -21,6 +24,14 @@ class LexerTest {
 		re("if") to "if",
 		re("\\d+") to "int"
 	))
+
+	val lexerIgnoringSpaces = Lexer<String>(
+			linkedMapOf(
+				re("if") to "IF",
+				re("\\d+") to "INT"
+			),
+			listOf(re("\\s"))
+		)
 
 	@Test fun testBasicLex() {
 		val input = iter("if123")
@@ -79,16 +90,8 @@ class LexerTest {
 	}
 
 	@Test fun testIgnore() {
-		val lexer = Lexer<String>(
-			linkedMapOf(
-				re("if") to "IF",
-				re("\\d+") to "INT"
-			),
-			listOf(re("\\s"))
-		)
-
 		testLex(
-			lexer,
+			lexerIgnoringSpaces,
 			"if 00\t0   0\nif",
 			listOf(
 				FToken("IF", "if"),
@@ -96,6 +99,19 @@ class LexerTest {
 				FToken("INT", "0"),
 				FToken("INT", "0"),
 				FToken("IF", "if"),
+			)
+		)
+	}
+
+	@Test fun testPositions() {
+		testLexWithPositions(
+			lexerIgnoringSpaces,
+			InputFactory.fromString(" if00  if0", "a"),
+			listOf(
+				Token("IF", "if", PositionInfo("a", 1)),
+				Token("INT", "00", PositionInfo("a", 3)),
+				Token("IF", "if", PositionInfo("a", 7)),
+				Token("INT", "0", PositionInfo("a", 9))
 			)
 		)
 	}
