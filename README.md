@@ -2,7 +2,9 @@
 	<img src="logo.png" alt="Klang">
 </h1>
 
-A toolkit for defining programming languages and DSLs in Kotlin.
+<p align="center">
+	<i>A toolkit for defining programming languages and DSLs in Kotlin.</i>
+</p>
 
 ## About
 Even though programming languages are constantly evolving to provide new ways of
