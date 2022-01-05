@@ -5,6 +5,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import cz.j_jzk.klang.lex.api.lexer
 import cz.j_jzk.klang.testutils.iter
+import cz.j_jzk.klang.testutils.FToken
 
 class LexerWrapperTest {
 	private val lexer = lexer<String> {
@@ -16,9 +17,9 @@ class LexerWrapperTest {
 		testIterator(
 			" 1  23 4",
 			listOf(
-				Token("INT", "1"),
-				Token("INT", "23"),
-				Token("INT", "4"),
+				FToken("INT", "1"),
+				FToken("INT", "23"),
+				FToken("INT", "4"),
 			),
 			0
 		)
@@ -28,9 +29,9 @@ class LexerWrapperTest {
 		testIterator(
 			" 1  23 4  ",
 			listOf(
-				Token("INT", "1"),
-				Token("INT", "23"),
-				Token("INT", "4"),
+				FToken("INT", "1"),
+				FToken("INT", "23"),
+				FToken("INT", "4"),
 			),
 			0
 		)
@@ -40,9 +41,9 @@ class LexerWrapperTest {
 		testIterator(
 			" 1  23x 4 x",
 			listOf(
-				Token("INT", "1"),
-				Token("INT", "23"),
-				Token("INT", "4"),
+				FToken("INT", "1"),
+				FToken("INT", "23"),
+				FToken("INT", "4"),
 			),
 			2
 		)
@@ -52,7 +53,7 @@ class LexerWrapperTest {
 		testIterator("abc", emptyList(), 3)
 	}
 
-	private fun testIterator(input: String, expectedTokens: List<Token<String>>, expectedInvalidChars: Int) {
+	private fun testIterator(input: String, expectedTokens: List<FToken>, expectedInvalidChars: Int) {
 		var invalidChars = 0
 		val inputIterator = iter(input)
 		val expectedTokensIterator = expectedTokens.iterator()
@@ -60,7 +61,7 @@ class LexerWrapperTest {
 
 		// check that all the tokens match
 		for (token in lexerIterator) {
-			assertEquals(expectedTokensIterator.next(), token)
+			assertEquals<Any?>(expectedTokensIterator.next(), token)
 		}
 
 		// check that there aren't any tokens left to check
@@ -70,6 +71,6 @@ class LexerWrapperTest {
 		assertEquals(expectedInvalidChars, invalidChars)
 
 		// check that there aren't any characters left in the input
-		assertFalse(inputIterator.hasNext())
+		assertFalse(inputIterator.input.hasNext())
 	}
 }
