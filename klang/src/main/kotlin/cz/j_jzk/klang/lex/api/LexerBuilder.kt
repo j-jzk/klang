@@ -6,10 +6,10 @@ import cz.j_jzk.klang.lex.Lexer
 
 /**
  * A function to create a lexer.
- * 
+ *
  * The type parameter `T` is the token type identifier. Enums are the most
  * suitable to this, but you may as well use anything you want.
- * 
+ *
  * Example:
  * ```
  * val lexerBuilder = lexer<TokenType> {
