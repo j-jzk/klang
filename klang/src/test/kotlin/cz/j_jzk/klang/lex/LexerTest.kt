@@ -6,6 +6,10 @@ import kotlin.test.Ignore
 import cz.j_jzk.klang.testutils.re
 import cz.j_jzk.klang.testutils.iter
 import cz.j_jzk.klang.testutils.testLex
+import cz.j_jzk.klang.testutils.FToken
+import cz.j_jzk.klang.testutils.testLexWithPositions
+import cz.j_jzk.klang.input.InputFactory
+import cz.j_jzk.klang.util.PositionInfo
 import java.io.EOFException
 import kotlin.test.assertFailsWith
 
@@ -21,11 +25,19 @@ class LexerTest {
 		re("\\d+") to "int"
 	))
 
+	val lexerIgnoringSpaces = Lexer<String>(
+			linkedMapOf(
+				re("if") to "IF",
+				re("\\d+") to "INT"
+			),
+			listOf(re("\\s"))
+		)
+
 	@Test fun testBasicLex() {
 		val input = iter("if123")
 
-		assertEquals(Token("if", "if"), lexer.nextToken(input))
-		assertEquals(Token("int", "123"), lexer.nextToken(input))
+		assertEquals<Any?>(FToken("if", "if"), lexer.nextToken(input))
+		assertEquals<Any?>(FToken("int", "123"), lexer.nextToken(input))
 	}
 
 	@Test fun testNoMatch() {
@@ -56,7 +68,7 @@ class LexerTest {
 			re("aa") to "doubleA"
 		))
 		val input = iter("aa")
-		assertEquals(Token("doubleA", "aa"), lexer.nextToken(input))
+		assertEquals<Any?>(FToken("doubleA", "aa"), lexer.nextToken(input))
 	}
 
 	@Test fun testPrecedence() {
@@ -66,7 +78,7 @@ class LexerTest {
 			re("if") to "if",
 			re(".+") to "anything",
 		))
-		assertEquals(Token("if", "if"), ambiguousLexer.nextToken(input))
+		assertEquals<Any?>(FToken("if", "if"), ambiguousLexer.nextToken(input))
 
 		// case 2)
 		input = iter("if")
@@ -74,27 +86,32 @@ class LexerTest {
 			re(".+") to "anything",
 			re("if") to "if"
 		))
-		assertEquals(Token("anything", "if"), ambiguousLexer.nextToken(input))
+		assertEquals<Any?>(FToken("anything", "if"), ambiguousLexer.nextToken(input))
 	}
 
 	@Test fun testIgnore() {
-		val lexer = Lexer<String>(
-			linkedMapOf(
-				re("if") to "IF",
-				re("\\d+") to "INT"
-			),
-			listOf(re("\\s"))
-		)
-
 		testLex(
-			lexer,
+			lexerIgnoringSpaces,
 			"if 00\t0   0\nif",
 			listOf(
-				Token("IF", "if"),
-				Token("INT", "00"),
-				Token("INT", "0"),
-				Token("INT", "0"),
-				Token("IF", "if"),
+				FToken("IF", "if"),
+				FToken("INT", "00"),
+				FToken("INT", "0"),
+				FToken("INT", "0"),
+				FToken("IF", "if"),
+			)
+		)
+	}
+
+	@Test fun testPositions() {
+		testLexWithPositions(
+			lexerIgnoringSpaces,
+			InputFactory.fromString(" if00  if0", "a"),
+			listOf(
+				Token("IF", "if", PositionInfo("a", 1)),
+				Token("INT", "00", PositionInfo("a", 3)),
+				Token("IF", "if", PositionInfo("a", 7)),
+				Token("INT", "0", PositionInfo("a", 9))
 			)
 		)
 	}

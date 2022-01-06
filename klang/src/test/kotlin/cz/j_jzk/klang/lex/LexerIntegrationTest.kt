@@ -3,6 +3,7 @@ package cz.j_jzk.klang.lex
 import cz.j_jzk.klang.lex.api.lexer
 import cz.j_jzk.klang.testutils.iter
 import cz.j_jzk.klang.testutils.testLex
+import cz.j_jzk.klang.testutils.FToken
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -20,11 +21,11 @@ class LexerIntegrationTest {
 			lexer,
 			"if 12.34    if15 if ",
 			listOf(
-				Token("IF", "if"),
-				Token("NUMBER", "12.34"),
-				Token("IF", "if"),
-				Token("NUMBER", "15"),
-				Token("IF", "if")
+				FToken("IF", "if"),
+				FToken("NUMBER", "12.34"),
+				FToken("IF", "if"),
+				FToken("NUMBER", "15"),
+				FToken("IF", "if")
 			)
 		)
 	}

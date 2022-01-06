@@ -3,6 +3,8 @@ package cz.j_jzk.klang.lex
 import cz.j_jzk.klang.lex.re.fa.NFA
 import cz.j_jzk.klang.lex.re.MultipleMatcher
 import cz.j_jzk.klang.util.listiterator.previousString
+import cz.j_jzk.klang.util.PositionInfo
+import cz.j_jzk.klang.input.IdentifiableInput
 import java.io.EOFException
 
 /**
@@ -29,7 +31,8 @@ class Lexer<T>(private val tokenDefs: LinkedHashMap<NFA, T>, private val ignored
 	 * Returns `null` on no match.
 	 * Throws an `EOFException` on EOF.
 	 */
-	fun nextToken(input: ListIterator<Char>): Token<T>? {
+	fun nextToken(idInput: IdentifiableInput): Token<T>? {
+		val input = idInput.input
 		if (!input.hasNext())
 			throw EOFException()
 
@@ -37,13 +40,14 @@ class Lexer<T>(private val tokenDefs: LinkedHashMap<NFA, T>, private val ignored
 
 		if (longestMatch.key in ignored)
 			return if (input.hasNext())
-				nextToken(input)
+				nextToken(idInput)
 			else
 				null
 
 		return Token(
 			tokenDefs[longestMatch.key]!!,
-			input.previousString(longestMatch.value)
+			input.previousString(longestMatch.value),
+			PositionInfo(idInput.id, input.previousIndex() - longestMatch.value + 1)
 		)
 	}
 
@@ -67,5 +71,6 @@ class Lexer<T>(private val tokenDefs: LinkedHashMap<NFA, T>, private val ignored
 
 data class Token<T>(
 	val id: T,
-	val value: String
+	val value: String,
+	val position: PositionInfo,
 )
