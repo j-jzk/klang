@@ -2,7 +2,7 @@ name: Run code analysis
 on: pull_request
 
 jobs:
-  build:
+  scan:
     runs-on: ubuntu-latest
 
     steps:
