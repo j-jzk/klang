@@ -19,7 +19,7 @@ class InputListIterator(val input: InputStream): ListIterator<Char> {
 	 *
 	 * When moving forwards, the forwardBuffer is filled with characters from
 	 * the input stream as needed.
-	 * 
+	 *
 	 * It is quite inefficient to pop from one list and push to the other one.
 	 * It would be better to instead have just a node of a doubly linked list
 	 * and use it to shift backward and forward, but the standard implementation
@@ -43,7 +43,7 @@ class InputListIterator(val input: InputStream): ListIterator<Char> {
 
 		return false
 	}
-	
+
 	override fun next(): Char {
 		index++
 

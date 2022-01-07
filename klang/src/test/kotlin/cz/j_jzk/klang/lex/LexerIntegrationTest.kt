@@ -1,11 +1,9 @@
 package cz.j_jzk.klang.lex
 
 import cz.j_jzk.klang.lex.api.lexer
-import cz.j_jzk.klang.testutils.iter
 import cz.j_jzk.klang.testutils.testLex
 import cz.j_jzk.klang.testutils.FToken
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class LexerIntegrationTest {
 	@Test fun testBasicLexer() {

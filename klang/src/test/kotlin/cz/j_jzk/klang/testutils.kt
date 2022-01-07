@@ -5,9 +5,7 @@ import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.lex.Lexer
 import cz.j_jzk.klang.lex.Token
-import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 fun re(str: String) = compileRegex(str).fa
 fun iter(str: String) = InputFactory.fromString(str, "id")

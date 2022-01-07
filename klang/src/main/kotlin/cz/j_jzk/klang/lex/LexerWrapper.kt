@@ -33,6 +33,7 @@ class LexerWrapper<T>(val lexer: Lexer<T>, private val onNoMatch: (Char) -> Unit
 	 */
 	fun iterator(input: IdentifiableInput) = LexerIterator(input)
 
+	@Suppress("UndocumentedPublicClass")
 	inner class LexerIterator(private val input: IdentifiableInput): Iterator<Token<T>> {
 		/* We actually have to load tokens ahead of time to know if there are any
 		 * or if it's just invalid characters and EOF. */

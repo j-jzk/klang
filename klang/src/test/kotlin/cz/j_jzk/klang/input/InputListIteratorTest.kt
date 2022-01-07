@@ -1,6 +1,5 @@
 package cz.j_jzk.klang.input
 
-import java.io.InputStream
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -51,7 +50,7 @@ class InputListIteratorTest {
 		}
 
 		assertFalse(iterator.hasNext())
-		
+
 		iterator.previous()
 		assertTrue(iterator.hasNext())
 	}

@@ -6,10 +6,10 @@ import cz.j_jzk.klang.lex.Lexer
 
 /**
  * A function to create a lexer.
- * 
+ *
  * The type parameter `T` is the token type identifier. Enums are the most
  * suitable to this, but you may as well use anything you want.
- * 
+ *
  * Example:
  * ```
  * val lexerBuilder = lexer<TokenType> {
@@ -40,13 +40,21 @@ class LexerBuilder<T> {
 	private val tokenDefs = linkedMapOf<NFA, T>()
 	private val ignored = mutableListOf<NFA>()
 
+	/**
+	 * Binds a token type to a regular expression.
+	 * See https://github.com/j-jzk/klang-re for a reference of the supported syntax.
+	 */
 	infix fun T.to(b: String) {
 		tokenDefs.set(compileRegex(b).fa, this)
 	}
 
+	/**
+	 * Declares some tokens to be ignored (e.g. comments, whitespace etc.)
+	 */
 	fun ignore(vararg regex: String) {
 		ignored.addAll(regex.map { compileRegex(it).fa })
 	}
 
+	/** Builds the lexer. */
 	fun getLexer(): Lexer<T> = Lexer(tokenDefs, ignored)
 }

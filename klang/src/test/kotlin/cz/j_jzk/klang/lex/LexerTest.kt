@@ -2,7 +2,6 @@ package cz.j_jzk.klang.lex
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.Ignore
 import cz.j_jzk.klang.testutils.re
 import cz.j_jzk.klang.testutils.iter
 import cz.j_jzk.klang.testutils.testLex
