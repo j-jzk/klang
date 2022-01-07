@@ -12,19 +12,14 @@ class LexerWrapper<T>(val lexer: Lexer<T>, private val onNoMatch: (Char) -> Unit
 	 * When there is no match, it automatically returns the next one, but can
 	 * still return null when there are no matches up to the end of input.
 	 */
-	private fun nextMatch(input: IdentifiableInput): Token<T>? {
+	private tailrec fun nextMatch(input: IdentifiableInput): Token<T>? {
+		if (!input.input.hasNext()) return null
+
 		val match = lexer.nextToken(input)
-		// TODO untangle this mess
-		if (match == null) {
-			if (input.input.hasNext()) {
-				onNoMatch(input.input.next())
-				return if (input.input.hasNext())
-					nextMatch(input)
-				else
-					null
-			} else {
-				return null
-			}
+
+		if (match == null && input.input.hasNext()) {
+			onNoMatch(input.input.next())
+			return nextMatch(input)
 		}
 
 		return match
