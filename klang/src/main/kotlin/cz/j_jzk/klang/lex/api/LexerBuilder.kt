@@ -55,6 +55,5 @@ class LexerBuilder<T> {
 		ignored.addAll(regex.map { compileRegex(it).fa })
 	}
 
-	/** Builds the lexer. */
 	fun getLexer(): Lexer<T> = Lexer(tokenDefs, ignored)
 }
