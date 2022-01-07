@@ -9,6 +9,7 @@ import java.io.FileInputStream
  * any class which implements ListIterator, or use InputListIterator to convert
  * an InputStream to a ListIterator.
  */
+@Suppress("UndocumentedPublicFunction")
 object InputFactory {
     fun fromFile(path: String) = IdentifiableInput(path, InputListIterator(FileInputStream(path)))
 	fun fromStdin() = IdentifiableInput("STDIN", InputListIterator(System.`in`))

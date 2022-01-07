@@ -40,13 +40,21 @@ class LexerBuilder<T> {
 	private val tokenDefs = linkedMapOf<NFA, T>()
 	private val ignored = mutableListOf<NFA>()
 
+	/**
+	 * Binds a token type to a regular expression.
+	 * See https://github.com/j-jzk/klang-re for a reference of the supported syntax.
+	 */
 	infix fun T.to(b: String) {
 		tokenDefs.set(compileRegex(b).fa, this)
 	}
 
+	/**
+	 * Declares some tokens to be ignored (e.g. comments, whitespace etc.)
+	 */
 	fun ignore(vararg regex: String) {
 		ignored.addAll(regex.map { compileRegex(it).fa })
 	}
 
+	/** Builds the lexer. */
 	fun getLexer(): Lexer<T> = Lexer(tokenDefs, ignored)
 }

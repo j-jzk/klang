@@ -69,6 +69,7 @@ class Lexer<T>(private val tokenDefs: LinkedHashMap<NFA, T>, private val ignored
 	private fun doesTokenPrecede(a: NFA, b: NFA) = precedenceTable[a]!! < precedenceTable[b]!!
 }
 
+@Suppress("UndocumentedPublicClass")
 data class Token<T>(
 	val id: T,
 	val value: String,
