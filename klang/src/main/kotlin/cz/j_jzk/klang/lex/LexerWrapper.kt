@@ -1,12 +1,13 @@
 package cz.j_jzk.klang.lex
 
 import cz.j_jzk.klang.input.IdentifiableInput
+import cz.j_jzk.klang.util.PositionInfo
 
 /**
  * A utility class for using the lexer more easily and safely.
  * It also calls functions on certain events (currently only no match).
  */
-class LexerWrapper<T>(val lexer: Lexer<T>, private val onNoMatch: (Char) -> Unit) {
+class LexerWrapper<T>(val lexer: Lexer<T>, private val onNoMatch: (Char, PositionInfo) -> Unit) {
 	/**
 	 * Matches one token and handles events (onNoMatch).
 	 * When there is no match, it automatically returns the next one, but can
@@ -18,7 +19,10 @@ class LexerWrapper<T>(val lexer: Lexer<T>, private val onNoMatch: (Char) -> Unit
 		val match = lexer.nextToken(input)
 
 		if (match == null && input.input.hasNext()) {
-			onNoMatch(input.input.next())
+			onNoMatch(
+				input.input.next(),
+				PositionInfo(input.id, input.input.previousIndex())
+			)
 			return nextMatch(input)
 		}
 
