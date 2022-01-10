@@ -4,6 +4,7 @@ import cz.j_jzk.klang.lex.re.fa.NFA
 import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.lex.Lexer
 import cz.j_jzk.klang.lex.LexerWrapper
+import cz.j_jzk.klang.util.PositionInfo
 
 /**
  * A function to create a lexer.
@@ -21,9 +22,9 @@ import cz.j_jzk.klang.lex.LexerWrapper
  *     // you can ignore tokens (e.g. whitespace, comments)
  *     ignore("\\s", "#[^\\n]")
  *     // the action to be called when an unexpected character is encountered
- *     onNoMatch {
+ *     onNoMatch { char, position ->
  *         // the character will be automatically skipped
- *         println("Unexpected character: $it")
+ *         println("Unexpected character $char at $position")
  *     }
  * }
  * // you could do something else with the lexer builder here
@@ -45,7 +46,7 @@ fun <T>lexer(init: LexerBuilder<T>.() -> Unit): LexerBuilder<T> {
 class LexerBuilder<T> {
 	private val tokenDefs = linkedMapOf<NFA, T>()
 	private val ignored = mutableListOf<NFA>()
-	private var onNoMatchHandler: ((Char) -> Unit)? = null
+	private var onNoMatchHandler: ((Char, PositionInfo) -> Unit)? = null
 
 	/**
 	 * Binds a token type to a regular expression.
@@ -69,13 +70,13 @@ class LexerBuilder<T> {
 	 *
 	 * Having multiple onNoMatch blocks is prohibited.
 	 *
-	 * @param lambda The action which will be called with the unexpected character as the parameter.
+	 * @param lambda The action which will be called with the unexpected character and its PositionInfo as the parameter.
 	 */
-	fun onNoMatch(lambda: (Char) -> Unit) {
+	fun onNoMatch(lambda: (Char, PositionInfo) -> Unit) {
 		check(onNoMatchHandler == null) { "Having multiple onNoMatch blocks is prohibited." }
 		onNoMatchHandler = lambda
 	}
 
 	/** Builds the lexer. */
-	fun getLexer() = LexerWrapper(Lexer(tokenDefs, ignored), onNoMatchHandler ?: {})
+	fun getLexer() = LexerWrapper(Lexer(tokenDefs, ignored), onNoMatchHandler ?: { _, _ -> })
 }

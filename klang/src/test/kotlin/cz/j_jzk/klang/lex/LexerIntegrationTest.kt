@@ -34,20 +34,29 @@ class LexerIntegrationTest {
 
 	@Test fun testOnNoMatch() {
 		var onNoMatchInvocations = 0
-		val lexer = lexer<String> {
-			"INT" to """\d+"""
-			ignore(" ")
-			onNoMatch {
-				onNoMatchInvocations++
-			}
-		}.getLexer()
-		val input = InputFactory.fromString("10  123x5 :)", "input")
-
 		val expectedTokens = listOf(
 			Token("INT", "10", PositionInfo("input", 0)),
 			Token("INT", "123", PositionInfo("input", 4)),
 			Token("INT", "5", PositionInfo("input", 8)),
 		).iterator()
+
+		val expectedUnexpectedChars = listOf(
+			'x' to PositionInfo("input", 7),
+			':' to PositionInfo("input", 10),
+			')' to PositionInfo("input", 11),
+		).iterator()
+
+		val lexer = lexer<String> {
+			"INT" to """\d+"""
+			ignore(" ")
+
+			onNoMatch { char, position ->
+				assertEquals(expectedUnexpectedChars.next(), char to position)
+				onNoMatchInvocations++
+			}
+		}.getLexer()
+
+		val input = InputFactory.fromString("10  123x5 :)", "input")
 
 		for (token in lexer.iterator(input)) {
 			assertEquals(expectedTokens.next(), token)

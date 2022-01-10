@@ -57,7 +57,7 @@ class LexerWrapperTest {
 		var invalidChars = 0
 		val inputIterator = iter(input)
 		val expectedTokensIterator = expectedTokens.iterator()
-		val lexerIterator = LexerWrapper(lexer.lexer) { invalidChars++ }.iterator(inputIterator)
+		val lexerIterator = LexerWrapper(lexer.lexer) { _, _ -> invalidChars++ }.iterator(inputIterator)
 
 		// check that all the tokens match
 		for (token in lexerIterator) {
