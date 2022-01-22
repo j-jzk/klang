@@ -16,15 +16,14 @@ data class State(val id: Int)
 
 // TODO better represenatation?
 // TODO share some of the logic between klang and klang-re?
-sealed class Action(val id: Int, val nextState: State) {
-	class Shift(id: Int, nextState: State): Action(id, nextState)
+sealed class Action(val nextState: State) {
+	class Shift(nextState: State): Action(nextState)
 
 	class Reduce(
-		id: Int,
 		val nNodes: Int,
 		val reduction: (List<ASTNode>) -> ASTNode,
 		nextState: State
-	): Action(id, nextState)
+	): Action(nextState)
 }
 
 class ParserDFA<T, N>(
@@ -39,7 +38,7 @@ class ParserDFA<T, N>(
 		while (!isParsingFinished()) {
 			val action = actionTable[state to lookahead()] ?: throw Exception("Syntax error") // TODO error handling
 			when (action) {
-				is Action.Shift -> state = action.nextState
+				is Action.Shift -> shift()
 				is Action.Reduce -> action.reduction(stack.popTop(action.nNodes))
 			}
 
