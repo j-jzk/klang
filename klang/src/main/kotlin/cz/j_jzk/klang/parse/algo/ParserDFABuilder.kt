@@ -12,6 +12,7 @@ enum class NodeID {
 
 	// Nonterminals
 	EXPR,
+	EXPR2,
 	TOP,
 }
 
@@ -39,7 +40,8 @@ class ParserDFABuilder(
 ) {
 	private val transitions = mutableMapOf<Pair<State, NodeID>, Action>()
 
-	fun go() {
+	// TODO: don't bake the input into the DFA
+	fun go(input: Iterator<ASTNode>): ParserDFA {
 		val topNodeDef = nodeDefs[topNode]!!.first()
 		val startState = StateFactory.new()
 		var startingSet = setOf(
@@ -48,11 +50,14 @@ class ParserDFABuilder(
 		// startingSet = epsilonClosure(startingSet)
 
 		constructStates(startingSet, startState)
+
+		return ParserDFA(transitions, input, topNode, startState)
 	}
 
 	// returns the last state created
 	private fun constructStates(itemSet: Set<LR1Item>, thisState: State) {
 		val actual = epsilonClosure(itemSet, thisState)
+
 		// the dot is after the last element; if the lookahead is in sigma, we reduce
 		val toReduce = actual.filter { it.dotBefore == it.nodeDef.elements.size }
 		// shift
@@ -62,7 +67,7 @@ class ParserDFABuilder(
 		// TODO: a better way to do that?
 		for (item in toReduce) {
 			val action = Action.Reduce(
-				item.nodeDef.elements.size,
+				item.nodeDef.elements.size, // TODO: rethink what is passed to the reduction
 				item.nodeDef.reduction,
 				item.createdAt
 			)
@@ -92,9 +97,9 @@ class ParserDFABuilder(
 
 		while (unexpanded.isNotEmpty()) {
 			val itemBeingExpanded = unexpanded.pop()
-			val nodesToExpand = nodeDefs[itemBeingExpanded.nodeDef.elements.getOrNull(itemBeingExpanded.dotBefore)]
+			val nodesToExpand = nodeDefs[itemBeingExpanded.nodeDef.elements.getOrNull(itemBeingExpanded.dotBefore)] ?: continue
 			val sigma = computeSigma(itemBeingExpanded)
-			for (node in nodesToExpand ?: emptySet()) {
+			for (node in nodesToExpand) {
 				val item = LR1Item(
 					node,
 					0,
@@ -113,10 +118,11 @@ class ParserDFABuilder(
 	}
 
 	private fun computeSigma(itemBeingExpanded: LR1Item): Set<NodeID> {
-		// we won't actually get such an input, because such items aren't being expanded
-		// if (itemBeingExpanded.dotBefore == itemBeingExpanded.nodeDef.elements.size) {
-		// 	return itemBeingExpanded.sigma
-		// }
+		if (itemBeingExpanded.dotBefore + 1 == itemBeingExpanded.nodeDef.elements.size) {
+			return itemBeingExpanded.sigma
+		}
+
+
 		val sigma = mutableSetOf<NodeID>()
 		val unexpanded = ArrayDeque<NodeID>()
 			
@@ -124,7 +130,7 @@ class ParserDFABuilder(
 		// 	sigma.addAll(itemBeingExpanded.sigma)
 		// }
 
-		unexpanded.add(itemBeingExpanded.nodeDef.elements[itemBeingExpanded.dotBefore])
+		unexpanded.add(itemBeingExpanded.nodeDef.elements[itemBeingExpanded.dotBefore + 1])
 		
 		while (unexpanded.isNotEmpty()) {
 			val node = unexpanded.pop()

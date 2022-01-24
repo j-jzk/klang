@@ -11,35 +11,37 @@ fun <T> MutableList<T>.popTop(nElements: Int): List<T> {
 	return result
 }
 
-// ???
+// TODO: typealias this to int to save memory?
 data class State(val id: Int)
 
 // TODO better represenatation?
 // TODO share some of the logic between klang and klang-re?
-sealed class Action(val nextState: State) {
-	class Shift(nextState: State): Action(nextState)
+sealed interface Action {
+	val nextState: State
 
-	class Reduce(
+	data class Shift(override val nextState: State): Action
+
+	data class Reduce(
 		val nNodes: Int,
 		val reduction: (List<ASTNode>) -> ASTNode,
-		nextState: State
-	): Action(nextState)
+		override val nextState: State
+	): Action
 }
 
-class ParserDFA<T, N>(
-	private val actionTable: Map<Pair<State, ASTNode>, Action>, // TODO better representation?
-	private val input:  Iterator<T>, // integrate with Token or not?
-	private val finalNodeType: N,
+class ParserDFA(
+	private val actionTable: Map<Pair<State, NodeID>, Action>, // TODO better representation?
+	private val input:  Iterator<ASTNode>, // TODO: parametrize only the function with this, not the whole DFA
+	private val finalNodeType: NodeID,
 	private var state: State, // initialized with the default state
 ) {
 	private val stack = mutableListOf<ASTNode>() // TODO better data type?
 
 	fun <T> doParsing(): ASTNode {
 		while (!isParsingFinished()) {
-			val action = actionTable[state to lookahead()] ?: throw Exception("Syntax error") // TODO error handling
+			val action = actionTable[state to lookahead().id] ?: throw Exception("Syntax error") // TODO error handling
 			when (action) {
 				is Action.Shift -> shift()
-				is Action.Reduce -> action.reduction(stack.popTop(action.nNodes))
+				is Action.Reduce -> stack += action.reduction(stack.popTop(action.nNodes))
 			}
 
 			state = action.nextState
@@ -48,18 +50,26 @@ class ParserDFA<T, N>(
 		return stack.first()
 	}
 
+	// Or should we have a special finishing state?
 	private fun isParsingFinished() =
 		stack.firstOrNull()?.let {
-			it is ASTNode.Nonterminal<*> && it.id == finalNodeType
+			it.id == finalNodeType
 		} ?: false
 
 	// Lookahead and input buffering stuff
 	// TODO: structure better
 	// TODO: handle EOF, input with no elements etc. properly
 	private fun lookahead(): ASTNode = nextInputNode
-	private var nextInputNode: ASTNode = ASTNode.Terminal(input.next())
+	private var nextInputNode: ASTNode = input.next()
 	private fun shift() {
 		stack += nextInputNode
-		nextInputNode = ASTNode.Terminal(input.next())
+		nextInputNode = input.next()
 	}
+
+	override fun equals(other: Any?) =
+		other is ParserDFA
+		&& other.actionTable == this.actionTable
+		&& other.finalNodeType == this.finalNodeType
+
+	override fun toString() = "ParserDFA($actionTable)"
 }
