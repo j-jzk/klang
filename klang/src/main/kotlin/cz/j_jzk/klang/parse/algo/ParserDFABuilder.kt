@@ -26,7 +26,17 @@ data class LR1Item(
 	val dotBefore: Int, // which element of the def is the dot before
 	val sigma: Set<NodeID>,
 	val createdAt: State, // which state to go to after reducing
-)
+) {
+	/* This is a hack to exclude the createdAt attribute from being compared,
+	 * so that the constructorStates table works as expected.
+	 * TODO: find a better way to do this (in the algorithm itself) */
+	override fun equals(other: Any?) =
+		other is LR1Item
+		&& other.nodeDef == this.nodeDef
+		&& other.dotBefore == this.dotBefore
+		&& other.sigma == this.sigma
+	override fun hashCode() = nodeDef.hashCode() xor dotBefore xor sigma.hashCode()
+}
 
 object StateFactory {
 	private var i = 0
@@ -50,8 +60,8 @@ class ParserDFABuilder(
 		var startingSet = setOf(
 			LR1Item(topNodeDef, 0, setOf(NodeID.EOF), startState)
 		)
-		// startingSet = epsilonClosure(startingSet)
 
+		constructorStates[startingSet] = startState
 		constructStates(startingSet, startState)
 
 		return ParserDFA(transitions, input, topNode, startState)
@@ -63,7 +73,7 @@ class ParserDFABuilder(
 
 		val actual = epsilonClosure(itemSet, thisState)
 
-		// the dot is after the last element; if the lookahead is in sigma, we reduce
+		// the dot is after the last element => if the lookahead is in sigma, we reduce
 		val toReduce = actual.filter { it.dotBefore == it.nodeDef.elements.size }
 		// shift
 		val toShift = actual.filter { it.dotBefore < it.nodeDef.elements.size }.groupBy { it.nodeDef.elements[it.dotBefore] }
@@ -86,37 +96,19 @@ class ParserDFABuilder(
 			// construct the new item set by shifting the dots to the right
 			val newItems = item.map { LR1Item(it.nodeDef, it.dotBefore + 1, it.sigma, it.createdAt) }.toSet()
 
-			// construct the transitions and create a new state with the newly created items if it doesn't already exist
-			// val action = Action.Shift(constructorStates[newItems] ?: StateFactory.new())
-			// create a new state if it doesn't already exist
-			// val action = Action.Shift(constructorStates[newItems] ?: {
-			// 	val nextState = StateFactory.new()
-			// 	constructStates(newItems, nextState)
-			// 	nextState
-			// })
-
 			// If a state with this item set doesn't exist yet, create it; otherwise just connect this state to it
 			var nextState: State
 			if (constructorStates[newItems] == null) {
 				nextState = StateFactory.new()
+				constructorStates[newItems] = nextState
 				constructStates(newItems, nextState)
 			} else {
 				nextState = constructorStates[newItems]!!
 			}
 
 			transitions[thisState to char] = Action.Shift(nextState)
-
-			// construct the states going out of the newly created state
-			
 		}
 	}
-
-	// private fun constructStates2(startingItemSet: Set<LR1Item>, startingState: State) {
-	// 	// This variable maps the states as seen by the DFA constructor to the states as seen by the DFA
-	// 	val states = mutableMapOf<Set<LR1Item>, State>()
-
-
-	// }
 
 	private fun epsilonClosure(items: Set<LR1Item>, currentState: State): Set<LR1Item> {
 		val result = mutableSetOf<LR1Item>()
