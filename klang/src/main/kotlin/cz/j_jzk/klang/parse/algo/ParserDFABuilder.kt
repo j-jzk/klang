@@ -40,6 +40,9 @@ class ParserDFABuilder(
 ) {
 	private val transitions = mutableMapOf<Pair<State, NodeID>, Action>()
 
+	/** This variable maps the states as seen by the builder to the states seen by the DFA */
+	private val constructorStates = mutableMapOf<Set<LR1Item>, State>()
+
 	// TODO: don't bake the input into the DFA
 	fun go(input: Iterator<ASTNode>): ParserDFA {
 		val topNodeDef = nodeDefs[topNode]!!.first()
@@ -56,6 +59,8 @@ class ParserDFABuilder(
 
 	// returns the last state created
 	private fun constructStates(itemSet: Set<LR1Item>, thisState: State) {
+		// constructorStates[itemSet] = thisState
+
 		val actual = epsilonClosure(itemSet, thisState)
 
 		// the dot is after the last element; if the lookahead is in sigma, we reduce
@@ -78,15 +83,40 @@ class ParserDFABuilder(
 		}
 
 		for ((char, item) in toShift) {
-			// construct the action (transition)
-			val action = Action.Shift(StateFactory.new())
 			// construct the new item set by shifting the dots to the right
 			val newItems = item.map { LR1Item(it.nodeDef, it.dotBefore + 1, it.sigma, it.createdAt) }.toSet()
+
+			// construct the transitions and create a new state with the newly created items if it doesn't already exist
+			// val action = Action.Shift(constructorStates[newItems] ?: StateFactory.new())
+			// create a new state if it doesn't already exist
+			// val action = Action.Shift(constructorStates[newItems] ?: {
+			// 	val nextState = StateFactory.new()
+			// 	constructStates(newItems, nextState)
+			// 	nextState
+			// })
+
+			// If a state with this item set doesn't exist yet, create it; otherwise just connect this state to it
+			var nextState: State
+			if (constructorStates[newItems] == null) {
+				nextState = StateFactory.new()
+				constructStates(newItems, nextState)
+			} else {
+				nextState = constructorStates[newItems]!!
+			}
+
+			transitions[thisState to char] = Action.Shift(nextState)
+
 			// construct the states going out of the newly created state
-			constructStates(newItems, action.nextState)
-			transitions[thisState to char] = action
+			
 		}
 	}
+
+	// private fun constructStates2(startingItemSet: Set<LR1Item>, startingState: State) {
+	// 	// This variable maps the states as seen by the DFA constructor to the states as seen by the DFA
+	// 	val states = mutableMapOf<Set<LR1Item>, State>()
+
+
+	// }
 
 	private fun epsilonClosure(items: Set<LR1Item>, currentState: State): Set<LR1Item> {
 		val result = mutableSetOf<LR1Item>()
