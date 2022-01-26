@@ -21,7 +21,7 @@ class ParserDFABuilderTest {
 	private val exprReduction = { it: List<ASTNode> -> ASTNode(NodeID.EXPR2, it) }
 
 	@Test fun testBasicConstruction() {
-		val dfa = ParserDFABuilder(
+		val dfa = DFABuilder(
 			mapOf(
 				NodeID.TOP to setOf(NodeDef(listOf(NodeID.EXPR2), topReduction)),
 				NodeID.EXPR2 to setOf(
@@ -30,9 +30,9 @@ class ParserDFABuilderTest {
 				)
 			),
 			NodeID.TOP
-		).go(listOf(ASTNode(NodeID.EOF, emptyList())).iterator())
+		).go()
 
-		val expected = ParserDFA(
+		val expected = DFA(
 			mapOf(
 				(s(0) to e2) to shift(1),
 				(s(0) to e) to shift(4),
@@ -44,7 +44,6 @@ class ParserDFABuilderTest {
 				(s(4) to p) to reduce(1, 0),
 				(s(4) to eof) to reduce(1, 0),
 			),
-			listOf(ASTNode(NodeID.EOF, emptyList())).iterator(),
 			NodeID.TOP,
 			s(0)
 		)
@@ -53,7 +52,7 @@ class ParserDFABuilderTest {
 	}
 
 	@Test fun testRightRecursion() {
-		val dfa = ParserDFABuilder(
+		val dfa = DFABuilder(
 			mapOf(
 				NodeID.TOP to setOf(NodeDef(listOf(NodeID.EXPR2), topReduction)),
 				NodeID.EXPR2 to setOf(
@@ -62,9 +61,9 @@ class ParserDFABuilderTest {
 				)
 			),
 			NodeID.TOP
-		).go(listOf(ASTNode(NodeID.EOF, emptyList())).iterator())
+		).go()
 
-		val expected = ParserDFA(
+		val expected = DFA(
 			mapOf(
 				(s(5) to e2) to shift(6),
 				(s(5) to e) to shift(7),
@@ -75,7 +74,6 @@ class ParserDFABuilderTest {
 				(s(8) to e2) to shift(9),
 				(s(9) to eof) to reduce(3, 5),
 			),
-			listOf(ASTNode(NodeID.EOF, emptyList())).iterator(),
 			NodeID.TOP,
 			s(5)
 		)

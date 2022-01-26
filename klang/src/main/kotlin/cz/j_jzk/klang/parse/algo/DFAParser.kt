@@ -28,17 +28,21 @@ sealed interface Action {
 	): Action
 }
 
-class ParserDFA(
-	private val actionTable: Map<Pair<State, NodeID>, Action>, // TODO better representation?
-	private val input:  Iterator<ASTNode>, // TODO: parametrize only the function with this, not the whole DFA
-	private val finalNodeType: NodeID,
-	private var state: State, // initialized with the default state
-) {
+data class DFA(
+	val actionTable: Map<Pair<State, NodeID>, Action>,
+	val finalNodeType: NodeID,
+	val startState: State
+)
+
+/* Because the parser needs some mutable state, we separate it into
+ * a different class to be able to use the same DFA on different inputs. */
+class DFAParser(val input: Iterator<ASTNode>, val dfa: DFA) {
 	private val stack = mutableListOf<ASTNode>() // TODO better data type?
+	private var state = dfa.startState
 
 	fun <T> doParsing(): ASTNode {
 		while (!isParsingFinished()) {
-			val action = actionTable[state to lookahead().id] ?: throw Exception("Syntax error") // TODO error handling
+			val action = dfa.actionTable[state to lookahead().id] ?: throw Exception("Syntax error") // TODO error handling
 			when (action) {
 				is Action.Shift -> shift()
 				is Action.Reduce -> stack += action.reduction(stack.popTop(action.nNodes))
@@ -53,7 +57,7 @@ class ParserDFA(
 	// Or should we have a special finishing state?
 	private fun isParsingFinished() =
 		stack.firstOrNull()?.let {
-			it.id == finalNodeType
+			it.id == dfa.finalNodeType
 		} ?: false
 
 	// Lookahead and input buffering stuff
@@ -66,10 +70,5 @@ class ParserDFA(
 		nextInputNode = input.next()
 	}
 
-	override fun equals(other: Any?) =
-		other is ParserDFA
-		&& other.actionTable == this.actionTable
-		&& other.finalNodeType == this.finalNodeType
-
-	override fun toString() = "ParserDFA($actionTable)"
+	override fun toString() = dfa.toString()
 }

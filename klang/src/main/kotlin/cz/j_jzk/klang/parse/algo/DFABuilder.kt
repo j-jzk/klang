@@ -44,7 +44,7 @@ object StateFactory {
 }
 
 // TODO: precompute & memoize everything we can
-class ParserDFABuilder(
+class DFABuilder(
 	val nodeDefs: Map<NodeID, Set<NodeDef>>,
 	val topNode: NodeID, // the node needs to have a single definition, NOT ending in EOF
 ) {
@@ -53,8 +53,7 @@ class ParserDFABuilder(
 	/** This variable maps the states as seen by the builder to the states seen by the DFA */
 	private val constructorStates = mutableMapOf<Set<LR1Item>, State>()
 
-	// TODO: don't bake the input into the DFA
-	fun go(input: Iterator<ASTNode>): ParserDFA {
+	fun go(): DFA {
 		val topNodeDef = nodeDefs[topNode]!!.first()
 		val startState = StateFactory.new()
 		var startingSet = mutableSetOf(
@@ -64,7 +63,7 @@ class ParserDFABuilder(
 		constructorStates[startingSet] = startState
 		constructStates(startingSet, startState)
 
-		return ParserDFA(transitions, input, topNode, startState)
+		return DFA(transitions, topNode, startState)
 	}
 
 	private fun constructStates(itemSet: MutableSet<LR1Item>, thisState: State) {
