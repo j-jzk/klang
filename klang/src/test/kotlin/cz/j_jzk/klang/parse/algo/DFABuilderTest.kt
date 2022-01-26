@@ -9,7 +9,7 @@ import cz.j_jzk.klang.parse.NodeID
 /* TODO: make this less hacky
  * Specifically, find a way to structurally compare DFAs (this class currently
  * relies on the iteration order of sets, which is undefined) */
-class ParserDFABuilderTest {
+class DFABuilderTest {
 	// shorthands
 	private val e = NodeID.EXPR
 	private val e2 = NodeID.EXPR2
@@ -19,8 +19,8 @@ class ParserDFABuilderTest {
 	private fun shift(i: Int) = Action.Shift(s(i))
 	private fun reduce(len: Int, nextState: Int) = Action.Reduce(len, exprReduction, s(nextState))
 
-	private val topReduction = { it: List<ASTNode> -> it[0] }
-	private val exprReduction = { it: List<ASTNode> -> ASTNode(NodeID.EXPR2, it) }
+	private val topReduction: (List<ASTNode>) -> ASTNode = { it[0] }
+	private val exprReduction: (List<ASTNode>) -> ASTNode = { ASTNode(NodeID.EXPR2, it) }
 
 	@Test fun testBasicConstruction() {
 		val dfa = DFABuilder(
@@ -32,7 +32,7 @@ class ParserDFABuilderTest {
 				)
 			),
 			NodeID.TOP
-		).go()
+		).build()
 
 		val expected = DFA(
 			mapOf(
@@ -63,7 +63,7 @@ class ParserDFABuilderTest {
 				)
 			),
 			NodeID.TOP
-		).go()
+		).build()
 
 		val expected = DFA(
 			mapOf(

@@ -1,6 +1,5 @@
 package cz.j_jzk.klang.parse.algo
 
-import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
 import java.util.ArrayDeque
@@ -22,17 +21,30 @@ internal data class LR1Item(
 	override fun hashCode() = nodeDef.hashCode() xor dotBefore xor sigma.hashCode()
 }
 
+/**
+ * This class builds a parser from the formal grammar.
+ */
 // TODO: precompute & memoize everything we can
 class DFABuilder(
+	/** The formal grammar */
 	val nodeDefs: Map<NodeID, Set<NodeDef>>,
-	val topNode: NodeID, // the node needs to have a single definition, NOT ending in EOF
+
+	/**
+	 * The top node of the grammar. It needs to have a single definition, not
+	 * ending in EOF.
+	 */
+	val topNode: NodeID,
 ) {
 	private val transitions = mutableMapOf<Pair<State, NodeID>, Action>()
 
-	/** This variable maps the states as seen by the builder to the states seen by the DFA */
+	/**
+	 * This variable maps the states as seen by the builder to the states seen
+	 * by the DFA
+	 */
 	private val constructorStates = mutableMapOf<Set<LR1Item>, State>()
 
-	fun go(): DFA {
+	/** This function constructs the parser and returns it. */
+	fun build(): DFA {
 		val topNodeDef = nodeDefs[topNode]!!.first()
 		val startState = StateFactory.new()
 		var startingSet = mutableSetOf(
@@ -101,6 +113,7 @@ class DFABuilder(
 		}
 	}
 
+	@Suppress("NestedBlockDepth") // Performance is more important than readability here
 	private fun computeSigma(itemBeingExpanded: LR1Item): Set<NodeID> {
 		if (itemBeingExpanded.dotBefore + 1 == itemBeingExpanded.nodeDef.elements.size) {
 			return itemBeingExpanded.sigma
@@ -110,7 +123,7 @@ class DFABuilder(
 		val unexpanded = ArrayDeque<NodeID>()
 
 		unexpanded.add(itemBeingExpanded.nodeDef.elements[itemBeingExpanded.dotBefore + 1])
-		
+
 		while (unexpanded.isNotEmpty()) {
 			val node = unexpanded.pop()
 			if (node !in sigma) {
