@@ -21,7 +21,7 @@ data class NodeDef(
 	val reduction: (List<ASTNode>) -> ASTNode,
 )
 
-data class LR1Item(
+internal data class LR1Item(
 	val nodeDef: NodeDef,
 	val dotBefore: Int, // which element of the def is the dot before
 	val sigma: Set<NodeID>,
@@ -57,7 +57,7 @@ class ParserDFABuilder(
 	fun go(input: Iterator<ASTNode>): ParserDFA {
 		val topNodeDef = nodeDefs[topNode]!!.first()
 		val startState = StateFactory.new()
-		var startingSet = setOf(
+		var startingSet = mutableSetOf(
 			LR1Item(topNodeDef, 0, setOf(NodeID.EOF), startState)
 		)
 
@@ -67,18 +67,15 @@ class ParserDFABuilder(
 		return ParserDFA(transitions, input, topNode, startState)
 	}
 
-	// returns the last state created
-	private fun constructStates(itemSet: Set<LR1Item>, thisState: State) {
-		// constructorStates[itemSet] = thisState
+	private fun constructStates(itemSet: MutableSet<LR1Item>, thisState: State) {
+		epsilonClosure(itemSet, thisState)
 
-		val actual = epsilonClosure(itemSet, thisState)
+		// The dot is after the last element => if the lookahead is in sigma, we reduce
+		val toReduce = itemSet.filter { it.dotBefore == it.nodeDef.elements.size }
+		// The shift items
+		val toShift = itemSet.filter { it.dotBefore < it.nodeDef.elements.size }.groupBy { it.nodeDef.elements[it.dotBefore] }
 
-		// the dot is after the last element => if the lookahead is in sigma, we reduce
-		val toReduce = actual.filter { it.dotBefore == it.nodeDef.elements.size }
-		// shift
-		val toShift = actual.filter { it.dotBefore < it.nodeDef.elements.size }.groupBy { it.nodeDef.elements[it.dotBefore] }
-
-		// we do the reduction items first so conflicts are overwritten by the shift items (=> shift by default)
+		// We do the reduction items first so conflicts are overwritten by the shift items (=> shift by default)
 		// TODO: a better way to do that?
 		for (item in toReduce) {
 			val action = Action.Reduce(
@@ -93,27 +90,16 @@ class ParserDFABuilder(
 		}
 
 		for ((char, item) in toShift) {
-			// construct the new item set by shifting the dots to the right
-			val newItems = item.map { LR1Item(it.nodeDef, it.dotBefore + 1, it.sigma, it.createdAt) }.toSet()
+			// Construct the new item set by shifting the dots to the right
+			val newItems = item.map { LR1Item(it.nodeDef, it.dotBefore + 1, it.sigma, it.createdAt) }.toMutableSet()
 
-			// If a state with this item set doesn't exist yet, create it; otherwise just connect this state to it
-			var nextState: State
-			if (constructorStates[newItems] == null) {
-				nextState = StateFactory.new()
-				constructorStates[newItems] = nextState
-				constructStates(newItems, nextState)
-			} else {
-				nextState = constructorStates[newItems]!!
-			}
-
-			transitions[thisState to char] = Action.Shift(nextState)
+			// Add a transition from this state to the state represented by the items
+			transitions[thisState to char] = Action.Shift(getStateOrCreate(newItems))
 		}
 	}
 
-	private fun epsilonClosure(items: Set<LR1Item>, currentState: State): Set<LR1Item> {
-		val result = mutableSetOf<LR1Item>()
-		result.addAll(items)
-
+	/** Performs an epsilon closure on the item set. It modifies the `items` in place. */
+	private fun epsilonClosure(items: MutableSet<LR1Item>, currentState: State) {
 		val unexpanded = ArrayDeque<LR1Item>()
 		unexpanded.addAll(items)
 
@@ -129,14 +115,12 @@ class ParserDFABuilder(
 					currentState
 				)
 
-				if (item !in result) {
-					result.add(item)
+				if (item !in items) {
+					items.add(item)
 					unexpanded.add(item)
 				}
 			}
 		}
-
-		return result
 	}
 
 	private fun computeSigma(itemBeingExpanded: LR1Item): Set<NodeID> {
@@ -144,13 +128,8 @@ class ParserDFABuilder(
 			return itemBeingExpanded.sigma
 		}
 
-
 		val sigma = mutableSetOf<NodeID>()
 		val unexpanded = ArrayDeque<NodeID>()
-			
-		// if (isNullable(itemBeingExpanded.nodeDef.elements.subList(itemBeingExpanded.dotBefore, itemBeingExpanded.nodeDef.elements.size - 1))) {
-		// 	sigma.addAll(itemBeingExpanded.sigma)
-		// }
 
 		unexpanded.add(itemBeingExpanded.nodeDef.elements[itemBeingExpanded.dotBefore + 1])
 		
@@ -172,6 +151,24 @@ class ParserDFABuilder(
 		}
 
 		return sigma
+	}
+
+	/**
+	 * Checks if a state represented by the items already exists. If it
+	 * doesn't, it gets constructed.
+	 * @return The state represented by the items
+	 */
+	private fun getStateOrCreate(itemSet: MutableSet<LR1Item>): State {
+		val state: State
+		if (constructorStates[itemSet] == null) {
+			state = StateFactory.new()
+			constructorStates[itemSet] = state
+			constructStates(itemSet, state)
+		} else {
+			state = constructorStates[itemSet]!!
+		}
+
+		return state
 	}
 
 	/** Checks if a node is nullable (if it can resolve to epsilon) */
