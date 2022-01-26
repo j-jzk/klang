@@ -3,6 +3,8 @@ package cz.j_jzk.klang.parse.algo
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import cz.j_jzk.klang.parse.ASTNode
+import cz.j_jzk.klang.parse.NodeDef
+import cz.j_jzk.klang.parse.NodeID
 
 /* TODO: make this less hacky
  * Specifically, find a way to structurally compare DFAs (this class currently

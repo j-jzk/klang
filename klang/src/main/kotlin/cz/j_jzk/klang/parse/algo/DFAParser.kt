@@ -1,32 +1,8 @@
 package cz.j_jzk.klang.parse.algo
 
 import cz.j_jzk.klang.parse.ASTNode
-
-// TODO move
-// TODO better implementation
-fun <T> MutableList<T>.popTop(nElements: Int): List<T> {
-	val result = mutableListOf<T>()
-	for (i in 0 until nElements)
-		result += this.removeLast()
-	return result
-}
-
-// TODO: typealias this to int to save memory?
-data class State(val id: Int)
-
-// TODO better represenatation?
-// TODO share some of the logic between klang and klang-re?
-sealed interface Action {
-	val nextState: State
-
-	data class Shift(override val nextState: State): Action
-
-	data class Reduce(
-		val nNodes: Int,
-		val reduction: (List<ASTNode>) -> ASTNode,
-		override val nextState: State
-	): Action
-}
+import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.util.popTop
 
 data class DFA(
 	val actionTable: Map<Pair<State, NodeID>, Action>,

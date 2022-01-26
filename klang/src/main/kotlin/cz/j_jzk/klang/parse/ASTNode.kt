@@ -1,7 +1,7 @@
 package cz.j_jzk.klang.parse
 
 import cz.j_jzk.klang.lex.Token
-import cz.j_jzk.klang.parse.algo.NodeID
+import cz.j_jzk.klang.parse.NodeID
 
 // TODO
 // for now, this is kinda just a placeholder

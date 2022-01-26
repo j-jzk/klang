@@ -1,25 +1,9 @@
 package cz.j_jzk.klang.parse.algo
 
 import cz.j_jzk.klang.parse.ASTNode
+import cz.j_jzk.klang.parse.NodeDef
+import cz.j_jzk.klang.parse.NodeID
 import java.util.ArrayDeque
-
-// placeholder
-enum class NodeID {
-	INT,
-	PLUS,
-	TIMES,
-	EOF,
-
-	// Nonterminals
-	EXPR,
-	EXPR2,
-	TOP,
-}
-
-data class NodeDef(
-	val elements: List<NodeID>,
-	val reduction: (List<ASTNode>) -> ASTNode,
-)
 
 internal data class LR1Item(
 	val nodeDef: NodeDef,
@@ -36,11 +20,6 @@ internal data class LR1Item(
 		&& other.dotBefore == this.dotBefore
 		&& other.sigma == this.sigma
 	override fun hashCode() = nodeDef.hashCode() xor dotBefore xor sigma.hashCode()
-}
-
-object StateFactory {
-	private var i = 0
-	fun new() = State(i++)
 }
 
 // TODO: precompute & memoize everything we can
