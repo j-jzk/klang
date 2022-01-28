@@ -52,7 +52,7 @@ class DFABuilderTest {
 		private fun shift(i: Int) = Action.Shift(s(i))
 		private fun reduce(len: Int, nextState: Int) = Action.Reduce(len, exprReduction, s(nextState))
 
-		private val topReduction: (List<ASTNode>) -> ASTNode = { it[0] }
+		private val topReduction: (List<ASTNode>) -> ASTNode = { ASTNode(NodeID.TOP, it) }
 		private val exprReduction: (List<ASTNode>) -> ASTNode = { ASTNode(NodeID.EXPR2, it) }
 
 		val leftRecursiveDFA = DFA(

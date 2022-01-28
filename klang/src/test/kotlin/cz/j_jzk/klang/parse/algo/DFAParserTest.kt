@@ -6,18 +6,23 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class DFAParserTest {
-	@Test fun testSimpleParse() {
+	@Test(timeout=2000) fun testSimpleParse() {
 		// TODO: test the order of the operands
-		val input = listOf(node(NodeID.EXPR), node(NodeID.PLUS), node(NodeID.EXPR)).iterator()
+		val input = listOf(node(NodeID.EXPR), node(NodeID.PLUS), node(NodeID.EXPR), node(NodeID.EOF)).iterator()
 		val expected = ASTNode(
-				NodeID.EXPR2,
+				NodeID.TOP,
 				listOf(
 					ASTNode(
 						NodeID.EXPR2,
-						listOf(ASTNode(NodeID.EXPR, listOf()))
-					),
-					ASTNode(NodeID.PLUS, listOf()),
-					ASTNode(NodeID.EXPR, listOf())
+						listOf(
+							ASTNode(
+								NodeID.EXPR2,
+								listOf(ASTNode(NodeID.EXPR, listOf()))
+							),
+							ASTNode(NodeID.PLUS, listOf()),
+							ASTNode(NodeID.EXPR, listOf())
+						)
+					)
 				)
 		)
 
