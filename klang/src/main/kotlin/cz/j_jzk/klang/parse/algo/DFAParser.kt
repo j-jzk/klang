@@ -12,7 +12,7 @@ data class DFA(
 )
 
 /**
- * This class contains all of the logic of the parser.
+ * This class contains all the logic of the parser.
  *
  * Because the parser needs some mutable state, this is kept separate from
  * the DFA in order to allow using the same DFA on different inputs.
@@ -21,9 +21,10 @@ class DFAParser(val input: Iterator<ASTNode>, val dfa: DFA) {
 	private val stack = mutableListOf<ASTNode>() // TODO better data type?
 	private var state = dfa.startState
 
-	/** This method runs the parser and returns the resulting sytax tree. */
-	fun <T> parse(): ASTNode {
+	/** This method runs the parser and returns the resulting syntax tree. */
+	fun parse(): ASTNode {
 		while (!isParsingFinished()) {
+			println("State $state, lookahead ${lookahead().id}")
 			val action = dfa.actionTable[state to lookahead().id] ?: throw Exception("Syntax error") // TODO error handling
 			when (action) {
 				is Action.Shift -> shift()
