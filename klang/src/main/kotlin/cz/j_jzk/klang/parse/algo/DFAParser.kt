@@ -19,23 +19,32 @@ data class DFA(
  * the DFA in order to allow using the same DFA on different inputs.
  */
 class DFAParser(input: Iterator<ASTNode>, val dfa: DFA) {
-	private val stack = mutableListOf<ASTNode>() // TODO better data type?
-	private var state = dfa.startState
+	private val nodeStack = mutableListOf<ASTNode>() // TODO better data type?
+	private val stateStack = mutableListOf(dfa.startState)
 
 	/** This method runs the parser and returns the resulting syntax tree. */
 	fun parse(): ASTNode {
 		while (!isParsingFinished()) {
-			println("State $state, lookahead ${input.peek().id}")
-			val action = dfa.actionTable[state to input.peek().id] ?: throw Exception("Syntax error") // TODO error handling
+			// TODO: proper error handling
+			val action = dfa.actionTable[stateStack.last() to input.peek().id] ?: throw Exception("Syntax error")
 			when (action) {
-				is Action.Shift -> stack += input.next()
-				is Action.Reduce -> input.pushback(action.reduction(stack.popTop(action.nNodes)))
+				is Action.Shift -> shift(action)
+				is Action.Reduce -> reduce(action)
 			}
-
-			state = action.nextState
 		}
 
 		return input.next()
+	}
+
+	private fun shift(action: Action.Shift) {
+		nodeStack += input.next()
+		stateStack += action.nextState
+	}
+
+	private fun reduce(action: Action.Reduce) {
+		input.pushback(action.reduction(nodeStack.popTop(action.nNodes)))
+		// Return to the state we were in before we started parsing this item
+		stateStack.popTop(action.nNodes)
 	}
 
 	// Or should we have a special finishing state?
