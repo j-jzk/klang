@@ -25,7 +25,8 @@ class DFAParser(input: Iterator<ASTNode>, val dfa: DFA) {
 	/** This method runs the parser and returns the resulting syntax tree. */
 	fun parse(): ASTNode {
 		while (!isParsingFinished()) {
-			val action = dfa.actionTable[stateStack.last() to input.peek().id] ?: throw Exception("Syntax error") // TODO error handling
+			// TODO: proper error handling
+			val action = dfa.actionTable[stateStack.last() to input.peek().id] ?: throw Exception("Syntax error")
 			when (action) {
 				is Action.Shift -> shift(action)
 				is Action.Reduce -> reduce(action)

@@ -52,7 +52,9 @@ class DFABuilder(
 		// The dot is after the last element => if the lookahead is in sigma, we reduce
 		val toReduce = itemSet.filter { it.dotBefore == it.nodeDef.elements.size }
 		// The shift items
-		val toShift = itemSet.filter { it.dotBefore < it.nodeDef.elements.size }.groupBy { it.nodeDef.elements[it.dotBefore] }
+		val toShift = itemSet
+			.filter { it.dotBefore < it.nodeDef.elements.size }
+			.groupBy { it.nodeDef.elements[it.dotBefore] }
 
 		// We do the reduction items first so conflicts are overwritten by the shift items (=> shift by default)
 		// TODO: a better way to do that?
@@ -83,7 +85,9 @@ class DFABuilder(
 
 		while (unexpanded.isNotEmpty()) {
 			val itemBeingExpanded = unexpanded.pop()
-			val nodesToExpand = nodeDefs[itemBeingExpanded.nodeDef.elements.getOrNull(itemBeingExpanded.dotBefore)] ?: continue
+			val nodesToExpand = nodeDefs[
+				itemBeingExpanded.nodeDef.elements.getOrNull(itemBeingExpanded.dotBefore)
+			] ?: continue
 			val sigma = computeSigma(itemBeingExpanded)
 			for (node in nodesToExpand) {
 				val item = LR1Item(
@@ -136,18 +140,12 @@ class DFABuilder(
 	 * doesn't, it gets constructed.
 	 * @return The state represented by the items
 	 */
-	private fun getStateOrCreate(itemSet: MutableSet<LR1Item>): State {
-		val state: State
-		if (constructorStates[itemSet] == null) {
-			state = StateFactory.new()
-			constructorStates[itemSet] = state
-			constructStates(itemSet, state)
-		} else {
-			state = constructorStates[itemSet]!!
+	private fun getStateOrCreate(itemSet: MutableSet<LR1Item>) =
+		constructorStates[itemSet] ?: StateFactory.new().also { newState ->
+			constructorStates[itemSet] = newState
+			constructStates(itemSet, newState)
 		}
 
-		return state
-	}
 
 	/** Checks if a node is nullable (if it can resolve to epsilon) */
 	private fun isNullable(node: NodeID) = nodeDefs[node]?.any { it.elements.isEmpty() } ?: false
