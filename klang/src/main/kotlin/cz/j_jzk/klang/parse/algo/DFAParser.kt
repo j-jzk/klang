@@ -3,6 +3,7 @@ package cz.j_jzk.klang.parse.algo
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.util.popTop
+import cz.j_jzk.klang.util.PeekingPushbackIterator
 
 /** This class represents the DFA (the "structure" of the parser). */
 data class DFA(
@@ -12,45 +13,39 @@ data class DFA(
 )
 
 /**
- * This class contains all of the logic of the parser.
+ * This class contains all the logic of the parser.
  *
  * Because the parser needs some mutable state, this is kept separate from
  * the DFA in order to allow using the same DFA on different inputs.
  */
-class DFAParser(val input: Iterator<ASTNode>, val dfa: DFA) {
+class DFAParser(input: Iterator<ASTNode>, val dfa: DFA) {
 	private val stack = mutableListOf<ASTNode>() // TODO better data type?
 	private var state = dfa.startState
 
-	/** This method runs the parser and returns the resulting sytax tree. */
-	fun <T> parse(): ASTNode {
+	/** This method runs the parser and returns the resulting syntax tree. */
+	fun parse(): ASTNode {
 		while (!isParsingFinished()) {
-			val action = dfa.actionTable[state to lookahead().id] ?: throw Exception("Syntax error") // TODO error handling
+			println("State $state, lookahead ${input.peek().id}")
+			val action = dfa.actionTable[state to input.peek().id] ?: throw Exception("Syntax error") // TODO error handling
 			when (action) {
-				is Action.Shift -> shift()
-				is Action.Reduce -> stack += action.reduction(stack.popTop(action.nNodes))
+				is Action.Shift -> stack += input.next()
+				is Action.Reduce -> input.pushback(action.reduction(stack.popTop(action.nNodes)))
 			}
 
 			state = action.nextState
 		}
 
-		return stack.first()
+		return input.next()
 	}
 
 	// Or should we have a special finishing state?
 	private fun isParsingFinished() =
-		stack.firstOrNull()?.let {
+		input.peekOrNull()?.let {
 			it.id == dfa.finalNodeType
 		} ?: false
 
-	// Lookahead and input buffering stuff
-	// TODO: structure better
 	// TODO: handle EOF, input with no elements etc. properly
-	private fun lookahead(): ASTNode = nextInputNode
-	private var nextInputNode: ASTNode = input.next()
-	private fun shift() {
-		stack += nextInputNode
-		nextInputNode = input.next()
-	}
+	private val input = PeekingPushbackIterator(input)
 
 	override fun toString() = dfa.toString()
 }
