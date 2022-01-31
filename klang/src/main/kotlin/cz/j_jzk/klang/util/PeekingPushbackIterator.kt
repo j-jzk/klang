@@ -4,7 +4,9 @@ import org.apache.commons.collections4.iterators.PushbackIterator
 
 // TODO: optimize
 // TODO: test?
-internal class PeekingPushbackIterator<T> private constructor(private val pushbackIt: PushbackIterator<T>): Iterator<T> by pushbackIt {
+internal class PeekingPushbackIterator<T> private constructor(
+	private val pushbackIt: PushbackIterator<T>
+): Iterator<T> by pushbackIt {
 	public constructor(iterator: Iterator<T>): this(PushbackIterator.pushbackIterator(iterator))
 
 	fun peek(): T = pushbackIt.next().also { pushbackIt.pushback(it) }
