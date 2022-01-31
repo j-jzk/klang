@@ -4,6 +4,7 @@ import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class DFAParserTest {
 	@Test fun testLeftRecursion() {
@@ -50,6 +51,13 @@ class DFAParserTest {
 		)
 
 		assertEquals(expected, DFAParser(input, DFABuilderTest.rightRecursiveDFA).parse())
+	}
+
+	@Test fun testSyntaxError() {
+		val input = listOf(node(NodeID.EXPR), node(NodeID.EXPR), node(NodeID.EOF)).iterator()
+		assertFailsWith(Exception::class) {
+			DFAParser(input, DFABuilderTest.leftRecursiveDFA).parse()
+		}
 	}
 
 	private fun node(id: NodeID) = ASTNode(id, emptyList())
