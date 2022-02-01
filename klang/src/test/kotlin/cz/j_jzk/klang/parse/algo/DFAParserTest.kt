@@ -8,8 +8,7 @@ import kotlin.test.assertFailsWith
 
 class DFAParserTest {
 	@Test fun testLeftRecursion() {
-		// TODO: test the order of the operands
-		val input = listOf(node("e"), node("+"), node("e"), eof).iterator()
+		val input = listOf(node("e", "a"), node("+"), node("e", "b"), eof).iterator()
 		val expected: ASTNode<ASTData> = ASTNode(
 				id("top"),
 				ASTData.Nonterminal(listOf(
@@ -18,10 +17,10 @@ class DFAParserTest {
 						ASTData.Nonterminal(listOf(
 							ASTNode(
 								id("e2"),
-								ASTData.Nonterminal(listOf(node("e")))
+								ASTData.Nonterminal(listOf(node("e", "a")))
 							),
 							node("+"),
-							node("e"),
+							node("e", "b"),
 						))
 					)
 				))
@@ -31,19 +30,18 @@ class DFAParserTest {
 	}
 
 	@Test fun testRightRecursion() {
-		// TODO: test the order of the operands
-		val input = listOf(node("e"), node("+"), node("e"), eof).iterator()
+		val input = listOf(node("e", "a"), node("+"), node("e", "b"), eof).iterator()
 		val expected: ASTNode<ASTData> = ASTNode(
 				id("top"),
 				ASTData.Nonterminal(listOf(
 					ASTNode(
 						id("e2"),
 						ASTData.Nonterminal(listOf(
-							node("e"),
+							node("e", "a"),
 							node("+"),
 							ASTNode(
 								id("e2"),
-								ASTData.Nonterminal(listOf(node("e")))
+								ASTData.Nonterminal(listOf(node("e", "b")))
 							))
 						)
 					)
@@ -60,7 +58,7 @@ class DFAParserTest {
 		}
 	}
 
-	private fun node(id: String): ASTNode<ASTData> = ASTNode(id(id), ASTData.Terminal(""))
+	private fun node(id: String, value: String = ""): ASTNode<ASTData> = ASTNode(id(id), ASTData.Terminal(value))
 	private fun id(id: String) = NodeID.ID(id)
 	private val eof: ASTNode<ASTData> = ASTNode(NodeID.Eof, ASTData.Terminal(""))
 }
