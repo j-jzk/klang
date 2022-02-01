@@ -24,7 +24,7 @@ class DFABuilder<N>(
 	 */
 	val topNode: NodeID,
 ) {
-	private val transitions = mutableMapOf<Pair<State, NodeID>, Action>()
+	private val transitions = mutableMapOf<Pair<State, NodeID>, Action<N>>()
 
 	/**
 	 * This variable maps the states as seen by the builder to the states seen
@@ -33,7 +33,7 @@ class DFABuilder<N>(
 	private val constructorStates = mutableMapOf<Set<LR1Item<N>>, State>()
 
 	/** This function constructs the parser and returns it. */
-	fun build(): DFA {
+	fun build(): DFA<N> {
 		val topNodeDef = nodeDefs[topNode]!!.first()
 		val startState = StateFactory.new()
 		var startingSet = mutableSetOf(
@@ -74,7 +74,7 @@ class DFABuilder<N>(
 			val newItems = item.map { LR1Item(it.nodeDef, it.dotBefore + 1, it.sigma) }.toMutableSet()
 
 			// Add a transition from this state to the state represented by the items
-			transitions[thisState to char] = Action.Shift(getStateOrCreate(newItems))
+			transitions[thisState to char] = Action.Shift(getStateOrCreate(newItems)) as Action
 		}
 	}
 

@@ -6,8 +6,8 @@ import cz.j_jzk.klang.util.popTop
 import cz.j_jzk.klang.util.PeekingPushbackIterator
 
 /** This class represents the DFA (the "structure" of the parser). */
-data class DFA(
-	val actionTable: Map<Pair<State, NodeID>, Action>,
+data class DFA<N>(
+	val actionTable: Map<Pair<State, NodeID>, Action<N>>,
 	val finalNodeType: NodeID,
 	val startState: State
 )
@@ -18,7 +18,7 @@ data class DFA(
  * Because the parser needs some mutable state, this is kept separate from
  * the DFA in order to allow using the same DFA on different inputs.
  */
-class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA) {
+class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 	private val nodeStack = mutableListOf<ASTNode<N>>() // TODO better data type?
 	private val stateStack = mutableListOf(dfa.startState)
 
