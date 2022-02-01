@@ -10,8 +10,6 @@ import cz.j_jzk.klang.parse.NodeID
  * Specifically, find a way to structurally compare DFAs (this class currently
  * relies on the iteration order of sets, which is undefined) */
 class DFABuilderTest {
-
-
 	@Test fun testBasicConstruction() {
 		val dfa = DFABuilder(
 			mapOf(
@@ -53,8 +51,8 @@ class DFABuilderTest {
 		private fun shift(i: Int) = Action.Shift(s(i))
 		private fun reduce(len: Int) = Action.Reduce(len, exprReduction)
 
-		private val topReduction: (List<ASTNode>) -> ASTNode = { ASTNode(top, it) }
-		private val exprReduction: (List<ASTNode>) -> ASTNode = { ASTNode(e2, it) }
+		private val topReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> = { ASTNode(top, ASTData.Nonterminal(it)) }
+		private val exprReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> = { ASTNode(e2, ASTData.Nonterminal(it)) }
 
 		val leftRecursiveDFA = DFA(
 				mapOf(

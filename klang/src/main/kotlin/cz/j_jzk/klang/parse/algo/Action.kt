@@ -15,8 +15,8 @@ sealed class Action {
 	 * Pop `nNodes` from the stack, feed them into `reduction`, push the
 	 * result onto the stack and go to `nextState`.
 	 */
-	data class Reduce(
+	data class Reduce<N>(
 		val nNodes: Int,
-		val reduction: (List<ASTNode>) -> ASTNode,
+		val reduction: (List<ASTNode<N>>) -> ASTNode<N>,
 	): Action()
 }

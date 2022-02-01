@@ -1,7 +1,7 @@
 package cz.j_jzk.klang.parse
 
 /**
- * Represents a node of the AST. For now, this is just a placeholder.
+ * Represents a node of the AST.
  */
-// TODO: be able to actually pass a value
-data class ASTNode(val id: NodeID, val children: List<ASTNode>)
+// TODO: how to store EOF?
+data class ASTNode<N>(val id: NodeID, val data: N)
