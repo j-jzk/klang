@@ -37,7 +37,7 @@ class DFABuilder(
 		val topNodeDef = nodeDefs[topNode]!!.first()
 		val startState = StateFactory.new()
 		var startingSet = mutableSetOf(
-			LR1Item(topNodeDef, 0, setOf(NodeID.EOF))
+			LR1Item(topNodeDef, 0, setOf(NodeID.Eof))
 		)
 
 		constructorStates[startingSet] = startState

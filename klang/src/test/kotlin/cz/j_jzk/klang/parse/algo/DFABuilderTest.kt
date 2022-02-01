@@ -15,13 +15,13 @@ class DFABuilderTest {
 	@Test fun testBasicConstruction() {
 		val dfa = DFABuilder(
 			mapOf(
-				NodeID.TOP to setOf(NodeDef(listOf(NodeID.EXPR2), topReduction)),
-				NodeID.EXPR2 to setOf(
-					NodeDef(listOf(NodeID.EXPR2, NodeID.PLUS, NodeID.EXPR), exprReduction),
-					NodeDef(listOf(NodeID.EXPR), exprReduction)
+				top to setOf(NodeDef(listOf(e2), topReduction)),
+				e2 to setOf(
+					NodeDef(listOf(e2, p, e), exprReduction),
+					NodeDef(listOf(e), exprReduction)
 				)
 			),
-			NodeID.TOP
+			top
 		).build()
 
 		assertEquals(leftRecursiveDFA, dfa)
@@ -30,13 +30,13 @@ class DFABuilderTest {
 	@Test fun testRightRecursion() {
 		val dfa = DFABuilder(
 			mapOf(
-				NodeID.TOP to setOf(NodeDef(listOf(NodeID.EXPR2), topReduction)),
-				NodeID.EXPR2 to setOf(
-					NodeDef(listOf(NodeID.EXPR, NodeID.PLUS, NodeID.EXPR2), exprReduction),
-					NodeDef(listOf(NodeID.EXPR), exprReduction)
+				top to setOf(NodeDef(listOf(e2), topReduction)),
+				e2 to setOf(
+					NodeDef(listOf(e, p, e2), exprReduction),
+					NodeDef(listOf(e), exprReduction)
 				)
 			),
-			NodeID.TOP
+			top
 		).build()
 
 		assertEquals(rightRecursiveDFA, dfa)
@@ -44,16 +44,17 @@ class DFABuilderTest {
 
 	companion object {
 		// shorthands
-		private val e = NodeID.EXPR
-		private val e2 = NodeID.EXPR2
-		private val p = NodeID.PLUS
-		private val eof = NodeID.EOF
+		private val e = NodeID.ID("e")
+		private val e2 = NodeID.ID("e2")
+		private val p = NodeID.ID("+")
+		private val eof = NodeID.Eof
+		private val top = NodeID.ID("top")
 		private fun s(i: Int) = State(i)
 		private fun shift(i: Int) = Action.Shift(s(i))
 		private fun reduce(len: Int) = Action.Reduce(len, exprReduction)
 
-		private val topReduction: (List<ASTNode>) -> ASTNode = { ASTNode(NodeID.TOP, it) }
-		private val exprReduction: (List<ASTNode>) -> ASTNode = { ASTNode(NodeID.EXPR2, it) }
+		private val topReduction: (List<ASTNode>) -> ASTNode = { ASTNode(top, it) }
+		private val exprReduction: (List<ASTNode>) -> ASTNode = { ASTNode(e2, it) }
 
 		val leftRecursiveDFA = DFA(
 				mapOf(
@@ -67,7 +68,7 @@ class DFABuilderTest {
 						(s(4) to p) to reduce(1),
 						(s(4) to eof) to reduce(1),
 				),
-				NodeID.TOP,
+				top,
 				s(0)
 		)
 
@@ -82,7 +83,7 @@ class DFABuilderTest {
 						(s(8) to e2) to shift(9),
 						(s(9) to eof) to reduce(3),
 				),
-				NodeID.TOP,
+				top,
 				s(5)
 		)
 	}
