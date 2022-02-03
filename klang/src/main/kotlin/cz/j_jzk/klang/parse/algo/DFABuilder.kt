@@ -74,7 +74,7 @@ class DFABuilder<N>(
 			val newItems = item.map { LR1Item(it.nodeDef, it.dotBefore + 1, it.sigma) }.toMutableSet()
 
 			// Add a transition from this state to the state represented by the items
-			transitions[thisState to char] = Action.Shift(getStateOrCreate(newItems)) as Action
+			transitions[thisState to char] = Action.Shift(getStateOrCreate(newItems))
 		}
 	}
 

@@ -29,7 +29,7 @@ class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 			val action = dfa.actionTable[stateStack.last() to input.peek().id] ?: throw Exception("Syntax error")
 			when (action) {
 				is Action.Shift -> shift(action)
-				is Action.Reduce<*> -> reduce(action as Action.Reduce<N>) // TODO: do this safely (!!!)
+				is Action.Reduce<*> -> reduce(action as Action.Reduce<N>)
 			}
 		}
 
