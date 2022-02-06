@@ -60,8 +60,8 @@ class DFABuilder<N>(
 		// TODO: a better way to do that?
 		for (item in toReduce) {
 			val action = Action.Reduce(
-				item.nodeDef.elements.size, // TODO: rethink what is passed to the reduction
-				item.nodeDef.reduction,
+				item.nodeDef.elements.size,
+				item.nodeDef.reduction
 			)
 
 			for (possibleLookahead in item.sigma) {
