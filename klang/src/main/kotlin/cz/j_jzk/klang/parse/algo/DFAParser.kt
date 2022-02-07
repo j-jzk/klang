@@ -6,8 +6,8 @@ import cz.j_jzk.klang.util.popTop
 import cz.j_jzk.klang.util.PeekingPushbackIterator
 
 /** This class represents the DFA (the "structure" of the parser). */
-data class DFA(
-	val actionTable: Map<Pair<State, NodeID>, Action>,
+data class DFA<N>(
+	val actionTable: Map<Pair<State, NodeID>, Action<N>>,
 	val finalNodeType: NodeID,
 	val startState: State
 )
@@ -18,18 +18,18 @@ data class DFA(
  * Because the parser needs some mutable state, this is kept separate from
  * the DFA in order to allow using the same DFA on different inputs.
  */
-class DFAParser(input: Iterator<ASTNode>, val dfa: DFA) {
-	private val nodeStack = mutableListOf<ASTNode>() // TODO better data type?
+class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
+	private val nodeStack = mutableListOf<ASTNode<N>>() // TODO better data type?
 	private val stateStack = mutableListOf(dfa.startState)
 
 	/** This method runs the parser and returns the resulting syntax tree. */
-	fun parse(): ASTNode {
+	fun parse(): ASTNode<N> {
 		while (!isParsingFinished()) {
 			// TODO: proper error handling
 			val action = dfa.actionTable[stateStack.last() to input.peek().id] ?: throw Exception("Syntax error")
 			when (action) {
 				is Action.Shift -> shift(action)
-				is Action.Reduce -> reduce(action)
+				is Action.Reduce<*> -> reduce(action as Action.Reduce<N>)
 			}
 		}
 
@@ -41,7 +41,7 @@ class DFAParser(input: Iterator<ASTNode>, val dfa: DFA) {
 		stateStack += action.nextState
 	}
 
-	private fun reduce(action: Action.Reduce) {
+	private fun reduce(action: Action.Reduce<N>) {
 		input.pushback(action.reduction(nodeStack.popTop(action.nNodes)))
 		// Return to the state we were in before we started parsing this item
 		stateStack.popTop(action.nNodes)
