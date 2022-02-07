@@ -8,57 +8,57 @@ import kotlin.test.assertFailsWith
 
 class DFAParserTest {
 	@Test fun testLeftRecursion() {
-		// TODO: test the order of the operands
-		val input = listOf(node(NodeID.EXPR), node(NodeID.PLUS), node(NodeID.EXPR), node(NodeID.EOF)).iterator()
-		val expected = ASTNode(
-				NodeID.TOP,
-				listOf(
+		val input = listOf(node("e", "a"), node("+"), node("e", "b"), eof).iterator()
+		val expected: ASTNode<ASTData> = ASTNode(
+				id("top"),
+				ASTData.Nonterminal(listOf(
 					ASTNode(
-						NodeID.EXPR2,
-						listOf(
+						id("e2"),
+						ASTData.Nonterminal(listOf(
 							ASTNode(
-								NodeID.EXPR2,
-								listOf(ASTNode(NodeID.EXPR, listOf()))
+								id("e2"),
+								ASTData.Nonterminal(listOf(node("e", "a")))
 							),
-							ASTNode(NodeID.PLUS, listOf()),
-							ASTNode(NodeID.EXPR, listOf()),
-						)
+							node("+"),
+							node("e", "b"),
+						))
 					)
-				)
+				))
 		)
 
-		assertEquals(expected, DFAParser(input, DFABuilderTest.leftRecursiveDFA).parse())
+		assertEquals(expected, DFAParser<ASTData>(input, DFABuilderTest.leftRecursiveDFA).parse())
 	}
 
 	@Test fun testRightRecursion() {
-		// TODO: test the order of the operands
-		val input = listOf(node(NodeID.EXPR), node(NodeID.PLUS), node(NodeID.EXPR), node(NodeID.EOF)).iterator()
-		val expected = ASTNode(
-				NodeID.TOP,
-				listOf(
+		val input = listOf(node("e", "a"), node("+"), node("e", "b"), eof).iterator()
+		val expected: ASTNode<ASTData> = ASTNode(
+				id("top"),
+				ASTData.Nonterminal(listOf(
 					ASTNode(
-						NodeID.EXPR2,
-						listOf(
-							ASTNode(NodeID.EXPR, listOf()),
-							ASTNode(NodeID.PLUS, listOf()),
+						id("e2"),
+						ASTData.Nonterminal(listOf(
+							node("e", "a"),
+							node("+"),
 							ASTNode(
-								NodeID.EXPR2,
-								listOf(ASTNode(NodeID.EXPR, listOf()))
-							),
+								id("e2"),
+								ASTData.Nonterminal(listOf(node("e", "b")))
+							))
 						)
 					)
-				)
+				))
 		)
 
-		assertEquals(expected, DFAParser(input, DFABuilderTest.rightRecursiveDFA).parse())
+		assertEquals(expected, DFAParser<ASTData>(input, DFABuilderTest.rightRecursiveDFA).parse())
 	}
 
 	@Test fun testSyntaxError() {
-		val input = listOf(node(NodeID.EXPR), node(NodeID.EXPR), node(NodeID.EOF)).iterator()
+		val input = listOf(node("e"), node("e"), eof).iterator()
 		assertFailsWith(Exception::class) {
-			DFAParser(input, DFABuilderTest.leftRecursiveDFA).parse()
+			DFAParser<ASTData>(input, DFABuilderTest.leftRecursiveDFA).parse()
 		}
 	}
 
-	private fun node(id: NodeID) = ASTNode(id, emptyList())
+	private fun node(id: String, value: String = ""): ASTNode<ASTData> = ASTNode(id(id), ASTData.Terminal(value))
+	private fun id(id: String) = NodeID.ID(id)
+	private val eof: ASTNode<ASTData> = ASTNode(NodeID.Eof, ASTData.Terminal(""))
 }

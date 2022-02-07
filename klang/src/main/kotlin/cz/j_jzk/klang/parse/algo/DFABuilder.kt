@@ -4,8 +4,8 @@ import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
 import java.util.ArrayDeque
 
-internal data class LR1Item(
-	val nodeDef: NodeDef,
+internal data class LR1Item<N>(
+	val nodeDef: NodeDef<N>,
 	val dotBefore: Int, // which element of the def is the dot before
 	val sigma: Set<NodeID>,
 )
@@ -14,9 +14,9 @@ internal data class LR1Item(
  * This class builds a parser from the formal grammar.
  */
 // TODO: precompute & memoize everything we can
-class DFABuilder(
+class DFABuilder<N>(
 	/** The formal grammar */
-	val nodeDefs: Map<NodeID, Set<NodeDef>>,
+	val nodeDefs: Map<NodeID, Set<NodeDef<N>>>,
 
 	/**
 	 * The top node of the grammar. It needs to have a single definition, not
@@ -24,20 +24,20 @@ class DFABuilder(
 	 */
 	val topNode: NodeID,
 ) {
-	private val transitions = mutableMapOf<Pair<State, NodeID>, Action>()
+	private val transitions = mutableMapOf<Pair<State, NodeID>, Action<N>>()
 
 	/**
 	 * This variable maps the states as seen by the builder to the states seen
 	 * by the DFA
 	 */
-	private val constructorStates = mutableMapOf<Set<LR1Item>, State>()
+	private val constructorStates = mutableMapOf<Set<LR1Item<N>>, State>()
 
 	/** This function constructs the parser and returns it. */
-	fun build(): DFA {
+	fun build(): DFA<N> {
 		val topNodeDef = nodeDefs[topNode]!!.first()
 		val startState = StateFactory.new()
 		var startingSet = mutableSetOf(
-			LR1Item(topNodeDef, 0, setOf(NodeID.EOF))
+			LR1Item(topNodeDef, 0, setOf(NodeID.Eof))
 		)
 
 		constructorStates[startingSet] = startState
@@ -46,7 +46,7 @@ class DFABuilder(
 		return DFA(transitions, topNode, startState)
 	}
 
-	private fun constructStates(itemSet: MutableSet<LR1Item>, thisState: State) {
+	private fun constructStates(itemSet: MutableSet<LR1Item<N>>, thisState: State) {
 		epsilonClosure(itemSet)
 
 		// The dot is after the last element => if the lookahead is in sigma, we reduce
@@ -60,8 +60,8 @@ class DFABuilder(
 		// TODO: a better way to do that?
 		for (item in toReduce) {
 			val action = Action.Reduce(
-				item.nodeDef.elements.size, // TODO: rethink what is passed to the reduction
-				item.nodeDef.reduction,
+				item.nodeDef.elements.size,
+				item.nodeDef.reduction
 			)
 
 			for (possibleLookahead in item.sigma) {
@@ -79,8 +79,8 @@ class DFABuilder(
 	}
 
 	/** Performs an epsilon closure on the item set. It modifies the `items` in place. */
-	private fun epsilonClosure(items: MutableSet<LR1Item>) {
-		val unexpanded = ArrayDeque<LR1Item>()
+	private fun epsilonClosure(items: MutableSet<LR1Item<N>>) {
+		val unexpanded = ArrayDeque<LR1Item<N>>()
 		unexpanded.addAll(items)
 
 		while (unexpanded.isNotEmpty()) {
@@ -105,7 +105,7 @@ class DFABuilder(
 	}
 
 	@Suppress("NestedBlockDepth") // Performance is more important than readability here
-	private fun computeSigma(itemBeingExpanded: LR1Item): Set<NodeID> {
+	private fun computeSigma(itemBeingExpanded: LR1Item<N>): Set<NodeID> {
 		if (itemBeingExpanded.dotBefore + 1 == itemBeingExpanded.nodeDef.elements.size) {
 			return itemBeingExpanded.sigma
 		}
@@ -140,7 +140,7 @@ class DFABuilder(
 	 * doesn't, it gets constructed.
 	 * @return The state represented by the items
 	 */
-	private fun getStateOrCreate(itemSet: MutableSet<LR1Item>) =
+	private fun getStateOrCreate(itemSet: MutableSet<LR1Item<N>>) =
 		constructorStates[itemSet] ?: StateFactory.new().also { newState ->
 			constructorStates[itemSet] = newState
 			constructStates(itemSet, newState)
