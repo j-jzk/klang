@@ -2,9 +2,12 @@ package cz.j_jzk.klang.parse.algo
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import com.google.common.collect.Table
+import com.google.common.collect.HashBasedTable
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.util.set
 
 /* TODO: make this less hacky
  * Specifically, find a way to structurally compare DFAs (this class currently
@@ -19,7 +22,8 @@ class DFABuilderTest {
 					NodeDef(listOf(e), exprReduction)
 				)
 			),
-			top
+			top,
+			emptyList()
 		).build()
 
 		assertEquals(leftRecursiveDFA, dfa)
@@ -34,7 +38,8 @@ class DFABuilderTest {
 					NodeDef(listOf(e), exprReduction)
 				)
 			),
-			top
+			top,
+			emptyList()
 		).build()
 
 		assertEquals(rightRecursiveDFA, dfa)
@@ -47,12 +52,12 @@ class DFABuilderTest {
 		private val p = NodeID.ID("+")
 		private val eof = NodeID.Eof
 		private val top = NodeID.ID("top")
-		private fun s(i: Int) = State(i)
+		private fun s(i: Int) = State(i, false)
 		private fun shift(i: Int) = Action.Shift(s(i))
 		private fun reduce(len: Int) = Action.Reduce(len, exprReduction)
 
-		private val topReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> = { ASTNode(top, ASTData.Nonterminal(it)) }
-		private val exprReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> = { ASTNode(e2, ASTData.Nonterminal(it)) }
+		private val topReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> = { ASTNode.Data(top, ASTData.Nonterminal(it)) }
+		private val exprReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> = { ASTNode.Data(e2, ASTData.Nonterminal(it)) }
 
 		val leftRecursiveDFA = DFA(
 				mapOf(
@@ -65,9 +70,10 @@ class DFABuilderTest {
 						(s(3) to p) to reduce(3),
 						(s(4) to p) to reduce(1),
 						(s(4) to eof) to reduce(1),
-				),
+				).toTable(),
 				top,
-				s(0)
+				s(0),
+				emptyList()
 		)
 
 		val rightRecursiveDFA = DFA(
@@ -80,9 +86,18 @@ class DFABuilderTest {
 						(s(8) to e) to shift(7),
 						(s(8) to e2) to shift(9),
 						(s(9) to eof) to reduce(3),
-				),
+				).toTable(),
 				top,
-				s(5)
+				s(5),
+				emptyList()
 		)
+
+		private fun Map<Pair<State, NodeID>, Action<ASTData>>.toTable(): Table<State, NodeID, Action<ASTData>> {
+			val table = HashBasedTable.create<State, NodeID, Action<ASTData>>()
+			for ((k, v) in this) {
+				table[k.first, k.second] = v
+			}
+			return table
+		}
 	}
 }

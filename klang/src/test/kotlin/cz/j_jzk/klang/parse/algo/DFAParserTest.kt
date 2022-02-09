@@ -9,13 +9,13 @@ import kotlin.test.assertFailsWith
 class DFAParserTest {
 	@Test fun testLeftRecursion() {
 		val input = listOf(node("e", "a"), node("+"), node("e", "b"), eof).iterator()
-		val expected: ASTNode<ASTData> = ASTNode(
+		val expected: ASTNode<ASTData> = ASTNode.Data(
 				id("top"),
 				ASTData.Nonterminal(listOf(
-					ASTNode(
+					ASTNode.Data(
 						id("e2"),
 						ASTData.Nonterminal(listOf(
-							ASTNode(
+							ASTNode.Data(
 								id("e2"),
 								ASTData.Nonterminal(listOf(node("e", "a")))
 							),
@@ -31,15 +31,15 @@ class DFAParserTest {
 
 	@Test fun testRightRecursion() {
 		val input = listOf(node("e", "a"), node("+"), node("e", "b"), eof).iterator()
-		val expected: ASTNode<ASTData> = ASTNode(
+		val expected: ASTNode<ASTData> = ASTNode.Data(
 				id("top"),
 				ASTData.Nonterminal(listOf(
-					ASTNode(
+					ASTNode.Data(
 						id("e2"),
 						ASTData.Nonterminal(listOf(
 							node("e", "a"),
 							node("+"),
-							ASTNode(
+							ASTNode.Data(
 								id("e2"),
 								ASTData.Nonterminal(listOf(node("e", "b")))
 							))
@@ -58,7 +58,7 @@ class DFAParserTest {
 		}
 	}
 
-	private fun node(id: String, value: String = ""): ASTNode<ASTData> = ASTNode(id(id), ASTData.Terminal(value))
+	private fun node(id: String, value: String = ""): ASTNode<ASTData> = ASTNode.Data(id(id), ASTData.Terminal(value))
 	private fun id(id: String) = NodeID.ID(id)
-	private val eof: ASTNode<ASTData> = ASTNode(NodeID.Eof, ASTData.Terminal(""))
+	private val eof: ASTNode<ASTData> = ASTNode.Data(NodeID.Eof, ASTData.Terminal(""))
 }
