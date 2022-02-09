@@ -5,12 +5,14 @@ import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.util.popTop
 import cz.j_jzk.klang.util.PeekingPushbackIterator
+import cz.j_jzk.klang.util.listiterator.skipUntil
 
 /** This class represents the DFA (the "structure" of the parser). */
 data class DFA<N>(
 	val actionTable: Table<State, NodeID, Action<N>>,
 	val finalNodeType: NodeID,
-	val startState: State
+	val startState: State,
+	val errorRecoveringNodes: List<NodeID>,
 )
 
 /**
@@ -50,7 +52,30 @@ class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 
 	private fun recoverFromError() {
 		// TODO: call the error reporting function supplied by the user
-		TODO()
+		// Do this more declaratively?
+
+		// Search the stack for an error-recovering state
+		while (!stateStack.last().errorRecovering) {
+			stateStack.removeLast()
+			nodeStack.removeLast()
+		}
+
+		// Act as if we've just parsed one of the error-recovering nodes
+		// We need to find a node we can actually use
+		// TODO: do this in a more clever way (now we can just hope we don't have too many err-rec nodes)
+		//  -- maybe pass the information from the builder (I thought it would be easier if we don't, but it just creates this mess)
+		val currentChoices = dfa.actionTable.row(stateStack.last())
+		for (node in dfa.errorRecoveringNodes) {
+			if (currentChoices[node] is Action.Shift) {
+				stateStack += (currentChoices[node] as Action.Shift).nextState
+				nodeStack += ASTNode.Errorneous(node)
+				break
+			}
+		}
+
+		// Skip over the input until we find a node that can appear after the dummy node
+		// TODO: handle EOF properly
+		input.pushback(input.skipUntil { dfa.actionTable.contains(stateStack.last(), it) } ?: throw Exception("Unexpected EOF"))
 	}
 
 	// Or should we have a special finishing state?

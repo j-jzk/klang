@@ -21,3 +21,14 @@ internal fun <T> ListIterator<T>.nextOrNull() =
 		next()
 	else
 		null
+
+// TODO: move
+/**
+ * Skips over the items of the iterator until the predicate is true.file
+ * @return The last value skipped (the one for which the predicate was true)
+ */
+internal inline fun <T> Iterator<T>.skipUntil(predicate: (T) -> Boolean): T? {
+	for (item in this)
+		if (predicate(item)) return item
+	return null
+}

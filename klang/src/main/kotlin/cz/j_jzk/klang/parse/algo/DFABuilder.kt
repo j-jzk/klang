@@ -58,7 +58,7 @@ class DFABuilder<N>(
 		constructorStates[startingSet] = startState
 		constructStates(startingSet, startState)
 
-		return DFA(transitions, topNode, startState)
+		return DFA(transitions, topNode, startState, errorRecoveringNodes)
 	}
 
 	private fun constructStates(itemSet: MutableSet<LR1Item<N>>, thisState: State) {
