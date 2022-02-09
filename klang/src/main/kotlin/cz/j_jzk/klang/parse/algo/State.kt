@@ -5,7 +5,7 @@ package cz.j_jzk.klang.parse.algo
 // typealias this to int to save memory?
 data class State(val id: Int, val errorRecovering: Boolean)
 
-internal object StateFactory {
+internal class StateFactory {
 	private var i = 0
 	fun new(errorRecovering: Boolean = false) = State(i++, errorRecovering)
 }

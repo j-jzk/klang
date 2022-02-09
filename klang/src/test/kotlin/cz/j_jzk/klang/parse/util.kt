@@ -44,17 +44,17 @@ val leftRecursiveDFA = DFA(
 
 val rightRecursiveDFA = DFA(
 		mapOf(
-				(s(5) to e2) to shift(6),
-				(s(5) to e) to shift(7),
-				(s(6) to eof) to Action.Reduce(1, topReduction),
-				(s(7) to eof) to reduce(1),
-				(s(7) to p) to shift(8),
-				(s(8) to e) to shift(7),
-				(s(8) to e2) to shift(9),
-				(s(9) to eof) to reduce(3),
+				(s(0) to e2) to shift(1),
+				(s(0) to e) to shift(2),
+				(s(1) to eof) to Action.Reduce(1, topReduction),
+				(s(2) to eof) to reduce(1),
+				(s(2) to p) to shift(3),
+				(s(3) to e) to shift(2),
+				(s(3) to e2) to shift(4),
+				(s(4) to eof) to reduce(3),
 		).toTable(),
 		top,
-		s(5),
+		s(0),
 		emptyList()
 )
 

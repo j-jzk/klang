@@ -47,10 +47,12 @@ class DFABuilder<N>(
 	 */
 	private val constructorStates = mutableMapOf<Set<LR1Item<N>>, State>()
 
+	private val stateFactory = StateFactory()
+
 	/** This function constructs the parser and returns it. */
 	fun build(): DFA<N> {
 		val topNodeDef = nodeDefs[topNode]!!.first()
-		val startState = StateFactory.new()
+		val startState = stateFactory.new()
 		var startingSet = mutableSetOf(
 			LR1Item(topNodeDef, 0, setOf(NodeID.Eof))
 		)
@@ -154,7 +156,7 @@ class DFABuilder<N>(
 	 * @return The state represented by the items
 	 */
 	private fun getStateOrCreate(itemSet: MutableSet<LR1Item<N>>) =
-		constructorStates[itemSet] ?: StateFactory.new(isErrorRecovering(itemSet)).also { newState ->
+		constructorStates[itemSet] ?: stateFactory.new(isErrorRecovering(itemSet)).also { newState ->
 			constructorStates[itemSet] = newState
 			constructStates(itemSet, newState)
 		}
