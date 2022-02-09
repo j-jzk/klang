@@ -1,7 +1,9 @@
 package cz.j_jzk.klang.parse.algo
 
+import com.google.common.collect.HashBasedTable
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.util.set
 import java.util.ArrayDeque
 
 internal data class LR1Item<N>(
@@ -37,7 +39,7 @@ class DFABuilder<N>(
 	 */
 	val errorRecoveringNodes: List<NodeID>,
 ) {
-	private val transitions = mutableMapOf<Pair<State, NodeID>, Action<N>>()
+	private val transitions = HashBasedTable.create<State, NodeID, Action<N>>()
 
 	/**
 	 * This variable maps the states as seen by the builder to the states seen
@@ -78,7 +80,7 @@ class DFABuilder<N>(
 			)
 
 			for (possibleLookahead in item.sigma) {
-				transitions[thisState to possibleLookahead] = action
+				transitions[thisState, possibleLookahead] = action
 			}
 		}
 
@@ -87,7 +89,7 @@ class DFABuilder<N>(
 			val newItems = item.map { LR1Item(it.nodeDef, it.dotBefore + 1, it.sigma) }.toMutableSet()
 
 			// Add a transition from this state to the state represented by the items
-			transitions[thisState to char] = Action.Shift(getStateOrCreate(newItems))
+			transitions[thisState, char] = Action.Shift(getStateOrCreate(newItems))
 		}
 	}
 

@@ -1,5 +1,6 @@
 package cz.j_jzk.klang.parse.algo
 
+import com.google.common.collect.Table
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.util.popTop
@@ -7,7 +8,7 @@ import cz.j_jzk.klang.util.PeekingPushbackIterator
 
 /** This class represents the DFA (the "structure" of the parser). */
 data class DFA<N>(
-	val actionTable: Map<Pair<State, NodeID>, Action<N>>,
+	val actionTable: Table<State, NodeID, Action<N>>,
 	val finalNodeType: NodeID,
 	val startState: State
 )
@@ -25,8 +26,7 @@ class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 	/** This method runs the parser and returns the resulting syntax tree. */
 	fun parse(): ASTNode<N> {
 		while (!isParsingFinished()) {
-			// TODO: proper error handling
-			val action = dfa.actionTable[stateStack.last() to input.peek().id]
+			val action = dfa.actionTable[stateStack.last(), input.peek().id]
 			when (action) {
 				is Action.Shift -> shift(action)
 				is Action.Reduce<*> -> reduce(action as Action.Reduce<N>)
