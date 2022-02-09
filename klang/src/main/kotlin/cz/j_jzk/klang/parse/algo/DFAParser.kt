@@ -6,6 +6,7 @@ import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.util.popTop
 import cz.j_jzk.klang.util.PeekingPushbackIterator
 import cz.j_jzk.klang.util.listiterator.skipUntil
+import java.io.EOFException
 
 /** This class represents the DFA (the "structure" of the parser). */
 data class DFA<N>(
@@ -60,8 +61,8 @@ class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 			nodeStack.removeLast()
 		}
 
-		// Act as if we've just parsed one of the error-recovering nodes
-		// We need to find a node we can actually use
+		// Act as if we've just shifted one of the error-recovering nodes
+		// (we need to find a node we can actually use)
 		// TODO: do this in a more clever way (now we can just hope we don't have too many err-rec nodes)
 		//  -- maybe pass the information from the builder (I thought it would be easier if we don't, but it just creates this mess)
 		val currentChoices = dfa.actionTable.row(stateStack.last())
@@ -75,7 +76,7 @@ class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 
 		// Skip over the input until we find a node that can appear after the dummy node
 		// TODO: handle EOF properly
-		input.pushback(input.skipUntil { dfa.actionTable.contains(stateStack.last(), it) } ?: throw Exception("Unexpected EOF"))
+		input.pushback(input.skipUntil { dfa.actionTable.contains(stateStack.last(), it) } ?: throw EOFException("Unexpected EOF when recovering from an error"))
 	}
 
 	// Or should we have a special finishing state?

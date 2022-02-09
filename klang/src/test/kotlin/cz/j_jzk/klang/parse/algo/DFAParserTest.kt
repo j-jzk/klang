@@ -2,9 +2,14 @@ package cz.j_jzk.klang.parse.algo
 
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.parse.algo.DFABuilder
+import cz.j_jzk.klang.parse.testutil.leftRecursiveDFA
+import cz.j_jzk.klang.parse.testutil.rightRecursiveDFA
+import cz.j_jzk.klang.parse.testutil.errorHandlingDFA
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import java.io.EOFException
 
 class DFAParserTest {
 	@Test fun testLeftRecursion() {
@@ -26,7 +31,7 @@ class DFAParserTest {
 				))
 		)
 
-		assertEquals(expected, DFAParser<ASTData>(input, DFABuilderTest.leftRecursiveDFA).parse())
+		assertEquals(expected, DFAParser<ASTData>(input, leftRecursiveDFA).parse())
 	}
 
 	@Test fun testRightRecursion() {
@@ -48,14 +53,44 @@ class DFAParserTest {
 				))
 		)
 
-		assertEquals(expected, DFAParser<ASTData>(input, DFABuilderTest.rightRecursiveDFA).parse())
+		assertEquals(expected, DFAParser<ASTData>(input, rightRecursiveDFA).parse())
 	}
 
-	@Test fun testSyntaxError() {
-		val input = listOf(node("e"), node("e"), eof).iterator()
-		assertFailsWith(Exception::class) {
-			DFAParser<ASTData>(input, DFABuilderTest.leftRecursiveDFA).parse()
+	@Test fun testErrorWithNoHandling() {
+		val input = ("ee".map { node(it.toString()) } + eof).iterator()
+
+		assertFailsWith(EOFException::class) {
+			DFAParser<ASTData>(input, leftRecursiveDFA).parse()
 		}
+	}
+
+	@Test fun testErrorInTheMiddle() {
+		val input = ("e+ee+e".map { node(it.toString()) } + eof).iterator()
+		val expected: ASTNode<ASTData> = ASTNode.Data(
+			id("top"),
+			ASTData.Nonterminal(listOf(
+					ASTNode.Data(
+						id("e2"),
+						ASTData.Nonterminal(listOf(
+							ASTNode.Data(
+								id("e2"),
+								ASTData.Nonterminal(listOf(
+									ASTNode.Data(
+										id("e2"),
+										ASTData.Nonterminal(listOf(node("e")))
+									),
+									node("+"),
+									ASTNode.Errorneous(id("e"))
+								))
+							),
+							node("+"),
+							node("e"),
+						))
+					)
+				))
+		)
+
+		assertEquals(expected, DFAParser<ASTData>(input, errorHandlingDFA).parse())
 	}
 
 	private fun node(id: String, value: String = ""): ASTNode<ASTData> = ASTNode.Data(id(id), ASTData.Terminal(value))
