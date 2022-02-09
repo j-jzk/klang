@@ -1,10 +1,11 @@
 package cz.j_jzk.klang.parse.algo
 
 /** Represents a state of the parser; intended for internal use */
-// TODO: typealias this to int to save memory?
-data class State(val id: Int)
+// Maybe we could store information about the error-recovery states in a list and
+// typealias this to int to save memory?
+data class State(val id: Int, val errorRecovering: Boolean)
 
 internal object StateFactory {
 	private var i = 0
-	fun new() = State(i++)
+	fun new(errorRecovering: Boolean = false) = State(i++, errorRecovering)
 }

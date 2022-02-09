@@ -11,6 +11,13 @@ internal data class LR1Item<N>(
 )
 
 /**
+ * A convenience function for getting the element of the item after the dot.
+ * If the dot is at the end, this returns null.
+ */
+private fun <N> LR1Item<N>.elementAfterDot(): NodeID? =
+	nodeDef.elements.getOrNull(dotBefore)
+
+/**
  * This class builds a parser from the formal grammar.
  */
 // TODO: precompute & memoize everything we can
@@ -23,6 +30,12 @@ class DFABuilder<N>(
 	 * ending in EOF.
 	 */
 	val topNode: NodeID,
+
+	/**
+	 * The error-recovering nodes (nodes which will be used to contain syntax
+	 * errors)
+	 */
+	val errorRecoveringNodes: List<NodeID>,
 ) {
 	private val transitions = mutableMapOf<Pair<State, NodeID>, Action<N>>()
 
@@ -85,9 +98,7 @@ class DFABuilder<N>(
 
 		while (unexpanded.isNotEmpty()) {
 			val itemBeingExpanded = unexpanded.pop()
-			val nodesToExpand = nodeDefs[
-				itemBeingExpanded.nodeDef.elements.getOrNull(itemBeingExpanded.dotBefore)
-			] ?: continue
+			val nodesToExpand = nodeDefs[itemBeingExpanded.elementAfterDot()] ?: continue
 			val sigma = computeSigma(itemBeingExpanded)
 			for (node in nodesToExpand) {
 				val item = LR1Item(
@@ -141,11 +152,19 @@ class DFABuilder<N>(
 	 * @return The state represented by the items
 	 */
 	private fun getStateOrCreate(itemSet: MutableSet<LR1Item<N>>) =
-		constructorStates[itemSet] ?: StateFactory.new().also { newState ->
+		constructorStates[itemSet] ?: StateFactory.new(isErrorRecovering(itemSet)).also { newState ->
 			constructorStates[itemSet] = newState
 			constructStates(itemSet, newState)
 		}
 
+	/**
+	 * Checks if the state represented by the `itemSet` should be
+	 * error-recovering = if there is an error-recovering node after the dot
+	 * in any of the items. E.g.
+	 * 	N -> a.Eb, where E is defined as an error-recovering node.
+	 */
+	private fun isErrorRecovering(itemSet: Set<LR1Item<N>>) =
+		itemSet.any { it.elementAfterDot() in errorRecoveringNodes }
 
 	/** Checks if a node is nullable (if it can resolve to epsilon) */
 	private fun isNullable(node: NodeID) = nodeDefs[node]?.any { it.elements.isEmpty() } ?: false

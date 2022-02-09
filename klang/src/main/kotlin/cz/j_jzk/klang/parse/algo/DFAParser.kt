@@ -26,10 +26,11 @@ class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 	fun parse(): ASTNode<N> {
 		while (!isParsingFinished()) {
 			// TODO: proper error handling
-			val action = dfa.actionTable[stateStack.last() to input.peek().id] ?: throw Exception("Syntax error")
+			val action = dfa.actionTable[stateStack.last() to input.peek().id]
 			when (action) {
 				is Action.Shift -> shift(action)
 				is Action.Reduce<*> -> reduce(action as Action.Reduce<N>)
+				null -> recoverFromError()
 			}
 		}
 
@@ -45,6 +46,11 @@ class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 		input.pushback(action.reduction(nodeStack.popTop(action.nNodes)))
 		// Return to the state we were in before we started parsing this item
 		stateStack.popTop(action.nNodes)
+	}
+
+	private fun recoverFromError() {
+		// TODO: call the error reporting function supplied by the user
+		TODO()
 	}
 
 	// Or should we have a special finishing state?
