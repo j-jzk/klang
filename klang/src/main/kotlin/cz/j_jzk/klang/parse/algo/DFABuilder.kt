@@ -52,10 +52,10 @@ class DFABuilder<N>(
 	/** This function constructs the parser and returns it. */
 	fun build(): DFA<N> {
 		val topNodeDef = nodeDefs[topNode]!!.first()
-		val startState = stateFactory.new()
 		var startingSet = mutableSetOf(
 			LR1Item(topNodeDef, 0, setOf(NodeID.Eof))
 		)
+		val startState = stateFactory.new(isErrorRecovering(startingSet))
 
 		constructorStates[startingSet] = startState
 		constructStates(startingSet, startState)

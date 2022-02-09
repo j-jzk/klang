@@ -18,7 +18,7 @@ val e2 = NodeID.ID("e2")
 val p = NodeID.ID("+")
 val eof = NodeID.Eof
 val top = NodeID.ID("top")
-fun s(i: Int) = State(i, false)
+fun s(i: Int, er: Boolean = false) = State(i, er)
 private fun shift(i: Int) = Action.Shift(s(i))
 private fun reduce(len: Int) = Action.Reduce(len, exprReduction)
 
@@ -26,49 +26,54 @@ val topReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> = { ASTNode.Data(
 val exprReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> = { ASTNode.Data(e2, ASTData.Nonterminal(it)) }
 
 val leftRecursiveDFA = DFA(
-		mapOf(
-				(s(0) to e2) to shift(1),
-				(s(0) to e) to shift(4),
-				(s(1) to eof) to Action.Reduce(1, topReduction),
-				(s(1) to p) to shift(2),
-				(s(2) to e) to shift(3),
-				(s(3) to eof) to reduce(3),
-				(s(3) to p) to reduce(3),
-				(s(4) to p) to reduce(1),
-				(s(4) to eof) to reduce(1),
-		).toTable(),
-		top,
-		s(0),
-		emptyList()
+	mapOf(
+		(s(0) to e2) to shift(1),
+		(s(0) to e) to shift(4),
+		(s(1) to eof) to Action.Reduce(1, topReduction),
+		(s(1) to p) to shift(2),
+		(s(2) to e) to shift(3),
+		(s(3) to eof) to reduce(3),
+		(s(3) to p) to reduce(3),
+		(s(4) to p) to reduce(1),
+		(s(4) to eof) to reduce(1),
+	).toTable(),
+	top,
+	s(0),
+	emptyList()
 )
 
 val rightRecursiveDFA = DFA(
-		mapOf(
-				(s(0) to e2) to shift(1),
-				(s(0) to e) to shift(2),
-				(s(1) to eof) to Action.Reduce(1, topReduction),
-				(s(2) to eof) to reduce(1),
-				(s(2) to p) to shift(3),
-				(s(3) to e) to shift(2),
-				(s(3) to e2) to shift(4),
-				(s(4) to eof) to reduce(3),
-		).toTable(),
-		top,
-		s(0),
-		emptyList()
+	mapOf(
+		(s(0) to e2) to shift(1),
+		(s(0) to e) to shift(2),
+		(s(1) to eof) to Action.Reduce(1, topReduction),
+		(s(2) to eof) to reduce(1),
+		(s(2) to p) to shift(3),
+		(s(3) to e) to shift(2),
+		(s(3) to e2) to shift(4),
+		(s(4) to eof) to reduce(3),
+	).toTable(),
+	top,
+	s(0),
+	emptyList()
 )
 
-val errorHandlingDFA = DFABuilder(
-		mapOf(
-			top to setOf(NodeDef(listOf(e2), topReduction)),
-			e2 to setOf(
-				NodeDef(listOf(e2, p, e), exprReduction),
-				NodeDef(listOf(e), exprReduction)
-			)
-		),
-		top,
-		listOf(e2, top)
-	).build()
+val errorHandlingLeftRecursiveDFA = DFA(
+	mapOf(
+		(s(0, true) to e2) to shift(1),
+		(s(0, true) to e) to shift(4),
+		(s(1) to eof) to Action.Reduce(1, topReduction),
+		(s(1) to p) to shift(2),
+		(s(2) to e) to shift(3),
+		(s(3) to eof) to reduce(3),
+		(s(3) to p) to reduce(3),
+		(s(4) to p) to reduce(1),
+		(s(4) to eof) to reduce(1),
+	).toTable(),
+	top,
+	s(0, true),
+	listOf(e2, top)
+)
 
 private fun Map<Pair<State, NodeID>, Action<ASTData>>.toTable(): Table<State, NodeID, Action<ASTData>> {
 	val table = HashBasedTable.create<State, NodeID, Action<ASTData>>()
