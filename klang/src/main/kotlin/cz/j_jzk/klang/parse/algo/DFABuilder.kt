@@ -1,7 +1,9 @@
 package cz.j_jzk.klang.parse.algo
 
+import com.google.common.collect.HashBasedTable
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.util.set
 import java.util.ArrayDeque
 
 internal data class LR1Item<N>(
@@ -9,6 +11,13 @@ internal data class LR1Item<N>(
 	val dotBefore: Int, // which element of the def is the dot before
 	val sigma: Set<NodeID>,
 )
+
+/**
+ * A convenience function for getting the element of the item after the dot.
+ * If the dot is at the end, this returns null.
+ */
+private fun <N> LR1Item<N>.elementAfterDot(): NodeID? =
+	nodeDef.elements.getOrNull(dotBefore)
 
 /**
  * This class builds a parser from the formal grammar.
@@ -23,8 +32,14 @@ class DFABuilder<N>(
 	 * ending in EOF.
 	 */
 	val topNode: NodeID,
+
+	/**
+	 * The error-recovering nodes (nodes which will be used to contain syntax
+	 * errors)
+	 */
+	val errorRecoveringNodes: List<NodeID>,
 ) {
-	private val transitions = mutableMapOf<Pair<State, NodeID>, Action<N>>()
+	private val transitions = HashBasedTable.create<State, NodeID, Action<N>>()
 
 	/**
 	 * This variable maps the states as seen by the builder to the states seen
@@ -32,18 +47,20 @@ class DFABuilder<N>(
 	 */
 	private val constructorStates = mutableMapOf<Set<LR1Item<N>>, State>()
 
+	private val stateFactory = StateFactory()
+
 	/** This function constructs the parser and returns it. */
 	fun build(): DFA<N> {
 		val topNodeDef = nodeDefs[topNode]!!.first()
-		val startState = StateFactory.new()
 		var startingSet = mutableSetOf(
 			LR1Item(topNodeDef, 0, setOf(NodeID.Eof))
 		)
+		val startState = stateFactory.new(isErrorRecovering(startingSet))
 
 		constructorStates[startingSet] = startState
 		constructStates(startingSet, startState)
 
-		return DFA(transitions, topNode, startState)
+		return DFA(transitions, topNode, startState, errorRecoveringNodes)
 	}
 
 	private fun constructStates(itemSet: MutableSet<LR1Item<N>>, thisState: State) {
@@ -65,7 +82,7 @@ class DFABuilder<N>(
 			)
 
 			for (possibleLookahead in item.sigma) {
-				transitions[thisState to possibleLookahead] = action
+				transitions[thisState, possibleLookahead] = action
 			}
 		}
 
@@ -74,7 +91,7 @@ class DFABuilder<N>(
 			val newItems = item.map { LR1Item(it.nodeDef, it.dotBefore + 1, it.sigma) }.toMutableSet()
 
 			// Add a transition from this state to the state represented by the items
-			transitions[thisState to char] = Action.Shift(getStateOrCreate(newItems))
+			transitions[thisState, char] = Action.Shift(getStateOrCreate(newItems))
 		}
 	}
 
@@ -85,9 +102,7 @@ class DFABuilder<N>(
 
 		while (unexpanded.isNotEmpty()) {
 			val itemBeingExpanded = unexpanded.pop()
-			val nodesToExpand = nodeDefs[
-				itemBeingExpanded.nodeDef.elements.getOrNull(itemBeingExpanded.dotBefore)
-			] ?: continue
+			val nodesToExpand = nodeDefs[itemBeingExpanded.elementAfterDot()] ?: continue
 			val sigma = computeSigma(itemBeingExpanded)
 			for (node in nodesToExpand) {
 				val item = LR1Item(
@@ -141,11 +156,19 @@ class DFABuilder<N>(
 	 * @return The state represented by the items
 	 */
 	private fun getStateOrCreate(itemSet: MutableSet<LR1Item<N>>) =
-		constructorStates[itemSet] ?: StateFactory.new().also { newState ->
+		constructorStates[itemSet] ?: stateFactory.new(isErrorRecovering(itemSet)).also { newState ->
 			constructorStates[itemSet] = newState
 			constructStates(itemSet, newState)
 		}
 
+	/**
+	 * Checks if the state represented by the `itemSet` should be
+	 * error-recovering = if there is an error-recovering node after the dot
+	 * in any of the items. E.g.
+	 * 	N -> a.Eb, where E is defined as an error-recovering node.
+	 */
+	private fun isErrorRecovering(itemSet: Set<LR1Item<N>>) =
+		itemSet.any { it.elementAfterDot() in errorRecoveringNodes }
 
 	/** Checks if a node is nullable (if it can resolve to epsilon) */
 	private fun isNullable(node: NodeID) = nodeDefs[node]?.any { it.elements.isEmpty() } ?: false
