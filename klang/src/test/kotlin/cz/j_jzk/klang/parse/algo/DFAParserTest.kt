@@ -58,33 +58,15 @@ class DFAParserTest {
 		assertEquals(expected, DFAParser<ASTData>(input, rightRecursiveDFA).parse())
 	}
 
-	@Test fun testErrorWithNoHandling() {
-		val input = ("ee".map { node(it.toString()) } + eof).iterator()
-
-		assertFailsWith(EOFException::class) {
-			DFAParser<ASTData>(input, leftRecursiveDFA).parse()
-		}
-	}
-
 	@Test fun testErrorInTheMiddle() {
-		val input = ("e+ee+e".map { node(it.toString()) } + eof).iterator()
+		val input = strInput("ee+e")
 		val expected: ASTNode<ASTData> = ASTNode.Data(
 			id("top"),
 			ASTData.Nonterminal(listOf(
 					ASTNode.Data(
 						id("e2"),
 						ASTData.Nonterminal(listOf(
-							ASTNode.Data(
-								id("e2"),
-								ASTData.Nonterminal(listOf(
-									ASTNode.Data(
-										id("e2"),
-										ASTData.Nonterminal(listOf(node("e")))
-									),
-									node("+"),
-									ASTNode.Errorneous(id("e"))
-								))
-							),
+							ASTNode.Errorneous(id("e2")),
 							node("+"),
 							node("e"),
 						))
@@ -98,4 +80,5 @@ class DFAParserTest {
 	private fun node(id: String, value: String = ""): ASTNode<ASTData> = ASTNode.Data(id(id), ASTData.Terminal(value))
 	private fun id(id: String) = NodeID.ID(id)
 	private val eof: ASTNode<ASTData> = ASTNode.Data(NodeID.Eof, ASTData.Terminal(""))
+	private fun strInput(str: String) = (str.map { node(it.toString()) } + eof).iterator()
 }
