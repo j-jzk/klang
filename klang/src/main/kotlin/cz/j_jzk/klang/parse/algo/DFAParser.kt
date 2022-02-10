@@ -1,15 +1,19 @@
 package cz.j_jzk.klang.parse.algo
 
+import com.google.common.collect.Table
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.util.popTop
 import cz.j_jzk.klang.util.PeekingPushbackIterator
+import cz.j_jzk.klang.util.listiterator.skipUntil
+import java.io.EOFException
 
 /** This class represents the DFA (the "structure" of the parser). */
 data class DFA<N>(
-	val actionTable: Map<Pair<State, NodeID>, Action<N>>,
+	val actionTable: Table<State, NodeID, Action<N>>,
 	val finalNodeType: NodeID,
-	val startState: State
+	val startState: State,
+	val errorRecoveringNodes: List<NodeID>,
 )
 
 /**
@@ -25,11 +29,11 @@ class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 	/** This method runs the parser and returns the resulting syntax tree. */
 	fun parse(): ASTNode<N> {
 		while (!isParsingFinished()) {
-			// TODO: proper error handling
-			val action = dfa.actionTable[stateStack.last() to input.peek().id] ?: throw Exception("Syntax error")
+			val action = dfa.actionTable[stateStack.last(), input.peek().id]
 			when (action) {
 				is Action.Shift -> shift(action)
 				is Action.Reduce<*> -> reduce(action as Action.Reduce<N>)
+				null -> recoverFromError()
 			}
 		}
 
@@ -45,6 +49,37 @@ class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 		input.pushback(action.reduction(nodeStack.popTop(action.nNodes)))
 		// Return to the state we were in before we started parsing this item
 		stateStack.popTop(action.nNodes)
+	}
+
+	private fun recoverFromError() {
+		// TODO: call the error reporting function supplied by the user
+		// Do this more declaratively?
+
+		// Search the stack for an error-recovering state
+		while (!stateStack.last().errorRecovering) {
+			stateStack.removeLast()
+			nodeStack.removeLast()
+		}
+
+		// Act as if we've just shifted one of the error-recovering nodes
+		// (we need to find a node we can actually use)
+		// TODO: do this in a more clever way (now we can just hope we don't have too many err-rec nodes)
+		//  -- maybe pass the information from the builder (I thought it would be easier if we don't, but
+		//     it just creates this mess)
+		for (node in dfa.errorRecoveringNodes) {
+			if (dfa.actionTable[stateStack.last(), node] is Action.Shift) {
+				stateStack += (dfa.actionTable[stateStack.last(), node] as Action.Shift).nextState
+				nodeStack += ASTNode.Erroneous(node)
+				break
+			}
+		}
+
+		// Skip over the input until we find a node that can appear after the dummy node
+		// TODO: handle EOF properly
+		input.pushback(
+			input.skipUntil { dfa.actionTable.contains(stateStack.last(), it.id) }
+			?: throw EOFException("Unexpected EOF when recovering from an error")
+		)
 	}
 
 	// Or should we have a special finishing state?
