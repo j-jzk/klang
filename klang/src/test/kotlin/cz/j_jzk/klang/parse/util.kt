@@ -7,8 +7,6 @@ import cz.j_jzk.klang.parse.algo.DFA
 import cz.j_jzk.klang.parse.algo.ASTData
 import cz.j_jzk.klang.parse.algo.Action
 import cz.j_jzk.klang.parse.algo.State
-import cz.j_jzk.klang.parse.algo.DFABuilder
-import cz.j_jzk.klang.parse.NodeDef
 import com.google.common.collect.Table
 import com.google.common.collect.HashBasedTable
 

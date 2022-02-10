@@ -2,17 +2,12 @@ package cz.j_jzk.klang.parse.algo
 
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
-import cz.j_jzk.klang.parse.algo.DFABuilder
 import cz.j_jzk.klang.parse.testutil.leftRecursiveDFA
 import cz.j_jzk.klang.parse.testutil.rightRecursiveDFA
 import cz.j_jzk.klang.parse.testutil.errorHandlingLeftRecursiveDFA
 import cz.j_jzk.klang.parse.testutil.errorHandlingRightRecursiveDFA
-import cz.j_jzk.klang.parse.testutil.e2
-import cz.j_jzk.klang.parse.testutil.top
 import org.junit.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import java.io.EOFException
 
 class DFAParserTest {
 	@Test fun testLeftRecursion() {

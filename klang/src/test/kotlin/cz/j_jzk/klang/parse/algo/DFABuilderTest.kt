@@ -2,9 +2,6 @@ package cz.j_jzk.klang.parse.algo
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import com.google.common.collect.Table
-import com.google.common.collect.HashBasedTable
-import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.util.set

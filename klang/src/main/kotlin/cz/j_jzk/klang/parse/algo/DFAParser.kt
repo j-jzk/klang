@@ -64,7 +64,8 @@ class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 		// Act as if we've just shifted one of the error-recovering nodes
 		// (we need to find a node we can actually use)
 		// TODO: do this in a more clever way (now we can just hope we don't have too many err-rec nodes)
-		//  -- maybe pass the information from the builder (I thought it would be easier if we don't, but it just creates this mess)
+		//  -- maybe pass the information from the builder (I thought it would be easier if we don't, but
+		//     it just creates this mess)
 		for (node in dfa.errorRecoveringNodes) {
 			if (dfa.actionTable[stateStack.last(), node] is Action.Shift) {
 				stateStack += (dfa.actionTable[stateStack.last(), node] as Action.Shift).nextState
@@ -75,7 +76,10 @@ class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 
 		// Skip over the input until we find a node that can appear after the dummy node
 		// TODO: handle EOF properly
-		input.pushback(input.skipUntil { dfa.actionTable.contains(stateStack.last(), it.id) } ?: throw EOFException("Unexpected EOF when recovering from an error"))
+		input.pushback(
+			input.skipUntil { dfa.actionTable.contains(stateStack.last(), it.id) }
+			?: throw EOFException("Unexpected EOF when recovering from an error")
+		)
 	}
 
 	// Or should we have a special finishing state?
