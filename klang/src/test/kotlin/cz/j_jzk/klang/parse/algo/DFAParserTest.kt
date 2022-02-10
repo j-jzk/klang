@@ -6,6 +6,7 @@ import cz.j_jzk.klang.parse.algo.DFABuilder
 import cz.j_jzk.klang.parse.testutil.leftRecursiveDFA
 import cz.j_jzk.klang.parse.testutil.rightRecursiveDFA
 import cz.j_jzk.klang.parse.testutil.errorHandlingLeftRecursiveDFA
+import cz.j_jzk.klang.parse.testutil.errorHandlingRightRecursiveDFA
 import cz.j_jzk.klang.parse.testutil.e2
 import cz.j_jzk.klang.parse.testutil.top
 import org.junit.Test
@@ -58,7 +59,7 @@ class DFAParserTest {
 		assertEquals(expected, DFAParser<ASTData>(input, rightRecursiveDFA).parse())
 	}
 
-	@Test fun testErrorInTheMiddle() {
+	@Test fun testLeftRecursiveError() {
 		val input = strInput("ee+e")
 		val expected: ASTNode<ASTData> = ASTNode.Data(
 			id("top"),
@@ -75,6 +76,25 @@ class DFAParserTest {
 		)
 
 		assertEquals(expected, DFAParser<ASTData>(input, errorHandlingLeftRecursiveDFA).parse())
+	}
+
+	@Test fun testRightRecursiveError() {
+		val input = strInput("e+ee")
+		val expected: ASTNode<ASTData> = ASTNode.Data(
+			id("top"),
+			ASTData.Nonterminal(listOf(
+					ASTNode.Data(
+						id("e2"),
+						ASTData.Nonterminal(listOf(
+							node("e"),
+							node("+"),
+							ASTNode.Errorneous(id("e2")),
+						))
+					)
+				))
+		)
+
+		assertEquals(expected, DFAParser<ASTData>(input, errorHandlingRightRecursiveDFA).parse())
 	}
 
 	private fun node(id: String, value: String = ""): ASTNode<ASTData> = ASTNode.Data(id(id), ASTData.Terminal(value))

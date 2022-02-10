@@ -19,7 +19,7 @@ val p = NodeID.ID("+")
 val eof = NodeID.Eof
 val top = NodeID.ID("top")
 fun s(i: Int, er: Boolean = false) = State(i, er)
-private fun shift(i: Int) = Action.Shift(s(i))
+private fun shift(i: Int, er: Boolean = false) = Action.Shift(s(i, er))
 private fun reduce(len: Int) = Action.Reduce(len, exprReduction)
 
 val topReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> = { ASTNode.Data(top, ASTData.Nonterminal(it)) }
@@ -69,6 +69,22 @@ val errorHandlingLeftRecursiveDFA = DFA(
 		(s(3) to p) to reduce(3),
 		(s(4) to p) to reduce(1),
 		(s(4) to eof) to reduce(1),
+	).toTable(),
+	top,
+	s(0, true),
+	listOf(e2, top)
+)
+
+val errorHandlingRightRecursiveDFA = DFA(
+	mapOf(
+		(s(0, true) to e2) to shift(1),
+		(s(0, true) to e) to shift(2),
+		(s(1) to eof) to Action.Reduce(1, topReduction),
+		(s(2) to eof) to reduce(1),
+		(s(2) to p) to shift(3, true),
+		(s(3, true) to e) to shift(2),
+		(s(3, true) to e2) to shift(4),
+		(s(4) to eof) to reduce(3),
 	).toTable(),
 	top,
 	s(0, true),

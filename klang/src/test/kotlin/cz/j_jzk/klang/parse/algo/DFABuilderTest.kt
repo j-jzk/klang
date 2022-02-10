@@ -44,4 +44,9 @@ class DFABuilderTest {
 		val dfa = DFABuilder(leftRecursiveGrammar, top, listOf(e2, top)).build()
 		assertEquals(errorHandlingLeftRecursiveDFA, dfa)
 	}
+
+	@Test fun testRightRecursionWithErrorRecovery() {
+		val dfa = DFABuilder(rightRecursiveGrammar, top, listOf(e2, top)).build()
+		assertEquals(errorHandlingRightRecursiveDFA, dfa)
+	}
 }
