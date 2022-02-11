@@ -14,7 +14,9 @@ data class DFA<N>(
 	val finalNodeType: NodeID,
 	val startState: State,
 	val errorRecoveringNodes: List<NodeID>,
-)
+) {
+	fun parse(input: Iterator<ASTNode<N>>) = DFAParser(input, this).parse()
+}
 
 /**
  * This class contains all the logic of the parser.

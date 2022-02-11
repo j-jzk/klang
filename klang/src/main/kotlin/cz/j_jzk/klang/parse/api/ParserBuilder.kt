@@ -10,10 +10,10 @@ import cz.j_jzk.klang.parse.algo.DFABuilder
 fun <I, D> parser(init: ParserBuilder<I, D>.() -> Unit) = ParserBuilder<I, D>().also { it.init() }
 
 class ParserBuilder<I, D> {
-	private val nodeDefs = LazyMap.lazyMap<NodeID, MutableSet<NodeDef<D>>>(mutableMapOf()) { -> mutableSetOf() }
+	private val actualNodeDefs = mutableMapOf<NodeID, MutableSet<NodeDef<D>>>()
+	private val nodeDefs = LazyMap.lazyMap<NodeID, MutableSet<NodeDef<D>>>(actualNodeDefs) { -> mutableSetOf() }
 
 	infix fun I.to(definition: IntermediateNodeDefinition<I, D>) {
-		// Maybe we should move this logic to a separate wrapper class that does this bc this is just a total mess
 		val actualID = NodeID.ID(this)
 		val actualDefinition = definition.definition.map { NodeID.ID(it) }
 		val actualReduction = wrapReduction(actualID, definition.reduction)
@@ -26,7 +26,7 @@ class ParserBuilder<I, D> {
 
 	fun build(): DFA<D> {
 		requireNotNull(topNode) { "The top node of the grammar must be set" }
-		return DFABuilder(nodeDefs, NodeID.ID(topNode), emptyList()).build()
+		return DFABuilder(actualNodeDefs, NodeID.ID(topNode), emptyList()).build()
 	}
 
 	/**
