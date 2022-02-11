@@ -15,6 +15,7 @@ data class DFA<N>(
 	val startState: State,
 	val errorRecoveringNodes: List<NodeID>,
 ) {
+	/** Runs the parser and returns the resulting syntax tree */
 	fun parse(input: Iterator<ASTNode<N>>) = DFAParser(input, this).parse()
 }
 
@@ -24,7 +25,7 @@ data class DFA<N>(
  * Because the parser needs some mutable state, this is kept separate from
  * the DFA in order to allow using the same DFA on different inputs.
  */
-class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
+internal class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 	private val nodeStack = mutableListOf<ASTNode<N>>() // TODO better data type?
 	private val stateStack = mutableListOf(dfa.startState)
 

@@ -16,7 +16,7 @@ class ParserIntegrationTest {
 		topNode = "top"
 
 		errorRecovering("top", "expr2")
-	}.build()
+	}.getParser()
 
 	@Test fun testBasicParser() {
 		val input = createInput("5 + 10 + 1")
@@ -30,7 +30,7 @@ class ParserIntegrationTest {
 		assertFailsWith(IllegalArgumentException::class) {
 			parser<String, Int> {
 				"foo" to def("bar") { it[0] }
-			}.build()
+			}.getParser()
 		}
 	}
 
