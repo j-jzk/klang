@@ -1,31 +1,50 @@
 package cz.j_jzk.klang.parse
 
 import cz.j_jzk.klang.parse.api.parser
+import java.lang.IllegalArgumentException
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class ParserIntegrationTest {
+	private val additionParser = parser<String, Int> {
+		"top" to def("expr2") { it[0] }
+		"expr2" to def("expr2", "plus", "expr") { it[0] + it[2] }
+		"expr2" to def("expr") { it[0] }
+
+		topNode = "top"
+
+		errorRecovering("top", "expr2")
+	}.build()
+
 	@Test fun testBasicParser() {
-		val parser = parser<String, Int> {
-			"top" to def("expr2") { it[0] }
-			"expr2" to def("expr2", "plus", "expr") { it[0] + it[2] }
-			"expr2" to def("expr") { it[0] }
+		val input = createInput("5 + 10 + 1")
 
-			topNode = "top"
-		}.build()
-
-		val input = listOf(
-				ASTNode.Data(NodeID.ID("expr"), 5),
-				ASTNode.Data(NodeID.ID("plus"), 0),
-				ASTNode.Data(NodeID.ID("expr"), 10),
-				ASTNode.Data(NodeID.ID("plus"), 0),
-				ASTNode.Data(NodeID.ID("expr"), 1),
-				ASTNode.Data(NodeID.Eof, 0) // TODO: how should we handle EOF nodes?
-		).iterator()
-
-		val result = parser.parse(input)
+		val result = additionParser.parse(input)
 		assertTrue(result is ASTNode.Data)
 		assertEquals(16, result.data)
 	}
+
+	@Test fun testParserWithoutTopNode() {
+		assertFailsWith(IllegalArgumentException::class) {
+			parser<String, Int> {
+				"foo" to def("bar") { it[0] }
+			}.build()
+		}
+	}
+
+	@Test fun testParserWithErroneousInput() {
+		val input = createInput("5 + 1 2 + 3")
+		val result = additionParser.parse(input)
+		assertTrue(result is ASTNode.Erroneous)
+	}
+
+	private fun createInput(input: String) =
+		(input.split(" ").map { tok ->
+			if (tok == "+")
+				ASTNode.Data(NodeID.ID("plus"), 0)
+			else
+				ASTNode.Data(NodeID.ID("expr"), tok.toInt())
+		} + ASTNode.Data(NodeID.Eof, 0)).iterator() // TODO: how should we handle EOF nodes IRL?
 }
