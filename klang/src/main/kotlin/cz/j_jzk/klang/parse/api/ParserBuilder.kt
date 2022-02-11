@@ -16,14 +16,7 @@ class ParserBuilder<I, D> {
 		// Maybe we should move this logic to a separate wrapper class that does this bc this is just a total mess
 		val actualID = NodeID.ID(this)
 		val actualDefinition = definition.definition.map { NodeID.ID(it) }
-		val actualReduction: (List<ASTNode<D>>) -> ASTNode<D> = { nodeList ->
-			ASTNode.Data(
-				actualID,
-				definition.reduction(nodeList.map { node ->
-					(node as ASTNode.Data<D>).data // STOPSHIP: this cast WILL FAIL if there is an errorneous node!!!
-				})
-			)
-		}
+		val actualReduction = wrapReduction(actualID, definition.reduction)
 		nodeDefs[actualID]!!.add(NodeDef(actualDefinition, actualReduction))
 	}
 
@@ -35,6 +28,27 @@ class ParserBuilder<I, D> {
 		requireNotNull(topNode) { "The top node of the grammar must be set" }
 		return DFABuilder(nodeDefs, NodeID.ID(topNode), emptyList()).build()
 	}
+
+	/**
+	 * Returns an altered reduction function which:
+	 *   - translates the parameters and return values to/from `ASTNode`
+	 *   - if any of the nodes to be reduced is `Erroneous`, it also returns
+	 *     an Erroneous node, because the reduction couldn't work with it
+	 *     (it has no value) and a correct program couldn't be created from
+	 *     such an AST anyway
+	 */
+	private fun wrapReduction(nodeID: NodeID, reduction: (List<D>) -> D): (List<ASTNode<D>>) -> ASTNode<D> =
+		{ nodeList ->
+			if (nodeList.none { it is ASTNode.Erroneous })
+				ASTNode.Data(
+						nodeID,
+						reduction(nodeList.map { node ->
+							(node as ASTNode.Data<D>).data
+						})
+				)
+			else
+				ASTNode.Erroneous(nodeID)
+		}
 
 	data class IntermediateNodeDefinition<I, D>(val definition: List<I>, val reduction: (List<D>) -> D)
 }
