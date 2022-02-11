@@ -12,6 +12,7 @@ fun <I, D> parser(init: ParserBuilder<I, D>.() -> Unit) = ParserBuilder<I, D>().
 class ParserBuilder<I, D> {
 	private val actualNodeDefs = mutableMapOf<NodeID, MutableSet<NodeDef<D>>>()
 	private val nodeDefs = LazyMap.lazyMap<NodeID, MutableSet<NodeDef<D>>>(actualNodeDefs) { -> mutableSetOf() }
+	private val errorRecoveringNodes = mutableListOf<NodeID>()
 
 	infix fun I.to(definition: IntermediateNodeDefinition<I, D>) {
 		val actualID = NodeID.ID(this)
@@ -24,9 +25,13 @@ class ParserBuilder<I, D> {
 
 	var topNode: I? = null
 
+	fun errorRecovering(vararg nodes: I) {
+		errorRecoveringNodes += nodes.map { NodeID.ID(it) }
+	}
+
 	fun build(): DFA<D> {
 		requireNotNull(topNode) { "The top node of the grammar must be set" }
-		return DFABuilder(actualNodeDefs, NodeID.ID(topNode), emptyList()).build()
+		return DFABuilder(actualNodeDefs, NodeID.ID(topNode), errorRecoveringNodes).build()
 	}
 
 	/**
