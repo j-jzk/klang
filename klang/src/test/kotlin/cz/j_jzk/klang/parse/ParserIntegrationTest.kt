@@ -56,5 +56,5 @@ class ParserIntegrationTest {
 				ASTNode.Data(NodeID.ID("plus"), 0)
 			else
 				ASTNode.Data(NodeID.ID("expr"), tok.toInt())
-		} + ASTNode.Data(NodeID.Eof, 0)).iterator() // TODO: how should we handle EOF nodes IRL?
+		} + ASTNode.Data(NodeID.Eof, 0)).iterator()
 }

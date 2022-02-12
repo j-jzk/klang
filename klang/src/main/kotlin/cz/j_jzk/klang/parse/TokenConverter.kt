@@ -2,7 +2,11 @@ package cz.j_jzk.klang.parse
 
 import cz.j_jzk.klang.lex.Token
 
-class TokenConverter<I, D>(private val conversions: Map<I, (String) -> D>, private val input: Iterator<Token<I>>): Iterator<ASTNode<D>> {
+/** An iterator that transforms Tokens from an input using specified conversion functions */
+class TokenConverter<I, D>(
+	private val conversions: Map<I, (String) -> D>,
+	private val input: Iterator<Token<I>>
+): Iterator<ASTNode<D>> {
 	/* This is for tracking if we returned an EOF already - we want to return
 	 * it only once */
 	private var gotEOF = false
@@ -11,6 +15,8 @@ class TokenConverter<I, D>(private val conversions: Map<I, (String) -> D>, priva
 	override fun next(): ASTNode<D> {
 		if (!input.hasNext() && !gotEOF)
 			return ASTNode.NoValue(NodeID.Eof)
+		if (!hasNext())
+			throw NoSuchElementException()
 
 		val token = input.next()
 		val id = NodeID.ID(token.id)

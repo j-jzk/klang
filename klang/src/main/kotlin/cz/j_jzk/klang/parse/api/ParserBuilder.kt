@@ -5,7 +5,6 @@ import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.ParserWrapper
-import cz.j_jzk.klang.parse.algo.DFA
 import cz.j_jzk.klang.parse.algo.DFABuilder
 
 /**
@@ -50,6 +49,7 @@ class ParserBuilder<I, D> {
 		errorRecoveringNodes += nodes.map { NodeID.ID(it) }
 	}
 
+	/** Declare conversions from lexer tokens (strings) to AST node values */
 	fun conversions(init: ConverterBuilder<I, D>.() -> Unit) {
 		require(conversionsMap == null) { "Only one `conversions` block is allowed" }
 		val builder = ConverterBuilder<I, D>()
