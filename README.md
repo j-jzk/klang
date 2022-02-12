@@ -25,10 +25,9 @@ public repositories.
 To build, you will first need to install the component [Klang-RE](https://github.com/j-jzk/klang-re):
 
 ```sh
-(install Maven)
 $ git clone https://github.com/j-jzk/klang-re.git
 $ cd klang-re
-$ mvn install  # saves klang-re.jar into the local Maven cache
+$ ./mvnw install  # saves klang-re.jar into the local Maven cache
 ```
 
 Then you can build this library:
