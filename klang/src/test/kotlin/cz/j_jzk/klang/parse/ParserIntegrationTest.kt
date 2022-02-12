@@ -9,19 +9,19 @@ import kotlin.test.assertTrue
 
 class ParserIntegrationTest {
 	private val additionParser = parser<String, Int> {
-		"top" to def("expr2") { it[0] }
-		"expr2" to def("expr2", "plus", "expr") { it[0] + it[2] }
-		"expr2" to def("expr") { it[0] }
+		"top" to def("expr2") { it[0]!! }
+		"expr2" to def("expr2", "plus", "expr") { it[0]!! + it[2]!! }
+		"expr2" to def("expr") { it[0]!! }
 
 		topNode = "top"
-
 		errorRecovering("top", "expr2")
+		conversions { }
 	}.getParser()
 
 	@Test fun testBasicParser() {
 		val input = createInput("5 + 10 + 1")
 
-		val result = additionParser.parse(input)
+		val result = additionParser.dfa.parse(input)
 		assertTrue(result is ASTNode.Data)
 		assertEquals(16, result.data)
 	}
@@ -29,14 +29,24 @@ class ParserIntegrationTest {
 	@Test fun testParserWithoutTopNode() {
 		assertFailsWith(IllegalArgumentException::class) {
 			parser<String, Int> {
-				"foo" to def("bar") { it[0] }
+				"foo" to def("bar") { it[0]!! }
+				conversions { }
+			}.getParser()
+		}
+	}
+
+	@Test fun testParserWithoutConversions() {
+		assertFailsWith(IllegalArgumentException::class) {
+			parser<String, Int> {
+				"foo" to def("bar") { it[0]!! }
+				topNode = "foo"
 			}.getParser()
 		}
 	}
 
 	@Test fun testParserWithErroneousInput() {
 		val input = createInput("5 + 1 2 + 3")
-		val result = additionParser.parse(input)
+		val result = additionParser.dfa.parse(input)
 		assertTrue(result is ASTNode.Erroneous)
 	}
 
