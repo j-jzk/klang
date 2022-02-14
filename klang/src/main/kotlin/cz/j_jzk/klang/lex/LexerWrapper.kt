@@ -32,7 +32,7 @@ class LexerWrapper<T>(val lexer: Lexer<T>, private val onNoMatch: (Char, Positio
 	/**
 	 * Returns an iterator over the tokens of an input.
 	 * For example:
-	 *     for (token in lexer.iterator(input)
+	 *     for (token in lexer.iterator(input))
 	 *         println(token)
 	 */
 	fun iterator(input: IdentifiableInput) = LexerIterator(input)

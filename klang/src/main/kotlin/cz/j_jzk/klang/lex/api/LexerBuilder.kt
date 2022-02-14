@@ -33,7 +33,7 @@ import cz.j_jzk.klang.util.PositionInfo
  * val lexer = lexerBuilder.getLexer()
  * ```
  */
-fun <T>lexer(init: LexerBuilder<T>.() -> Unit): LexerBuilder<T> {
+fun <T> lexer(init: LexerBuilder<T>.() -> Unit): LexerBuilder<T> {
 	val builder = LexerBuilder<T>()
 	builder.init()
 	return builder
