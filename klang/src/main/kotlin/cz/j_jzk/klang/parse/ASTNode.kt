@@ -7,6 +7,13 @@ sealed interface ASTNode<out N> {
 
 	/** A regular node of the AST. */
 	data class Data<out N>(override val id: NodeID, val data: N): ASTNode<N>
+
 	/** A dummy AST node used for error recovery. */
 	data class Erroneous<N>(override val id: NodeID): ASTNode<N>
+
+	/**
+	 * An AST node that has no value (usually used for interoperability
+	 * between the lexer and the parser)
+	 */
+	data class NoValue<N>(override val id: NodeID): ASTNode<N>
 }
