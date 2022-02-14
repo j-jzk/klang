@@ -87,10 +87,11 @@ class ParserBuilder<I, D> {
 								is ASTNode.NoValue -> null
 								else -> throw IllegalStateException("This should never happen")
 							}
-						})
+						}),
+						nodeList.first().position
 				)
 			else
-				ASTNode.Erroneous(nodeID)
+				ASTNode.Erroneous(nodeID, nodeList.first().position)
 		}
 
 	/**
