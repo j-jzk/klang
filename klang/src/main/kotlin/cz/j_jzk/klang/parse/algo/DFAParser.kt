@@ -58,10 +58,12 @@ internal class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 		// TODO: call the error reporting function supplied by the user
 		// Do this more declaratively?
 
-		// Search the stack for an error-recovering state
+		// Search the stack for an error-recovering state.
+		// The position of the inserted token will be derived from the `lastRemoved`
+		var lastRemoved = input.peek()
 		while (!stateStack.last().errorRecovering) {
 			stateStack.removeLast()
-			nodeStack.removeLast()
+			lastRemoved = nodeStack.removeLast()
 		}
 
 		// Act as if we've just shifted one of the error-recovering nodes
@@ -72,7 +74,7 @@ internal class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 		for (node in dfa.errorRecoveringNodes) {
 			if (dfa.actionTable[stateStack.last(), node] is Action.Shift) {
 				stateStack += (dfa.actionTable[stateStack.last(), node] as Action.Shift).nextState
-				nodeStack += ASTNode.Erroneous(node)
+				nodeStack += ASTNode.Erroneous(node, lastRemoved.position)
 				break
 			}
 		}
