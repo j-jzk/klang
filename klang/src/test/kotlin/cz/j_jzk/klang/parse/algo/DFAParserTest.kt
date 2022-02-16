@@ -6,6 +6,7 @@ import cz.j_jzk.klang.parse.testutil.leftRecursiveDFA
 import cz.j_jzk.klang.parse.testutil.rightRecursiveDFA
 import cz.j_jzk.klang.parse.testutil.errorHandlingLeftRecursiveDFA
 import cz.j_jzk.klang.parse.testutil.errorHandlingRightRecursiveDFA
+import cz.j_jzk.klang.util.PositionInfo
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -13,20 +14,23 @@ class DFAParserTest {
 	@Test fun testLeftRecursion() {
 		val input = listOf(node("e", "a"), node("+"), node("e", "b"), eof).iterator()
 		val expected: ASTNode<ASTData> = ASTNode.Data(
-				id("top"),
-				ASTData.Nonterminal(listOf(
-					ASTNode.Data(
-						id("e2"),
-						ASTData.Nonterminal(listOf(
-							ASTNode.Data(
-								id("e2"),
-								ASTData.Nonterminal(listOf(node("e", "a")))
-							),
-							node("+"),
-							node("e", "b"),
-						))
-					)
-				))
+			id("top"),
+			ASTData.Nonterminal(listOf(
+				ASTNode.Data(
+					id("e2"),
+					ASTData.Nonterminal(listOf(
+						ASTNode.Data(
+							id("e2"),
+							ASTData.Nonterminal(listOf(node("e", "a"))),
+							noPos
+						),
+						node("+"),
+						node("e", "b"),
+					)),
+					noPos
+				)
+			)),
+			noPos
 		)
 
 		assertEquals(expected, DFAParser<ASTData>(input, leftRecursiveDFA).parse())
@@ -35,20 +39,23 @@ class DFAParserTest {
 	@Test fun testRightRecursion() {
 		val input = listOf(node("e", "a"), node("+"), node("e", "b"), eof).iterator()
 		val expected: ASTNode<ASTData> = ASTNode.Data(
-				id("top"),
-				ASTData.Nonterminal(listOf(
-					ASTNode.Data(
-						id("e2"),
-						ASTData.Nonterminal(listOf(
-							node("e", "a"),
-							node("+"),
-							ASTNode.Data(
-								id("e2"),
-								ASTData.Nonterminal(listOf(node("e", "b")))
-							))
-						)
-					)
-				))
+			id("top"),
+			ASTData.Nonterminal(listOf(
+				ASTNode.Data(
+					id("e2"),
+					ASTData.Nonterminal(listOf(
+						node("e", "a"),
+						node("+"),
+						ASTNode.Data(
+							id("e2"),
+							ASTData.Nonterminal(listOf(node("e", "b"))),
+							noPos
+						))
+					),
+					noPos
+				)
+			)),
+			noPos
 		)
 
 		assertEquals(expected, DFAParser<ASTData>(input, rightRecursiveDFA).parse())
@@ -59,15 +66,17 @@ class DFAParserTest {
 		val expected: ASTNode<ASTData> = ASTNode.Data(
 			id("top"),
 			ASTData.Nonterminal(listOf(
-					ASTNode.Data(
-						id("e2"),
-						ASTData.Nonterminal(listOf(
-							ASTNode.Erroneous(id("e2")),
-							node("+"),
-							node("e"),
-						))
-					)
-				))
+				ASTNode.Data(
+					id("e2"),
+					ASTData.Nonterminal(listOf(
+						ASTNode.Erroneous(id("e2"), noPos),
+						node("+"),
+						node("e"),
+					)),
+					noPos
+				)
+			)),
+			noPos
 		)
 
 		assertEquals(expected, DFAParser<ASTData>(input, errorHandlingLeftRecursiveDFA).parse())
@@ -78,22 +87,26 @@ class DFAParserTest {
 		val expected: ASTNode<ASTData> = ASTNode.Data(
 			id("top"),
 			ASTData.Nonterminal(listOf(
-					ASTNode.Data(
-						id("e2"),
-						ASTData.Nonterminal(listOf(
-							node("e"),
-							node("+"),
-							ASTNode.Erroneous(id("e2")),
-						))
-					)
-				))
+				ASTNode.Data(
+					id("e2"),
+					ASTData.Nonterminal(listOf(
+						node("e"),
+						node("+"),
+						ASTNode.Erroneous(id("e2"), noPos),
+					)),
+					noPos
+				)
+			)),
+			noPos
 		)
 
 		assertEquals(expected, DFAParser<ASTData>(input, errorHandlingRightRecursiveDFA).parse())
 	}
 
-	private fun node(id: String, value: String = ""): ASTNode<ASTData> = ASTNode.Data(id(id), ASTData.Terminal(value))
+	private fun node(id: String, value: String = ""): ASTNode<ASTData> =
+		ASTNode.Data(id(id), ASTData.Terminal(value), noPos)
 	private fun id(id: String) = NodeID.ID(id)
-	private val eof: ASTNode<ASTData> = ASTNode.Data(NodeID.Eof, ASTData.Terminal(""))
+	private val noPos = PositionInfo("", 0)
+	private val eof: ASTNode<ASTData> = ASTNode.Data(NodeID.Eof, ASTData.Terminal(""), noPos)
 	private fun strInput(str: String) = (str.map { node(it.toString()) } + eof).iterator()
 }

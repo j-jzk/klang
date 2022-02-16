@@ -7,6 +7,7 @@ import cz.j_jzk.klang.parse.algo.DFA
 import cz.j_jzk.klang.parse.algo.ASTData
 import cz.j_jzk.klang.parse.algo.Action
 import cz.j_jzk.klang.parse.algo.State
+import cz.j_jzk.klang.util.PositionInfo
 import com.google.common.collect.Table
 import com.google.common.collect.HashBasedTable
 
@@ -20,8 +21,10 @@ fun s(i: Int, er: Boolean = false) = State(i, er)
 private fun shift(i: Int, er: Boolean = false) = Action.Shift(s(i, er))
 private fun reduce(len: Int) = Action.Reduce(len, exprReduction)
 
-val topReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> = { ASTNode.Data(top, ASTData.Nonterminal(it)) }
-val exprReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> = { ASTNode.Data(e2, ASTData.Nonterminal(it)) }
+val topReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> =
+	{ ASTNode.Data(top, ASTData.Nonterminal(it), PositionInfo("", 0)) }
+val exprReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> =
+	{ ASTNode.Data(e2, ASTData.Nonterminal(it), PositionInfo("", 0)) }
 
 val leftRecursiveDFA = DFA(
 	mapOf(
