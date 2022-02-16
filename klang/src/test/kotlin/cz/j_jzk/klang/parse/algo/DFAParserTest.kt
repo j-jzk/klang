@@ -103,10 +103,73 @@ class DFAParserTest {
 		assertEquals(expected, DFAParser<ASTData>(input, errorHandlingRightRecursiveDFA).parse())
 	}
 
-	private fun node(id: String, value: String = ""): ASTNode<ASTData> =
-		ASTNode.Data(id(id), ASTData.Terminal(value), noPos)
+	@Test fun testLeftRecursivePositionInfo() {
+		val input = listOf(
+			node("e", posInfo=pos(0)),
+			node("+", posInfo=pos(1)),
+			node("e", posInfo=pos(2)),
+			ASTNode.NoValue(NodeID.Eof, pos(3))
+		).iterator()
+
+		val expected: ASTNode<ASTData> = ASTNode.Data(
+			id("top"),
+			ASTData.Nonterminal(listOf(
+				ASTNode.Data(
+					id("e2"),
+					ASTData.Nonterminal(listOf(
+						ASTNode.Data(
+							id("e2"),
+							ASTData.Nonterminal(listOf(node("e", posInfo=PositionInfo("in", 0)))),
+							pos(0)
+						),
+						node("+", posInfo=pos(1)),
+						node("e", posInfo=pos(2)),
+					)),
+					pos(0)
+				)
+			)),
+			pos(0)
+		)
+
+		assertEquals(expected, DFAParser<ASTData>(input, leftRecursiveDFA).parse())
+	}
+
+	@Test fun testRightRecursivePositionInfo() {
+		val input = listOf(
+			node("e", posInfo=pos(0)),
+			node("+", posInfo=pos(1)),
+			node("e", posInfo=pos(2)),
+			ASTNode.NoValue(NodeID.Eof, pos(3))
+		).iterator()
+
+		val expected: ASTNode<ASTData> = ASTNode.Data(
+			id("top"),
+			ASTData.Nonterminal(listOf(
+				ASTNode.Data(
+					id("e2"),
+					ASTData.Nonterminal(listOf(
+						node("e", posInfo=pos(0)),
+						node("+", posInfo=pos(1)),
+						ASTNode.Data(
+							id("e2"),
+							ASTData.Nonterminal(listOf(node("e", posInfo=pos(2)))),
+							pos(2)
+						))
+					),
+					pos(0)
+				)
+			)),
+			pos(0)
+		)
+
+		assertEquals(expected, DFAParser<ASTData>(input, rightRecursiveDFA).parse())
+	}
+
+	private fun node(id: String, value: String = "", posInfo: PositionInfo = noPos): ASTNode<ASTData> =
+		ASTNode.Data(id(id), ASTData.Terminal(value), posInfo)
 	private fun id(id: String) = NodeID.ID(id)
 	private val noPos = PositionInfo("", 0)
 	private val eof: ASTNode<ASTData> = ASTNode.Data(NodeID.Eof, ASTData.Terminal(""), noPos)
 	private fun strInput(str: String) = (str.map { node(it.toString()) } + eof).iterator()
+	private fun pos(n: Int) = PositionInfo("in", n)
 }
