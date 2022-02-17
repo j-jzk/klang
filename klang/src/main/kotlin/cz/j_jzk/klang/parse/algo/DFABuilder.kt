@@ -1,6 +1,7 @@
 package cz.j_jzk.klang.parse.algo
 
 import com.google.common.collect.HashBasedTable
+import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.util.set
@@ -38,6 +39,11 @@ class DFABuilder<N>(
 	 * errors)
 	 */
 	val errorRecoveringNodes: List<NodeID>,
+
+	/**
+	 * A callback used when the parser encounters a syntax error.
+	 */
+	val onError: (ASTNode<N>) -> Unit,
 ) {
 	private val transitions = HashBasedTable.create<State, NodeID, Action<N>>()
 
@@ -60,7 +66,7 @@ class DFABuilder<N>(
 		constructorStates[startingSet] = startState
 		constructStates(startingSet, startState)
 
-		return DFA(transitions, topNode, startState, errorRecoveringNodes)
+		return DFA(transitions, topNode, startState, errorRecoveringNodes, onError)
 	}
 
 	private fun constructStates(itemSet: MutableSet<LR1Item<N>>, thisState: State) {

@@ -40,7 +40,8 @@ val leftRecursiveDFA = DFA(
 	).toTable(),
 	top,
 	s(0),
-	emptyList()
+	emptyList(),
+	{ }
 )
 
 val rightRecursiveDFA = DFA(
@@ -56,7 +57,8 @@ val rightRecursiveDFA = DFA(
 	).toTable(),
 	top,
 	s(0),
-	emptyList()
+	emptyList(),
+	{ }
 )
 
 val errorHandlingLeftRecursiveDFA = DFA(
@@ -73,7 +75,8 @@ val errorHandlingLeftRecursiveDFA = DFA(
 	).toTable(),
 	top,
 	s(0, true),
-	listOf(e2, top)
+	listOf(e2, top),
+	{ }
 )
 
 val errorHandlingRightRecursiveDFA = DFA(
@@ -89,7 +92,8 @@ val errorHandlingRightRecursiveDFA = DFA(
 	).toTable(),
 	top,
 	s(0, true),
-	listOf(e2, top)
+	listOf(e2, top),
+	{ }
 )
 
 private fun Map<Pair<State, NodeID>, Action<ASTData>>.toTable(): Table<State, NodeID, Action<ASTData>> {

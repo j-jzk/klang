@@ -28,22 +28,22 @@ class DFABuilderTest {
 	)
 
 	@Test fun testBasicConstruction() {
-		val dfa = DFABuilder(leftRecursiveGrammar, top, emptyList()).build()
+		val dfa = DFABuilder(leftRecursiveGrammar, top, emptyList(), {}).build()
 		assertEquals(leftRecursiveDFA, dfa)
 	}
 
 	@Test fun testRightRecursion() {
-		val dfa = DFABuilder(rightRecursiveGrammar, top, emptyList()).build()
+		val dfa = DFABuilder(rightRecursiveGrammar, top, emptyList(), {}).build()
 		assertEquals(rightRecursiveDFA, dfa)
 	}
 
 	@Test fun testLeftRecusionWithErrorRecovery() {
-		val dfa = DFABuilder(leftRecursiveGrammar, top, listOf(e2, top)).build()
+		val dfa = DFABuilder(leftRecursiveGrammar, top, listOf(e2, top), {}).build()
 		assertEquals(errorHandlingLeftRecursiveDFA, dfa)
 	}
 
 	@Test fun testRightRecursionWithErrorRecovery() {
-		val dfa = DFABuilder(rightRecursiveGrammar, top, listOf(e2, top)).build()
+		val dfa = DFABuilder(rightRecursiveGrammar, top, listOf(e2, top), {}).build()
 		assertEquals(errorHandlingRightRecursiveDFA, dfa)
 	}
 }

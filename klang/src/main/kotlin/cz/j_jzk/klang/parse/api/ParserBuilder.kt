@@ -26,6 +26,7 @@ class ParserBuilder<I, D> {
 	private val nodeDefs = LazyMap.lazyMap<NodeID, MutableSet<NodeDef<D>>>(actualNodeDefs) { -> mutableSetOf() }
 	private val errorRecoveringNodes = mutableListOf<NodeID>()
 	private var conversionsMap: Map<I, (String) -> D>? = null
+	private var errorCallback: ((ASTNode<D>) -> Unit)? = null
 
 	/** Maps a node to its definition. */
 	infix fun I.to(definition: IntermediateNodeDefinition<I, D>) {
@@ -49,6 +50,16 @@ class ParserBuilder<I, D> {
 		errorRecoveringNodes += nodes.map { NodeID.ID(it) }
 	}
 
+	/**
+	 * Declare a function to be called when a syntax error is encountered.
+	 * Error recovery is handled automatically. The erroneous token is passed
+	 * into the function for error reporting.
+	 */
+	fun onError(callback: (ASTNode<D>) -> Unit) {
+		require(errorCallback == null) { "Only one `onError` block is allowed" }
+		errorCallback = callback
+	}
+
 	/** Declare conversions from lexer tokens (strings) to AST node values */
 	fun conversions(init: ConverterBuilder<I, D>.() -> Unit) {
 		require(conversionsMap == null) { "Only one `conversions` block is allowed" }
@@ -64,7 +75,7 @@ class ParserBuilder<I, D> {
 			"A `conversions` block must be present to define the conversions between the tokens and node values"
 		}
 
-		val dfa = DFABuilder(actualNodeDefs, NodeID.ID(topNode), errorRecoveringNodes).build()
+		val dfa = DFABuilder(actualNodeDefs, NodeID.ID(topNode), errorRecoveringNodes, errorCallback ?: { }).build()
 		return ParserWrapper(dfa, nullSafeConversions)
 	}
 
