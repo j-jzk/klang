@@ -34,31 +34,4 @@ class OverallIntegrationTest {
 
 		assertEquals(23, result)
 	}
-
-	@Test fun testErrorRecoveryInWrapper() {
-		val lexer = lexer<String> {
-			"int" to "\\d+"
-			"plus" to "\\+"
-			ignore("\\s")
-		}.getLexer()
-
-		val parser = parser<String, Int> {
-			conversions {
-				"int" to { it.toInt() }
-			}
-
-			"top" to def("addition") { it[0]!! }
-			"addition" to def("addition", "plus", "int") { it[0]!! + it[2]!! }
-			"addition" to def("int") { it[0]!! }
-
-			topNode = "top"
-
-			errorRecovering("top", "addition")
-		}.getParser()
-
-		val input = "12 ++ 8 + 3"
-		val tokenStream = lexer.iterator(InputFactory.fromString(input, "in"))
-
-		assertFailsWith(SyntaxError::class) { parser.parse(tokenStream) }
-	}
 }

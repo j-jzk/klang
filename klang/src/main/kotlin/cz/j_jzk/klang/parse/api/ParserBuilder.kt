@@ -24,7 +24,7 @@ fun <I, D> parser(init: ParserBuilder<I, D>.() -> Unit) = ParserBuilder<I, D>().
 class ParserBuilder<I, D> {
 	private val actualNodeDefs = mutableMapOf<NodeID, MutableSet<NodeDef<D>>>()
 	private val nodeDefs = LazyMap.lazyMap<NodeID, MutableSet<NodeDef<D>>>(actualNodeDefs) { -> mutableSetOf() }
-	private val errorRecoveringNodes = mutableListOf<NodeID>()
+	private val errorRecoveringNodes = mutableSetOf<NodeID>()
 	private var conversionsMap: Map<I, (String) -> D>? = null
 	private var errorCallback: ((ASTNode<D>) -> Unit)? = null
 
@@ -75,7 +75,11 @@ class ParserBuilder<I, D> {
 			"A `conversions` block must be present to define the conversions between the tokens and node values"
 		}
 
-		val dfa = DFABuilder(actualNodeDefs, NodeID.ID(topNode), errorRecoveringNodes, errorCallback ?: { }).build()
+		// Add the top node to the error-recovering nodes so the parser doesn't
+		// fail completely if the user hasn't specified any error-recovering nodes
+		errorRecoveringNodes += NodeID.ID(topNode)
+
+		val dfa = DFABuilder(actualNodeDefs, NodeID.ID(topNode), errorRecoveringNodes.toList(), errorCallback ?: { }).build()
 		return ParserWrapper(dfa, nullSafeConversions)
 	}
 
