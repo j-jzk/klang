@@ -61,7 +61,8 @@ class DFABuilder<N>(
 		var startingSet = mutableSetOf(
 			LR1Item(topNodeDef, 0, setOf(NodeID.Eof))
 		)
-		val startState = stateFactory.new(isErrorRecovering(startingSet))
+		// The top state will always be error-recovering (for protection)
+		val startState = stateFactory.new(true)
 
 		constructorStates[startingSet] = startState
 		constructStates(startingSet, startState)

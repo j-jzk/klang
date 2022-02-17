@@ -2,10 +2,8 @@ package cz.j_jzk.klang
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import cz.j_jzk.klang.lex.api.lexer
 import cz.j_jzk.klang.parse.api.parser
-import cz.j_jzk.klang.parse.SyntaxError
 import cz.j_jzk.klang.input.InputFactory
 
 class OverallIntegrationTest {
