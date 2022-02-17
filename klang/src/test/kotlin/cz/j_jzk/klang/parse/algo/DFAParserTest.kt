@@ -2,10 +2,11 @@ package cz.j_jzk.klang.parse.algo
 
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
-import cz.j_jzk.klang.parse.testutil.leftRecursiveDFA
-import cz.j_jzk.klang.parse.testutil.rightRecursiveDFA
-import cz.j_jzk.klang.parse.testutil.errorHandlingLeftRecursiveDFA
-import cz.j_jzk.klang.parse.testutil.errorHandlingRightRecursiveDFA
+import cz.j_jzk.klang.parse.testutil.createDFA
+import cz.j_jzk.klang.parse.testutil.leftRecursiveGrammar
+import cz.j_jzk.klang.parse.testutil.rightRecursiveGrammar
+import cz.j_jzk.klang.parse.testutil.top
+import cz.j_jzk.klang.parse.testutil.e2
 import cz.j_jzk.klang.util.PositionInfo
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -33,7 +34,7 @@ class DFAParserTest {
 			noPos
 		)
 
-		assertEquals(expected, DFAParser<ASTData>(input, leftRecursiveDFA).parse())
+		assertEquals(expected, DFAParser<ASTData>(input, createDFA(leftRecursiveGrammar)).parse())
 	}
 
 	@Test fun testRightRecursion() {
@@ -58,7 +59,7 @@ class DFAParserTest {
 			noPos
 		)
 
-		assertEquals(expected, DFAParser<ASTData>(input, rightRecursiveDFA).parse())
+		assertEquals(expected, DFAParser<ASTData>(input, createDFA(rightRecursiveGrammar)).parse())
 	}
 
 	@Test fun testLeftRecursiveError() {
@@ -79,7 +80,7 @@ class DFAParserTest {
 			noPos
 		)
 
-		assertEquals(expected, DFAParser<ASTData>(input, errorHandlingLeftRecursiveDFA).parse())
+		assertEquals(expected, DFAParser<ASTData>(input, createDFA(leftRecursiveGrammar, listOf(e2, top))).parse())
 	}
 
 	@Test fun testRightRecursiveError() {
@@ -100,7 +101,7 @@ class DFAParserTest {
 			noPos
 		)
 
-		assertEquals(expected, DFAParser<ASTData>(input, errorHandlingRightRecursiveDFA).parse())
+		assertEquals(expected, DFAParser<ASTData>(input, createDFA(rightRecursiveGrammar, listOf(e2, top))).parse())
 	}
 
 	@Test fun testLeftRecursivePositionInfo() {
@@ -131,7 +132,7 @@ class DFAParserTest {
 			pos(0)
 		)
 
-		assertEquals(expected, DFAParser<ASTData>(input, leftRecursiveDFA).parse())
+		assertEquals(expected, DFAParser<ASTData>(input, createDFA(leftRecursiveGrammar)).parse())
 	}
 
 	@Test fun testRightRecursivePositionInfo() {
@@ -162,7 +163,7 @@ class DFAParserTest {
 			pos(0)
 		)
 
-		assertEquals(expected, DFAParser<ASTData>(input, rightRecursiveDFA).parse())
+		assertEquals(expected, DFAParser<ASTData>(input, createDFA(rightRecursiveGrammar)).parse())
 	}
 
 	private fun node(id: String, value: String = "", posInfo: PositionInfo = noPos): ASTNode<ASTData> =
