@@ -67,7 +67,10 @@ class DFABuilder<N>(
 		constructorStates[startingSet] = startState
 		constructStates(startingSet, startState)
 
-		return DFA(transitions, topNode, startState, errorRecoveringNodes, onError)
+		val finalState = stateFactory.new(false)
+		transitions[startState, topNode] = Action.Shift(finalState)
+
+		return DFA(transitions, topNode, startState, finalState, errorRecoveringNodes, onError)
 	}
 
 	private fun constructStates(itemSet: MutableSet<LR1Item<N>>, thisState: State) {

@@ -45,9 +45,11 @@ class DFABuilderTest {
 				(s(3) to p) to reduce(3),
 				(s(4) to p) to reduce(1),
 				(s(4) to eof) to reduce(1),
+				(s(0, true) to top) to shift(5),
 			).toTable(),
 			top,
 			s(0, true),
+			s(5),
 			emptyList(),
 			emptyFun
 		)
@@ -66,9 +68,11 @@ class DFABuilderTest {
 				(s(3) to e) to shift(2),
 				(s(3) to e2) to shift(4),
 				(s(4) to eof) to reduce(3),
+				(s(0, true) to top) to shift(5),
 			).toTable(),
 			top,
 			s(0, true),
+			s(5),
 			emptyList(),
 			emptyFun
 		)
@@ -88,9 +92,11 @@ class DFABuilderTest {
 				(s(3) to p) to reduce(3),
 				(s(4) to p) to reduce(1),
 				(s(4) to eof) to reduce(1),
+				(s(0, true) to top) to shift(5),
 			).toTable(),
 			top,
 			s(0, true),
+			s(5),
 			listOf(e2, top),
 			emptyFun
 		)
@@ -109,9 +115,11 @@ class DFABuilderTest {
 				(s(3, true) to e) to shift(2),
 				(s(3, true) to e2) to shift(4),
 				(s(4) to eof) to reduce(3),
+				(s(0, true) to top) to shift(5),
 			).toTable(),
 			top,
 			s(0, true),
+			s(5),
 			listOf(e2, top),
 			emptyFun
 		)

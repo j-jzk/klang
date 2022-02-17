@@ -13,6 +13,7 @@ data class DFA<N>(
 	val actionTable: Table<State, NodeID, Action<N>>,
 	val finalNodeType: NodeID,
 	val startState: State,
+	val finalState: State,
 	val errorRecoveringNodes: List<NodeID>,
 	val onError: (ASTNode<N>) -> Unit,
 ) {
@@ -33,6 +34,8 @@ internal class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 	/** This method runs the parser and returns the resulting syntax tree. */
 	fun parse(): ASTNode<N> {
 		while (!isParsingFinished()) {
+			println("nodestack: $nodeStack, next input: ${input.peek()}")
+			println("statestack: $stateStack")
 			when (val action = dfa.actionTable[stateStack.last(), input.peek().id]) {
 				is Action.Shift -> shift(action)
 				is Action.Reduce<*> -> reduce(action as Action.Reduce<N>)
@@ -40,16 +43,21 @@ internal class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 			}
 		}
 
-		return input.next()
+		return nodeStack.last()
 	}
 
 	private fun shift(action: Action.Shift) {
 		nodeStack += input.next()
 		stateStack += action.nextState
+		println("   shifting: ${nodeStack.last()}")
 	}
 
 	private fun reduce(action: Action.Reduce<N>) {
-		input.pushback(action.reduction(nodeStack.popTop(action.nNodes)))
+		// input.pushback(action.reduction(nodeStack.popTop(action.nNodes)))
+		// STOPSHIP:
+		val nodes = nodeStack.popTop(action.nNodes)
+		println("   reducing: $nodes")
+		input.pushback(action.reduction(nodes))
 		// Return to the state we were in before we started parsing this item
 		stateStack.popTop(action.nNodes)
 	}
@@ -87,10 +95,7 @@ internal class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 	}
 
 	// Or should we have a special finishing state?
-	private fun isParsingFinished() =
-		input.peekOrNull()?.let {
-			it.id == dfa.finalNodeType
-		} ?: false
+	private fun isParsingFinished() = stateStack.last() == dfa.finalState
 
 	// TODO: handle EOF, input with no elements etc. properly
 	private val input = PeekingPushbackIterator(input)
