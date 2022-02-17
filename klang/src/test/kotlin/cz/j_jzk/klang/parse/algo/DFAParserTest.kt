@@ -166,6 +166,27 @@ class DFAParserTest {
 		assertEquals(expected, DFAParser<ASTData>(input, createDFA(rightRecursiveGrammar)).parse())
 	}
 
+	@Test fun testErrorCallback() {
+		val input = listOf(
+			node("e", posInfo=pos(0)),
+			node("+", posInfo=pos(1)),
+			node("e", posInfo=pos(2)),
+			node("e", posInfo=pos(3)),
+			ASTNode.NoValue(NodeID.Eof, pos(4))
+		).iterator()
+
+		var timesCalled = 0
+		val expectedNode = node("e", posInfo=pos(3))
+		val errorCallback = { node: ASTNode<ASTData> ->
+			timesCalled++
+			assertEquals(expectedNode, node)
+		}
+
+		createDFA(leftRecursiveGrammar, listOf(e2, top), errorCallback).parse(input)
+
+		assertEquals(1, timesCalled)
+	}
+
 	private fun node(id: String, value: String = "", posInfo: PositionInfo = noPos): ASTNode<ASTData> =
 		ASTNode.Data(id(id), ASTData.Terminal(value), posInfo)
 	private fun id(id: String) = NodeID.ID(id)
