@@ -36,8 +36,8 @@ class DFABuilderTest {
 		val dfa = DFABuilder(leftRecursiveGrammar, top, emptyList(), emptyFun).build()
 		val expected = DFA(
 			mapOf(
-				(s(0) to e2) to shift(1),
-				(s(0) to e) to shift(4),
+				(s(0, true) to e2) to shift(1),
+				(s(0, true) to e) to shift(4),
 				(s(1) to eof) to Action.Reduce(1, topReduction),
 				(s(1) to p) to shift(2),
 				(s(2) to e) to shift(3),
@@ -47,7 +47,7 @@ class DFABuilderTest {
 				(s(4) to eof) to reduce(1),
 			).toTable(),
 			top,
-			s(0),
+			s(0, true),
 			emptyList(),
 			emptyFun
 		)
@@ -58,8 +58,8 @@ class DFABuilderTest {
 		val dfa = DFABuilder(rightRecursiveGrammar, top, emptyList(), emptyFun).build()
 		val expected = DFA(
 			mapOf(
-				(s(0) to e2) to shift(1),
-				(s(0) to e) to shift(2),
+				(s(0, true) to e2) to shift(1),
+				(s(0, true) to e) to shift(2),
 				(s(1) to eof) to Action.Reduce(1, topReduction),
 				(s(2) to eof) to reduce(1),
 				(s(2) to p) to shift(3),
@@ -68,7 +68,7 @@ class DFABuilderTest {
 				(s(4) to eof) to reduce(3),
 			).toTable(),
 			top,
-			s(0),
+			s(0, true),
 			emptyList(),
 			emptyFun
 		)
