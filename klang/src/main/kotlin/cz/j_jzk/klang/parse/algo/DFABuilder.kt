@@ -55,6 +55,12 @@ class DFABuilder<N>(
 
 	private val stateFactory = StateFactory()
 
+	/*
+	 * This is here so we can unit test (functions can't be structurally
+	 * compared, so we must compare the exact same function)
+	 */
+	internal val identityReduction: (List<ASTNode<N>>) -> ASTNode<N> = { it[0] }
+
 	/** This function constructs the parser and returns it. */
 	fun build(): DFA<N> {
 		val topNodeDef = nodeDefs[topNode]!!.first()
@@ -70,7 +76,7 @@ class DFABuilder<N>(
 		// Final state (needed for e-r to work properly)
 		val finalState = stateFactory.new(false)
 		transitions[startState, topNode] = Action.Shift(finalState)
-		transitions[finalState, NodeID.Eof] = Action.Reduce(1) { it[0] }
+		transitions[finalState, NodeID.Eof] = Action.Reduce(1, identityReduction)
 
 		return DFA(transitions, topNode, startState, errorRecoveringNodes, onError)
 	}

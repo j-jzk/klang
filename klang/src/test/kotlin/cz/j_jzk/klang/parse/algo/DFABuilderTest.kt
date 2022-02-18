@@ -33,7 +33,8 @@ class DFABuilderTest {
 	private val emptyFun: (ASTNode<ASTData>) -> Unit = { }
 
 	@Test fun testBasicConstruction() {
-		val dfa = DFABuilder(leftRecursiveGrammar, top, emptyList(), emptyFun).build()
+		val builder = DFABuilder(leftRecursiveGrammar, top, emptyList(), emptyFun)
+		val dfa = builder.build()
 		val expected = DFA(
 			mapOf(
 				(s(0, true) to e2) to shift(1),
@@ -46,7 +47,7 @@ class DFABuilderTest {
 				(s(4) to p) to reduce(1),
 				(s(4) to eof) to reduce(1),
 				(s(0, true) to top) to shift(5),
-				(s(5) to eof) to Action.Reduce(1, identityReduction),
+				(s(5) to eof) to Action.Reduce(1, builder.identityReduction),
 			).toTable(),
 			top,
 			s(0, true),
@@ -57,7 +58,8 @@ class DFABuilderTest {
 	}
 
 	@Test fun testRightRecursion() {
-		val dfa = DFABuilder(rightRecursiveGrammar, top, emptyList(), emptyFun).build()
+		val builder = DFABuilder(rightRecursiveGrammar, top, emptyList(), emptyFun)
+		val dfa = builder.build()
 		val expected = DFA(
 			mapOf(
 				(s(0, true) to e2) to shift(1),
@@ -69,7 +71,7 @@ class DFABuilderTest {
 				(s(3) to e2) to shift(4),
 				(s(4) to eof) to reduce(3),
 				(s(0, true) to top) to shift(5),
-				(s(5) to eof) to Action.Reduce(1, identityReduction)
+				(s(5) to eof) to Action.Reduce(1, builder.identityReduction)
 			).toTable(),
 			top,
 			s(0, true),
@@ -80,7 +82,8 @@ class DFABuilderTest {
 	}
 
 	@Test fun testLeftRecursionWithErrorRecovery() {
-		val dfa = DFABuilder(leftRecursiveGrammar, top, listOf(e2, top), emptyFun).build()
+		val builder = DFABuilder(leftRecursiveGrammar, top, listOf(e2, top), emptyFun)
+		val dfa = builder.build()
 		val expected = DFA(
 			mapOf(
 				(s(0, true) to e2) to shift(1),
@@ -93,7 +96,7 @@ class DFABuilderTest {
 				(s(4) to p) to reduce(1),
 				(s(4) to eof) to reduce(1),
 				(s(0, true) to top) to shift(5),
-				(s(5) to eof) to Action.Reduce(1, identityReduction),
+				(s(5) to eof) to Action.Reduce(1, builder.identityReduction),
 			).toTable(),
 			top,
 			s(0, true),
@@ -104,7 +107,8 @@ class DFABuilderTest {
 	}
 
 	@Test fun testRightRecursionWithErrorRecovery() {
-		val dfa = DFABuilder(rightRecursiveGrammar, top, listOf(e2, top), emptyFun).build()
+		val builder = DFABuilder(rightRecursiveGrammar, top, listOf(e2, top), emptyFun)
+		val dfa = builder.build()
 		val expected = DFA(
 			mapOf(
 				(s(0, true) to e2) to shift(1),
@@ -116,7 +120,7 @@ class DFABuilderTest {
 				(s(3, true) to e2) to shift(4),
 				(s(4) to eof) to reduce(3),
 				(s(0, true) to top) to shift(5),
-				(s(5) to eof) to Action.Reduce(1, identityReduction),
+				(s(5) to eof) to Action.Reduce(1, builder.identityReduction),
 			).toTable(),
 			top,
 			s(0, true),
