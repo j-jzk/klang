@@ -1,6 +1,7 @@
 package cz.j_jzk.klang.parse
 
 import cz.j_jzk.klang.parse.api.parser
+import cz.j_jzk.klang.util.PositionInfo
 import java.lang.IllegalArgumentException
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -53,8 +54,8 @@ class ParserIntegrationTest {
 	private fun createInput(input: String) =
 		(input.split(" ").map { tok ->
 			if (tok == "+")
-				ASTNode.Data(NodeID.ID("plus"), 0)
+				ASTNode.Data(NodeID.ID("plus"), 0, PositionInfo("", 0))
 			else
-				ASTNode.Data(NodeID.ID("expr"), tok.toInt())
-		} + ASTNode.Data(NodeID.Eof, 0)).iterator()
+				ASTNode.Data(NodeID.ID("expr"), tok.toInt(), PositionInfo("", 0))
+		} + ASTNode.Data(NodeID.Eof, 0, PositionInfo("", 0))).iterator()
 }

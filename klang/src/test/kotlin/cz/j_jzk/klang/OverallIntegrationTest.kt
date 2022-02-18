@@ -26,9 +26,10 @@ class OverallIntegrationTest {
 			topNode = "top"
 		}.getParser()
 
-		val input = "12 + 8 + 3"
+		val input = "12+ 8+3"
 		val tokenStream = lexer.iterator(InputFactory.fromString(input, "in"))
 		val result = parser.parse(tokenStream)
+
 		assertEquals(23, result)
 	}
 }

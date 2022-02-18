@@ -1,6 +1,7 @@
 package cz.j_jzk.klang.parse.algo
 
 import com.google.common.collect.HashBasedTable
+import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.util.set
@@ -38,6 +39,11 @@ class DFABuilder<N>(
 	 * errors)
 	 */
 	val errorRecoveringNodes: List<NodeID>,
+
+	/**
+	 * A callback used when the parser encounters a syntax error.
+	 */
+	val onError: (ASTNode<N>) -> Unit,
 ) {
 	private val transitions = HashBasedTable.create<State, NodeID, Action<N>>()
 
@@ -49,18 +55,30 @@ class DFABuilder<N>(
 
 	private val stateFactory = StateFactory()
 
+	/*
+	 * This is here so we can unit test (functions can't be structurally
+	 * compared, so we must compare the exact same function)
+	 */
+	internal val identityReduction: (List<ASTNode<N>>) -> ASTNode<N> = { it[0] }
+
 	/** This function constructs the parser and returns it. */
 	fun build(): DFA<N> {
 		val topNodeDef = nodeDefs[topNode]!!.first()
 		var startingSet = mutableSetOf(
 			LR1Item(topNodeDef, 0, setOf(NodeID.Eof))
 		)
-		val startState = stateFactory.new(isErrorRecovering(startingSet))
+		// The top state will always be error-recovering (for protection)
+		val startState = stateFactory.new(true)
 
 		constructorStates[startingSet] = startState
 		constructStates(startingSet, startState)
 
-		return DFA(transitions, topNode, startState, errorRecoveringNodes)
+		// Final state (needed for e-r to work properly)
+		val finalState = stateFactory.new(false)
+		transitions[startState, topNode] = Action.Shift(finalState)
+		transitions[finalState, NodeID.Eof] = Action.Reduce(1, identityReduction)
+
+		return DFA(transitions, topNode, startState, errorRecoveringNodes, onError)
 	}
 
 	private fun constructStates(itemSet: MutableSet<LR1Item<N>>, thisState: State) {
