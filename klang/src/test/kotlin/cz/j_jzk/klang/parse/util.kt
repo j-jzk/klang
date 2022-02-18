@@ -23,6 +23,8 @@ val topReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> =
 	{ ASTNode.Data(top, ASTData.Nonterminal(it), it[0].position) }
 val exprReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> =
 	{ ASTNode.Data(e2, ASTData.Nonterminal(it), it[0].position) }
+val identityReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> =
+	{ it[0] }
 
 val leftRecursiveGrammar: Map<NodeID, Set<NodeDef<ASTData>>> = mapOf(
 	top to setOf(NodeDef(listOf(e2), topReduction)),
