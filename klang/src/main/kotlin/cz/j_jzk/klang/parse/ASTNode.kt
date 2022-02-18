@@ -2,10 +2,15 @@ package cz.j_jzk.klang.parse
 
 import cz.j_jzk.klang.util.PositionInfo
 
-/** This interface represents a node of the AST. */
+/**
+ * This interface represents a node of the Abstract Syntax Tree. It is used
+ * internally by the parser and also passed to error-logging functions.
+ */
 // Do we need the type parameter N?
 sealed interface ASTNode<out N> {
+	/** The identifier of the node. */
 	val id: NodeID
+	/** Information about the position of the node in the input text */
 	val position: PositionInfo
 
 	/** A regular node of the AST. */
