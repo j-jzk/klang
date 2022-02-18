@@ -67,6 +67,11 @@ class DFABuilder<N>(
 		constructorStates[startingSet] = startState
 		constructStates(startingSet, startState)
 
+		// Final state (needed for e-r to work properly)
+		val finalState = stateFactory.new(false)
+		transitions[startState, topNode] = Action.Shift(finalState)
+		transitions[finalState, NodeID.Eof] = Action.Reduce(1) { it[0] }
+
 		return DFA(transitions, topNode, startState, errorRecoveringNodes, onError)
 	}
 
