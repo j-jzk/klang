@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "cz.j_jzk.klang"
-version = "0.1"
+version = "1.0-rc1"
 
 repositories {
     // Prefer Maven local to use development builds of klang-re
