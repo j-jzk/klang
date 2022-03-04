@@ -3,6 +3,7 @@ plugins {
     id 'java-library'
 
     id "io.gitlab.arturbosch.detekt" version "1.19.0"
+    id "org.jetbrains.dokka" version "1.6.10"
 }
 
 group = "cz.j_jzk.klang"
