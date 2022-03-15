@@ -1,6 +1,7 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.6.0'
     id 'java-library'
+    id 'maven-publish'
 
     id "io.gitlab.arturbosch.detekt" version "1.19.0"
     id "org.jetbrains.dokka" version "1.6.10"
@@ -13,6 +14,14 @@ repositories {
     // Prefer Maven local to use development builds of klang-re
 	mavenLocal()
     mavenCentral()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.kotlin
+        }
+   }
 }
 
 dependencies {
