@@ -129,4 +129,18 @@ class DFABuilderTest {
 		)
 		assertEquals(expected, dfa)
 	}
+
+	// Regression test for issue #45
+	@Test fun testInnerRecursion() {
+		val grammar: Map<NodeID, Set<NodeDef<ASTData>>> = mapOf(
+			top to setOf(NodeDef(listOf(e2), topReduction)),
+			e2 to setOf(
+				NodeDef(listOf(e), exprReduction),
+				NodeDef(listOf(lp, top, rp), exprReduction)
+			),
+		)
+		DFABuilder(grammar, top, emptyList(), emptyFun).build()
+
+		// STOPSHIP: add a test for the structure of the DFA
+	}
 }

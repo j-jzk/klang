@@ -176,7 +176,12 @@ class DFABuilder<N>(
 	private fun getStateOrCreate(itemSet: MutableSet<LR1Item<N>>) =
 		constructorStates[itemSet] ?: stateFactory.new(isErrorRecovering(itemSet)).also { newState ->
 			constructorStates[itemSet] = newState
-			constructStates(itemSet, newState)
+
+			// We must duplicate the item set because it is modified by constructStates
+			var newItemSet = mutableSetOf<LR1Item<N>>()
+			newItemSet.addAll(itemSet)
+
+			constructStates(newItemSet, newState)
 		}
 
 	/**
