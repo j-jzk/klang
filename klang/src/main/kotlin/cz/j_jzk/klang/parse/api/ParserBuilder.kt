@@ -6,6 +6,7 @@ import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.ParserWrapper
 import cz.j_jzk.klang.parse.algo.DFABuilder
+import cz.j_jzk.klang.util.PositionInfo
 
 /**
  * A function to create a parser.
@@ -103,7 +104,7 @@ class ParserBuilder<I, D> {
 								else -> throw IllegalStateException("This should never happen")
 							}
 						}),
-						nodeList.first().position
+						nodeList.firstOrNull()?.position ?: PositionInfo("__undefined", -1)
 				)
 			else
 				ASTNode.Erroneous(nodeID, nodeList.first().position)
