@@ -15,6 +15,8 @@ import com.google.common.collect.HashBasedTable
 val e = NodeID.ID("e")
 val e2 = NodeID.ID("e2")
 val p = NodeID.ID("+")
+val lp = NodeID.ID("(")
+val rp = NodeID.ID(")")
 val eof = NodeID.Eof
 val top = NodeID.ID("top")
 fun s(i: Int, er: Boolean = false) = State(i, er)
