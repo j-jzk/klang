@@ -139,8 +139,40 @@ class DFABuilderTest {
 				NodeDef(listOf(lp, top, rp), exprReduction)
 			),
 		)
-		DFABuilder(grammar, top, emptyList(), emptyFun).build()
 
-		// STOPSHIP: add a test for the structure of the DFA
+		val builder = DFABuilder(grammar, top, emptyList(), emptyFun)
+		val dfa = builder.build()
+
+		val expected = DFA(
+			mapOf(
+				(s(0, true) to e) to shift(2),
+				(s(0, true) to e2) to shift(1),
+				(s(0, true) to top) to shift(11),
+				(s(0, true) to lp) to shift(3),
+				(s(1) to eof) to Action.Reduce(1, topReduction),
+				(s(2) to eof) to reduce(1),
+				(s(3) to e) to shift(7),
+				(s(3) to e2) to shift(6),
+				(s(3) to top) to shift(4),
+				(s(3) to lp) to shift(8),
+				(s(4) to rp) to shift(5),
+				(s(5) to eof) to reduce(3),
+				(s(6) to rp) to Action.Reduce(1, topReduction),
+				(s(7) to rp) to reduce(1),
+				(s(8) to e) to shift(7),
+				(s(8) to e2) to shift(6),
+				(s(8) to top) to shift(9),
+				(s(8) to lp) to shift(8),
+				(s(9) to rp) to shift(10),
+				(s(10) to rp) to reduce(3),
+				(s(11) to eof) to Action.Reduce(1, builder.identityReduction),
+			).toTable(),
+			top,
+			s(0, true),
+			emptyList(),
+			emptyFun
+		)
+
+		assertEquals(expected, dfa)
 	}
 }
