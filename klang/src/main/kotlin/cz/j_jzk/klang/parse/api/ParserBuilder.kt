@@ -104,7 +104,9 @@ class ParserBuilder<I, D> {
 								else -> throw IllegalStateException("This should never happen")
 							}
 						}),
-						nodeList.firstOrNull()?.position ?: PositionInfo("__undefined", -1)
+
+						nodeList.firstOrNull { it.position.character != -1 }
+								?.position ?: PositionInfo("__undefined", -1)
 				)
 			else
 				ASTNode.Erroneous(nodeID, nodeList.first().position)
