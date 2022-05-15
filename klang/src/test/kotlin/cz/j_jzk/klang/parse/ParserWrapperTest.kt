@@ -15,6 +15,8 @@ class ParserWrapperTest {
 		ignore("\\s")
 	}.getLexer()
 
+	private fun input(inp: String) = lexer.iterator(InputFactory.fromString(inp, "in"))
+
 	@Test fun testErrorRecoveryInWrapper() {
 		var numberOfErrors = 0
 		val expectedErroneousNode = ASTNode.NoValue<Int>(NodeID.ID("plus"), PositionInfo("in", 4))
@@ -38,10 +40,9 @@ class ParserWrapperTest {
 			}
 		}.getParser()
 
-		val input = "12 ++ 8 + 3"
-		val tokenStream = lexer.iterator(InputFactory.fromString(input, "in"))
+		val input = input("12 ++ 8 + 3")
 
-		assertFailsWith(SyntaxError::class) { parser.parse(tokenStream) }
+		assertFailsWith(SyntaxError::class) { parser.parse(input) }
 		assertEquals(1, numberOfErrors)
 	}
 
@@ -60,9 +61,28 @@ class ParserWrapperTest {
 			topNode = "top"
 		}.getParser()
 
-		val input = "12 ++ 8 + 3"
-		val tokenStream = lexer.iterator(InputFactory.fromString(input, "in"))
+		val input = input("12 ++ 8 + 3")
+		assertFailsWith(SyntaxError::class) { parser.parse(input) }
+	}
 
-		assertFailsWith(SyntaxError::class) { parser.parse(tokenStream) }
+	/* Regression test for https://github.com/j-jzk/klang/issues/43 */
+	@Test fun testEpsilonReduction() {
+		val wrapper = parser<String, Int> {
+			conversions {
+				"int" to { it.toInt() }
+			}
+
+			topNode = "top"
+			"top" to def("list") { it[0]!! }
+			"list" to def("list", "int") { it[0]!! + it[1]!! }
+			"list" to def() { 0 }
+		}.getParser()
+
+		// test if the parser doesn't throw an error and that the PositionInfos are correct
+		val ast = wrapper.dfa.parse(TokenConverter(wrapper.tokenConversions, input("1 2")))
+		assertEquals(
+			ASTNode.Data(NodeID.ID("top"), 3, PositionInfo("in", 0)),
+			ast
+		)
 	}
 }
