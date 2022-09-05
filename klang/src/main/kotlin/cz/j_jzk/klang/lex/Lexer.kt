@@ -1,7 +1,7 @@
 package cz.j_jzk.klang.lex
 
 import cz.j_jzk.klang.lex.re.fa.NFA
-import cz.j_jzk.klang.lex.re.MultipleMatcher
+import cz.j_jzk.klang.lex.re.nextMatchFromMultiple
 import cz.j_jzk.klang.util.listiterator.previousString
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.input.IdentifiableInput
@@ -19,7 +19,7 @@ import java.io.EOFException
  * to parse multiple inputs in parallel.
  */
 class Lexer<T>(private val tokenDefs: LinkedHashMap<NFA, T>, private val ignored: List<NFA> = listOf()) {
-	private val matcher = MultipleMatcher(tokenDefs.keys + ignored)
+	private val allNFAs = tokenDefs.keys + ignored
 	private val precedenceTable: Map<NFA, Int>
 	init {
 		var i = 0
@@ -36,7 +36,7 @@ class Lexer<T>(private val tokenDefs: LinkedHashMap<NFA, T>, private val ignored
 		if (!input.hasNext())
 			throw EOFException()
 
-		val longestMatch = chooseMatch(matcher.nextMatch(input)) ?: return null
+		val longestMatch = chooseMatch(nextMatchFromMultiple(allNFAs, input)) ?: return null
 
 		if (longestMatch.key in ignored)
 			return if (input.hasNext())
