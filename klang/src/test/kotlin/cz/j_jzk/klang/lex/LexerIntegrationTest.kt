@@ -27,7 +27,7 @@ class LexerIntegrationTest {
 				FToken("NUMBER", "12.34"),
 				FToken("IF", "if"),
 				FToken("NUMBER", "15"),
-				FToken("IF", "if")
+				FToken("IF", "if"),
 			)
 		)
 	}
