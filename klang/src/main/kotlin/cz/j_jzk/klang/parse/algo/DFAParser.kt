@@ -86,6 +86,14 @@ internal class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 		)
 	}
 
+	private fun expectedIDs(): List<Any> =
+		dfa.actionTable.row(stateStack.last()).keys.mapNotNull { nodeId ->
+			when (nodeId) {
+				is NodeID.ID<*> -> nodeId.id
+				is NodeID.Eof -> null
+			}
+		}
+
 	// Or should we have a special finishing state?
 	private fun isParsingFinished() =
 		input.peekOrNull()?.let {
