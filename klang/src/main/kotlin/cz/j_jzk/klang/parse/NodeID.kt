@@ -1,5 +1,6 @@
 package cz.j_jzk.klang.parse
 
+// TODO: ditch this and just have a special object representing EOF?
 /**
  * A class used internally to identify nodes of the AST.
  */
