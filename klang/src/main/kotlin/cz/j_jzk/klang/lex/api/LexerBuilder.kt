@@ -33,8 +33,8 @@ import cz.j_jzk.klang.util.PositionInfo
  * val lexer = lexerBuilder.getLexer()
  * ```
  */
-fun <T> lexer(init: LexerBuilder<T>.() -> Unit): LexerBuilder<T> {
-	val builder = LexerBuilder<T>()
+fun lexer(init: LexerBuilder.() -> Unit): LexerBuilder {
+	val builder = LexerBuilder()
 	builder.init()
 	return builder
 }
@@ -43,8 +43,8 @@ fun <T> lexer(init: LexerBuilder<T>.() -> Unit): LexerBuilder<T> {
  * A lexer builder. You probably don't want to create this directly, but
  * instead use the function lexer() from this package.
  */
-class LexerBuilder<T> {
-	private val tokenDefs = linkedMapOf<NFA, T>()
+class LexerBuilder {
+	private val tokenDefs = linkedMapOf<NFA, Any>()
 	private val ignored = mutableListOf<NFA>()
 	private var onNoMatchHandler: ((Char, PositionInfo) -> Unit)? = null
 
@@ -52,7 +52,7 @@ class LexerBuilder<T> {
 	 * Binds a token type to a regular expression.
 	 * See https://github.com/j-jzk/klang-re for a reference of the supported syntax.
 	 */
-	infix fun T.to(b: String) {
+	infix fun Any.to(b: String) {
 		tokenDefs.set(compileRegex(b).fa, this)
 	}
 

@@ -5,20 +5,20 @@ package cz.j_jzk.klang.parse.api
  * You probably don't want to use this class directly, but instead create
  * a `conversions` block inside `lexer()`
  */
-class ConverterBuilder<I, D> {
-	private val conversions = mutableMapOf<I, (String) -> D>()
+class ConverterBuilder {
+	private val conversions = mutableMapOf<Any, (String) -> Any>()
 
 	/** Maps one token type to a conversion function */
-	infix fun I.to(conversion: (String) -> D) {
+	infix fun Any.to(conversion: (String) -> Any) {
 		conversions[this] = conversion
 	}
 
 	/** Maps multiple token types to a single conversion function */
-	infix fun List<I>.to(conversion: (String) -> D) {
+	infix fun List<Any>.to(conversion: (String) -> Any) {
 		for (id in this)
 			id to conversion
 	}
 
 	/** Returns the map of the conversions defined */
-	internal fun getConversions(): Map<I, (String) -> D> = conversions
+	internal fun getConversions(): Map<Any, (String) -> Any> = conversions
 }

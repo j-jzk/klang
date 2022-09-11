@@ -9,15 +9,15 @@ import cz.j_jzk.klang.util.listiterator.skipUntil
 import java.io.EOFException
 
 /** This class represents the DFA (the "structure" of the parser). */
-data class DFA<N>(
-	val actionTable: Table<State, NodeID, Action<N>>,
+data class DFA(
+	val actionTable: Table<State, NodeID, Action>,
 	val finalNodeType: NodeID,
 	val startState: State,
 	val errorRecoveringNodes: List<NodeID>,
-	val onError: (ASTNode<N>) -> Unit,
+	val onError: (ASTNode) -> Unit,
 ) {
 	/** Runs the parser and returns the resulting syntax tree */
-	fun parse(input: Iterator<ASTNode<N>>) = DFAParser(input, this).parse()
+	fun parse(input: Iterator<ASTNode>) = DFAParser(input, this).parse()
 }
 
 /**
@@ -26,16 +26,16 @@ data class DFA<N>(
  * Because the parser needs some mutable state, this is kept separate from
  * the DFA in order to allow using the same DFA on different inputs.
  */
-internal class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
-	private val nodeStack = mutableListOf<ASTNode<N>>() // TODO better data type?
+internal class DFAParser(input: Iterator<ASTNode>, val dfa: DFA) {
+	private val nodeStack = mutableListOf<ASTNode>() // TODO better data type?
 	private val stateStack = mutableListOf(dfa.startState)
 
 	/** This method runs the parser and returns the resulting syntax tree. */
-	fun parse(): ASTNode<N> {
+	fun parse(): ASTNode {
 		while (!isParsingFinished()) {
 			when (val action = dfa.actionTable[stateStack.last(), input.peek().id]) {
 				is Action.Shift -> shift(action)
-				is Action.Reduce<*> -> reduce(action as Action.Reduce<N>)
+				is Action.Reduce -> reduce(action)
 				null -> recoverFromError()
 			}
 		}
@@ -48,7 +48,7 @@ internal class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 		stateStack += action.nextState
 	}
 
-	private fun reduce(action: Action.Reduce<N>) {
+	private fun reduce(action: Action.Reduce) {
 		input.pushback(action.reduction(nodeStack.popTop(action.nNodes)))
 		// Return to the state we were in before we started parsing this item
 		stateStack.popTop(action.nNodes)
@@ -89,7 +89,7 @@ internal class DFAParser<N>(input: Iterator<ASTNode<N>>, val dfa: DFA<N>) {
 	private fun expectedIDs(): List<Any> =
 		dfa.actionTable.row(stateStack.last()).keys.mapNotNull { nodeId ->
 			when (nodeId) {
-				is NodeID.ID<*> -> nodeId.id
+				is NodeID.ID -> nodeId.id
 				is NodeID.Eof -> null
 			}
 		}

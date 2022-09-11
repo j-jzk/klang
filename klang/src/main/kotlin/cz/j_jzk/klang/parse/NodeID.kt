@@ -5,7 +5,7 @@ package cz.j_jzk.klang.parse
  */
 sealed class NodeID {
 	/** An identifier supplied by the user */
-	data class ID<I>(val id: I): NodeID()
+	data class ID(val id: Any): NodeID()
 	/** End of input */
 	object Eof: NodeID()
 }

@@ -12,7 +12,7 @@ import cz.j_jzk.klang.parse.testutil.*
  * Specifically, find a way to structurally compare DFAs (this class currently
  * relies on the iteration order of sets, which is undefined) */
 class DFABuilderTest {
-	private val leftRecursiveGrammar: Map<NodeID, Set<NodeDef<ASTData>>> = mapOf(
+	private val leftRecursiveGrammar: Map<NodeID, Set<NodeDef>> = mapOf(
 		top to setOf(NodeDef(listOf(e2), topReduction)),
 		e2 to setOf(
 			NodeDef(listOf(e2, p, e), exprReduction),
@@ -20,7 +20,7 @@ class DFABuilderTest {
 		)
 	)
 
-	private val rightRecursiveGrammar: Map<NodeID, Set<NodeDef<ASTData>>> = mapOf(
+	private val rightRecursiveGrammar: Map<NodeID, Set<NodeDef>> = mapOf(
 		top to setOf(NodeDef(listOf(e2), topReduction)),
 		e2 to setOf(
 			NodeDef(listOf(e, p, e2), exprReduction),
@@ -30,7 +30,7 @@ class DFABuilderTest {
 
 	private fun shift(i: Int, er: Boolean = false) = Action.Shift(s(i, er))
 	private fun reduce(len: Int) = Action.Reduce(len, exprReduction)
-	private val emptyFun: (ASTNode<ASTData>) -> Unit = { }
+	private val emptyFun: (ASTNode) -> Unit = { }
 
 	@Test fun testBasicConstruction() {
 		val builder = DFABuilder(leftRecursiveGrammar, top, emptyList(), emptyFun)
@@ -132,7 +132,7 @@ class DFABuilderTest {
 
 	// Regression test for issue #45
 	@Test fun testInnerRecursion() {
-		val grammar: Map<NodeID, Set<NodeDef<ASTData>>> = mapOf(
+		val grammar: Map<NodeID, Set<NodeDef>> = mapOf(
 			top to setOf(NodeDef(listOf(e2), topReduction)),
 			e2 to setOf(
 				NodeDef(listOf(e), exprReduction),

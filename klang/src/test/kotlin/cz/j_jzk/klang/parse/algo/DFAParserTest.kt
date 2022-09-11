@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
 class DFAParserTest {
 	@Test fun testLeftRecursion() {
 		val input = listOf(node("e", "a"), node("+"), node("e", "b"), eof).iterator()
-		val expected: ASTNode<ASTData> = ASTNode.Data(
+		val expected: ASTNode = ASTNode.Data(
 			id("top"),
 			ASTData.Nonterminal(listOf(
 				ASTNode.Data(
@@ -34,12 +34,12 @@ class DFAParserTest {
 			noPos
 		)
 
-		assertEquals(expected, DFAParser<ASTData>(input, createDFA(leftRecursiveGrammar)).parse())
+		assertEquals(expected, DFAParser(input, createDFA(leftRecursiveGrammar)).parse())
 	}
 
 	@Test fun testRightRecursion() {
 		val input = listOf(node("e", "a"), node("+"), node("e", "b"), eof).iterator()
-		val expected: ASTNode<ASTData> = ASTNode.Data(
+		val expected: ASTNode = ASTNode.Data(
 			id("top"),
 			ASTData.Nonterminal(listOf(
 				ASTNode.Data(
@@ -59,12 +59,12 @@ class DFAParserTest {
 			noPos
 		)
 
-		assertEquals(expected, DFAParser<ASTData>(input, createDFA(rightRecursiveGrammar)).parse())
+		assertEquals(expected, DFAParser(input, createDFA(rightRecursiveGrammar)).parse())
 	}
 
 	@Test fun testLeftRecursiveError() {
 		val input = strInput("ee+e")
-		val expected: ASTNode<ASTData> = ASTNode.Data(
+		val expected: ASTNode = ASTNode.Data(
 			id("top"),
 			ASTData.Nonterminal(listOf(
 				ASTNode.Data(
@@ -80,12 +80,12 @@ class DFAParserTest {
 			noPos
 		)
 
-		assertEquals(expected, DFAParser<ASTData>(input, createDFA(leftRecursiveGrammar, listOf(e2, top))).parse())
+		assertEquals(expected, DFAParser(input, createDFA(leftRecursiveGrammar, listOf(e2, top))).parse())
 	}
 
 	@Test fun testRightRecursiveError() {
 		val input = strInput("e+ee")
-		val expected: ASTNode<ASTData> = ASTNode.Data(
+		val expected: ASTNode = ASTNode.Data(
 			id("top"),
 			ASTData.Nonterminal(listOf(
 				ASTNode.Data(
@@ -101,7 +101,7 @@ class DFAParserTest {
 			noPos
 		)
 
-		assertEquals(expected, DFAParser<ASTData>(input, createDFA(rightRecursiveGrammar, listOf(e2, top))).parse())
+		assertEquals(expected, DFAParser(input, createDFA(rightRecursiveGrammar, listOf(e2, top))).parse())
 	}
 
 	@Test fun testLeftRecursivePositionInfo() {
@@ -112,7 +112,7 @@ class DFAParserTest {
 			ASTNode.NoValue(NodeID.Eof, pos(3))
 		).iterator()
 
-		val expected: ASTNode<ASTData> = ASTNode.Data(
+		val expected: ASTNode = ASTNode.Data(
 			id("top"),
 			ASTData.Nonterminal(listOf(
 				ASTNode.Data(
@@ -132,7 +132,7 @@ class DFAParserTest {
 			pos(0)
 		)
 
-		assertEquals(expected, DFAParser<ASTData>(input, createDFA(leftRecursiveGrammar)).parse())
+		assertEquals(expected, DFAParser(input, createDFA(leftRecursiveGrammar)).parse())
 	}
 
 	@Test fun testRightRecursivePositionInfo() {
@@ -143,7 +143,7 @@ class DFAParserTest {
 			ASTNode.NoValue(NodeID.Eof, pos(3))
 		).iterator()
 
-		val expected: ASTNode<ASTData> = ASTNode.Data(
+		val expected: ASTNode = ASTNode.Data(
 			id("top"),
 			ASTData.Nonterminal(listOf(
 				ASTNode.Data(
@@ -163,7 +163,7 @@ class DFAParserTest {
 			pos(0)
 		)
 
-		assertEquals(expected, DFAParser<ASTData>(input, createDFA(rightRecursiveGrammar)).parse())
+		assertEquals(expected, DFAParser(input, createDFA(rightRecursiveGrammar)).parse())
 	}
 
 	@Test fun testErrorCallback() {
@@ -177,7 +177,7 @@ class DFAParserTest {
 
 		var timesCalled = 0
 		val expectedNode = node("e", posInfo=pos(3))
-		val errorCallback = { node: ASTNode<ASTData> ->
+		val errorCallback = { node: ASTNode ->
 			timesCalled++
 			assertEquals(expectedNode, node)
 		}
@@ -187,11 +187,11 @@ class DFAParserTest {
 		assertEquals(1, timesCalled)
 	}
 
-	private fun node(id: String, value: String = "", posInfo: PositionInfo = noPos): ASTNode<ASTData> =
+	private fun node(id: String, value: String = "", posInfo: PositionInfo = noPos): ASTNode =
 		ASTNode.Data(id(id), ASTData.Terminal(value), posInfo)
 	private fun id(id: String) = NodeID.ID(id)
 	private val noPos = PositionInfo("", 0)
-	private val eof: ASTNode<ASTData> = ASTNode.Data(NodeID.Eof, ASTData.Terminal(""), noPos)
+	private val eof: ASTNode = ASTNode.Data(NodeID.Eof, ASTData.Terminal(""), noPos)
 	private fun strInput(str: String) = (str.map { node(it.toString()) } + eof).iterator()
 	private fun pos(n: Int) = PositionInfo("in", n)
 }

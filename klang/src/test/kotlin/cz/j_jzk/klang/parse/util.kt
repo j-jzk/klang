@@ -21,14 +21,14 @@ val eof = NodeID.Eof
 val top = NodeID.ID("top")
 fun s(i: Int, er: Boolean = false) = State(i, er)
 
-val topReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> =
+val topReduction: (List<ASTNode>) -> ASTNode =
 	{ ASTNode.Data(top, ASTData.Nonterminal(it), it[0].position) }
-val exprReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> =
+val exprReduction: (List<ASTNode>) -> ASTNode =
 	{ ASTNode.Data(e2, ASTData.Nonterminal(it), it[0].position) }
-val identityReduction: (List<ASTNode<ASTData>>) -> ASTNode<ASTData> =
+val identityReduction: (List<ASTNode>) -> ASTNode =
 	{ it[0] }
 
-val leftRecursiveGrammar: Map<NodeID, Set<NodeDef<ASTData>>> = mapOf(
+val leftRecursiveGrammar: Map<NodeID, Set<NodeDef>> = mapOf(
 	top to setOf(NodeDef(listOf(e2), topReduction)),
 	e2 to setOf(
 		NodeDef(listOf(e2, p, e), exprReduction),
@@ -36,7 +36,7 @@ val leftRecursiveGrammar: Map<NodeID, Set<NodeDef<ASTData>>> = mapOf(
 	)
 )
 
-val rightRecursiveGrammar: Map<NodeID, Set<NodeDef<ASTData>>> = mapOf(
+val rightRecursiveGrammar: Map<NodeID, Set<NodeDef>> = mapOf(
 	top to setOf(NodeDef(listOf(e2), topReduction)),
 	e2 to setOf(
 		NodeDef(listOf(e, p, e2), exprReduction),
@@ -45,14 +45,14 @@ val rightRecursiveGrammar: Map<NodeID, Set<NodeDef<ASTData>>> = mapOf(
 )
 
 fun createDFA(
-	grammar: Map<NodeID, Set<NodeDef<ASTData>>>,
+	grammar: Map<NodeID, Set<NodeDef>>,
 	recoveryNodes: List<NodeID> = emptyList(),
-	recoveryFun: (ASTNode<ASTData>) -> Unit = {}
+	recoveryFun: (ASTNode) -> Unit = {}
 ) =
 	DFABuilder(grammar, top, recoveryNodes, recoveryFun).build()
 
-fun Map<Pair<State, NodeID>, Action<ASTData>>.toTable(): Table<State, NodeID, Action<ASTData>> {
-	val table = HashBasedTable.create<State, NodeID, Action<ASTData>>()
+fun Map<Pair<State, NodeID>, Action>.toTable(): Table<State, NodeID, Action> {
+	val table = HashBasedTable.create<State, NodeID, Action>()
 	for ((k, v) in this) {
 		table[k.first, k.second] = v
 	}

@@ -11,7 +11,7 @@ import kotlin.test.assertFalse
 
 class LexerIntegrationTest {
 	@Test fun testBasicLexer() {
-		val lexer = lexer<String> {
+		val lexer = lexer {
 			"NUMBER" to """\d+"""
 			"NUMBER" to """\d+\.\d+"""
 			"IF" to "if"
@@ -46,7 +46,7 @@ class LexerIntegrationTest {
 			')' to PositionInfo("input", 11),
 		).iterator()
 
-		val lexer = lexer<String> {
+		val lexer = lexer {
 			"INT" to """\d+"""
 			ignore(" ")
 

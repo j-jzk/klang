@@ -8,7 +8,7 @@ import cz.j_jzk.klang.testutils.iter
 import cz.j_jzk.klang.testutils.FToken
 
 class LexerWrapperTest {
-	private val lexer = lexer<String> {
+	private val lexer = lexer {
 		"INT" to "\\d+"
 		ignore("\\s")
 	}.getLexer()

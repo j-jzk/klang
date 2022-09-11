@@ -9,9 +9,9 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class ParserIntegrationTest {
-	private val additionParser = parser<String, Int> {
+	private val additionParser = parser {
 		"top" to def("expr2") { it[0]!! }
-		"expr2" to def("expr2", "plus", "expr") { it[0]!! + it[2]!! }
+		"expr2" to def("expr2", "plus", "expr") { (it[0]!! as Int) + (it[2]!! as Int) }
 		"expr2" to def("expr") { it[0]!! }
 
 		topNode = "top"
@@ -29,7 +29,7 @@ class ParserIntegrationTest {
 
 	@Test fun testParserWithoutTopNode() {
 		assertFailsWith(IllegalArgumentException::class) {
-			parser<String, Int> {
+			parser {
 				"foo" to def("bar") { it[0]!! }
 				conversions { }
 			}.getParser()
@@ -38,7 +38,7 @@ class ParserIntegrationTest {
 
 	@Test fun testParserWithoutConversions() {
 		assertFailsWith(IllegalArgumentException::class) {
-			parser<String, Int> {
+			parser {
 				"foo" to def("bar") { it[0]!! }
 				topNode = "foo"
 			}.getParser()

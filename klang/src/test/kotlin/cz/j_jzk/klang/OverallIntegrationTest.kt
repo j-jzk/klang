@@ -8,19 +8,19 @@ import cz.j_jzk.klang.input.InputFactory
 
 class OverallIntegrationTest {
 	@Test fun testIntegration() {
-		val lexer = lexer<String> {
+		val lexer = lexer {
 			"int" to "\\d+"
 			"plus" to "\\+"
 			ignore("\\s")
 		}.getLexer()
 
-		val parser = parser<String, Int> {
+		val parser = parser {
 			conversions {
 				"int" to { it.toInt() }
 			}
 
 			"top" to def("addition") { it[0]!! }
-			"addition" to def("addition", "plus", "int") { it[0]!! + it[2]!! }
+			"addition" to def("addition", "plus", "int") { (it[0]!! as Int) + (it[2]!! as Int) }
 			"addition" to def("int") { it[0]!! }
 
 			topNode = "top"
