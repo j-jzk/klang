@@ -21,7 +21,7 @@ class LexerPPPIterator(val lexerWrapper: LexerWrapper, val input: IdentifiableIn
 	private var wasEof = false
 
 	fun pushback(node: ASTNode) = pushbackBuffer.add(node).also { wasEof = false }
-	fun peek(expectedTokenTypes: Collection<Any>) = next(expectedTokenTypes).also { pushback(it) }
+	fun peek(expectedTokenTypes: Collection<Any>) = next(expectedTokenTypes)?.also { pushback(it) }
 	fun hasNext() = !wasEof
 	fun next(expectedTokenTypes: Collection<Any>): ASTNode? =
 		if (wasEof)
