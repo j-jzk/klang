@@ -17,7 +17,7 @@ data class DFA(
 	val onError: (ASTNode) -> Unit,
 ) {
 	/** Runs the parser and returns the resulting syntax tree */
-	fun parse(input: Iterator<ASTNode>) = DFAParser(input, this).parse()
+	fun parse(input: LexerPPPIterator) = DFAParser(input, this).parse()
 }
 
 /**
@@ -26,25 +26,25 @@ data class DFA(
  * Because the parser needs some mutable state, this is kept separate from
  * the DFA in order to allow using the same DFA on different inputs.
  */
-internal class DFAParser(input: Iterator<ASTNode>, val dfa: DFA) {
+internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 	private val nodeStack = mutableListOf<ASTNode>() // TODO better data type?
 	private val stateStack = mutableListOf(dfa.startState)
 
 	/** This method runs the parser and returns the resulting syntax tree. */
 	fun parse(): ASTNode {
 		while (!isParsingFinished()) {
-			when (val action = dfa.actionTable[stateStack.last(), input.peek().id]) {
+			when (val action = dfa.actionTable[stateStack.last(), input.peek(expectedIDs())?.id]) {
 				is Action.Shift -> shift(action)
 				is Action.Reduce -> reduce(action)
 				null -> recoverFromError()
 			}
 		}
 
-		return input.next()
+		return input.next(emptyList())!!
 	}
 
 	private fun shift(action: Action.Shift) {
-		nodeStack += input.next()
+		nodeStack += input.next(expectedIDs())!! // the value was checked to be non-null in parse()
 		stateStack += action.nextState
 	}
 
@@ -54,12 +54,19 @@ internal class DFAParser(input: Iterator<ASTNode>, val dfa: DFA) {
 		stateStack.popTop(action.nNodes)
 	}
 
+	// FIXME: THIS WHOLE FUNCTION
+	// we will need to handle error recovery differently than in the classical way
 	private fun recoverFromError() {
-		dfa.onError(input.peek())
+		// for convenience
+		// TODO: do error recovery in a more clever way (differentiate between EOF, unexpected token etc)
+		//  - when moving to the expectedNodeTypes model, we won't have any unexpected nodes.
+		val eofExc = EOFException("Unexpected EOF when recovering from an error")
+
+		dfa.onError(input.peek(expectedIDs()) ?: throw eofExc)
 
 		// Search the stack for an error-recovering state.
 		// The position of the inserted token will be derived from the `lastRemoved`
-		var lastRemoved = input.peek()
+		var lastRemoved = input.peek(expectedIDs())!!
 		while (!stateStack.last().errorRecovering) {
 			stateStack.removeLast()
 			lastRemoved = nodeStack.removeLast()
@@ -80,12 +87,14 @@ internal class DFAParser(input: Iterator<ASTNode>, val dfa: DFA) {
 
 		// Skip over the input until we find a node that can appear after the dummy node
 		// TODO: handle EOF properly
-		input.pushback(
-			input.skipUntil { dfa.actionTable.contains(stateStack.last(), it.id) }
-			?: throw EOFException("Unexpected EOF when recovering from an error")
-		)
+		// commented out to make the code compile
+		// input.pushback(
+		// 	input.skipUntil { dfa.actionTable.contains(stateStack.last(), it.id) }
+		// 	?: throw eofExc
+		// )
 	}
 
+	// TODO: this should maybe be precomputed
 	private fun expectedIDs(): List<Any> =
 		dfa.actionTable.row(stateStack.last()).keys.mapNotNull { nodeId ->
 			when (nodeId) {
@@ -96,12 +105,9 @@ internal class DFAParser(input: Iterator<ASTNode>, val dfa: DFA) {
 
 	// Or should we have a special finishing state?
 	private fun isParsingFinished() =
-		input.peekOrNull()?.let {
+		input.peek(expectedIDs())?.let {
 			it.id == dfa.finalNodeType
 		} ?: false
-
-	// TODO: handle EOF, input with no elements etc. properly
-	private val input = PeekingPushbackIterator(input)
 
 	override fun toString() = dfa.toString()
 }

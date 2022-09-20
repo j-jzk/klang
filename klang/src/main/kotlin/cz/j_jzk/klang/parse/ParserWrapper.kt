@@ -10,18 +10,18 @@ class ParserWrapper(val dfa: DFA, val tokenConversions: Map<Any, (String) -> Any
 	 * @param input A stream of tokens, ideally from LexerWrapper.iterator()
 	 * @throws SyntaxError if there were any syntax errors in the input
 	 */
-	fun parse(input: LexerWrapper.LexerIterator) = parse(TokenConverter(tokenConversions, input))
+	// fun parse(input: LexerWrapper.LexerIterator) = parse(TokenConverter(tokenConversions, input))
 
-	/**
-	 * Parses the AST nodes from `input`.
-	 * @param input A stream of unprocessed AST nodes
-	 * @throws SyntaxError if there were any syntax errors in the input
-	 */
-	fun parse(input: Iterator<ASTNode>): Any {
-		val result = dfa.parse(input)
-		if (result is ASTNode.Erroneous)
-			throw SyntaxError()
-		else
-			return (result as ASTNode.Data).data
-	}
+	// /**
+	//  * Parses the AST nodes from `input`.
+	//  * @param input A stream of unprocessed AST nodes
+	//  * @throws SyntaxError if there were any syntax errors in the input
+	//  */
+	// fun parse(input: Iterator<ASTNode>): Any {
+	// 	val result = dfa.parse(input)
+	// 	if (result is ASTNode.Erroneous)
+	// 		throw SyntaxError()
+	// 	else
+	// 		return (result as ASTNode.Data).data
+	// }
 }
