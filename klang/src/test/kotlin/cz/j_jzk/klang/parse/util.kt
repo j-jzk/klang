@@ -3,13 +3,19 @@ package cz.j_jzk.klang.parse.testutil
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.util.set
+import cz.j_jzk.klang.util.PeekingPushbackIterator
 import cz.j_jzk.klang.parse.algo.ASTData
 import cz.j_jzk.klang.parse.algo.Action
+import cz.j_jzk.klang.parse.algo.LexerPPPIterator
 import cz.j_jzk.klang.parse.algo.State
 import cz.j_jzk.klang.parse.algo.DFABuilder
 import cz.j_jzk.klang.parse.NodeDef
 import com.google.common.collect.Table
 import com.google.common.collect.HashBasedTable
+// import org.mockito.kotlin.mock
+// import org.mockito.ArgumentMatchers
+import io.mockk.mockk
+import io.mockk.every
 
 // Shorthands
 val e = NodeID.ID("e")
@@ -58,3 +64,12 @@ fun Map<Pair<State, NodeID>, Action>.toTable(): Table<State, NodeID, Action> {
 	}
 	return table
 }
+
+fun fakePPPIter(nodes: List<ASTNode>): LexerPPPIterator =
+	mockk<LexerPPPIterator>().also { mock ->
+		val ppIter = PeekingPushbackIterator(nodes.iterator())
+		every { mock.next(any()) } answers { ppIter.next() }
+		every { mock.peek(any()) } answers { ppIter.peek() }
+		every { mock.pushback(any()) } answers { ppIter.pushback(firstArg()) }
+		every { mock.hasNext() } answers { ppIter.hasNext() }
+	}

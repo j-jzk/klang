@@ -21,7 +21,7 @@ class LexerPPPIterator(val lexerWrapper: LexerWrapper, val input: IdentifiableIn
 	private var wasEof = false
 
 	/** Pushes the `node` back onto the input. */
-	fun pushback(node: ASTNode) = pushbackBuffer.add(node).also { wasEof = false }
+	fun pushback(node: ASTNode) { pushbackBuffer.add(node).also { wasEof = false } }
 	/**
 	 * Looks at the first element of the input.
 	 * (If there are nodes that were pushed back, `expectedTokenTypes` are ignored.)
