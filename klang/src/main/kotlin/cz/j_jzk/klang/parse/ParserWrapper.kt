@@ -1,7 +1,6 @@
 package cz.j_jzk.klang.parse
 
 import cz.j_jzk.klang.parse.algo.DFA
-import cz.j_jzk.klang.lex.LexerWrapper
 
 /** A utility class to simplify the interop between the lexer and the parser */
 class ParserWrapper(val dfa: DFA, val tokenConversions: Map<Any, (String) -> Any>) {

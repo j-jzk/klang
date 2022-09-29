@@ -4,8 +4,6 @@ import com.google.common.collect.Table
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.util.popTop
-import cz.j_jzk.klang.util.PeekingPushbackIterator
-import cz.j_jzk.klang.util.listiterator.skipUntil
 import java.io.EOFException
 
 /** This class represents the DFA (the "structure" of the parser). */
