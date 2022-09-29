@@ -21,6 +21,9 @@ import com.google.common.collect.ArrayListMultimap
  * to parse multiple inputs in parallel.
  */
 class Lexer(private val regexToId: LinkedHashMap<NFA, Any>, private val ignored: List<NFA> = listOf()) {
+	/** All the token IDs known to this lexer */
+	val registeredTokenTypes = regexToId.values
+
 	private val allNFAs = regexToId.keys + ignored
 	private val precedenceTable: Map<NFA, Int>
 	private val idToRegex = Multimaps.invertFrom(Multimaps.forMap(regexToId), ArrayListMultimap.create())

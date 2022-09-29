@@ -38,6 +38,7 @@ class LexerIntegrationTest {
 			Token("INT", "10", PositionInfo("input", 0)),
 			Token("INT", "123", PositionInfo("input", 4)),
 			Token("INT", "5", PositionInfo("input", 8)),
+			null,
 		).iterator()
 
 		val expectedUnexpectedChars = listOf(
@@ -58,8 +59,8 @@ class LexerIntegrationTest {
 
 		val input = InputFactory.fromString("10  123x5 :)", "input")
 
-		for (token in lexer.iterator(input)) {
-			assertEquals(expectedTokens.next(), token)
+		while (input.input.hasNext()) {
+			assertEquals(expectedTokens.next(), lexer.nextMatch(input, lexer.lexer.registeredTokenTypes))
 		}
 
 		assertFalse(expectedTokens.hasNext())
