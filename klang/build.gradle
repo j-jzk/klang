@@ -33,10 +33,12 @@ dependencies {
     implementation 'org.apache.commons:commons-collections4:4.4'
     implementation 'com.google.guava:guava:31.0.1-jre'
 
-	implementation 'cz.j_jzk.klang:klang-re:1.1.1'
+	implementation 'cz.j_jzk.klang:klang-re:1.1.1-dev1'
 
     // Use the Kotlin JUnit integration.
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
+    // MockK for mocking/stubbing
+    testImplementation 'io.mockk:mockk:1.13.1'
 }
 
 detekt {

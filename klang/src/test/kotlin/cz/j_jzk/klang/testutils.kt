@@ -10,14 +10,14 @@ import kotlin.test.assertEquals
 fun re(str: String) = compileRegex(str).fa
 fun iter(str: String) = InputFactory.fromString(str, "id")
 
-fun testLex(lexer: Lexer<String>, input: String, expectedTokens: List<FToken>) {
+fun testLex(lexer: Lexer, input: String, expectedTokens: List<FToken>) {
     val inputIter = InputFactory.fromString(input, "whatever")
     for (token in expectedTokens) {
         assertEquals<Any?>(token, lexer.nextToken(inputIter))
     }
 }
 
-fun testLexWithPositions(lexer: Lexer<String>, input: IdentifiableInput, expectedTokens: List<Token<String>>) {
+fun testLexWithPositions(lexer: Lexer, input: IdentifiableInput, expectedTokens: List<Token>) {
     for (token in expectedTokens) {
         assertEquals(token, lexer.nextToken(input))
     }
@@ -33,7 +33,7 @@ data class FToken(
     override fun equals(other: Any?) =
         if (other is FToken) {
             this.id == other.id && this.value == other.value
-        } else if (other is Token<*> && other.id is String) {
+        } else if (other is Token && other.id is String) {
             this.id == other.id && this.value == other.value
         } else false
 }

@@ -16,21 +16,21 @@ import cz.j_jzk.klang.util.PositionInfo
  *       for this, but you may as well use anything you want
  *   D - The type of the data stored in the AST
  */
-fun <I, D> parser(init: ParserBuilder<I, D>.() -> Unit) = ParserBuilder<I, D>().also { it.init() }
+fun parser(init: ParserBuilder.() -> Unit) = ParserBuilder().also { it.init() }
 
 /**
  * An interface for building a parser. You probably don't want to use this
  * directly, but instead use the function parser() from this package.
  */
-class ParserBuilder<I, D> {
-	private val actualNodeDefs = mutableMapOf<NodeID, MutableSet<NodeDef<D>>>()
-	private val nodeDefs = LazyMap.lazyMap<NodeID, MutableSet<NodeDef<D>>>(actualNodeDefs) { -> mutableSetOf() }
+class ParserBuilder {
+	private val actualNodeDefs = mutableMapOf<NodeID, MutableSet<NodeDef>>()
+	private val nodeDefs = LazyMap.lazyMap<NodeID, MutableSet<NodeDef>>(actualNodeDefs) { -> mutableSetOf() }
 	private val errorRecoveringNodes = mutableSetOf<NodeID>()
-	private var conversionsMap: Map<I, (String) -> D>? = null
-	private var errorCallback: ((ASTNode<D>) -> Unit)? = null
+	private var conversionsMap: Map<Any, (String) -> Any>? = null
+	private var errorCallback: ((ASTNode) -> Unit)? = null
 
 	/** Maps a node to its definition. */
-	infix fun I.to(definition: IntermediateNodeDefinition<I, D>) {
+	infix fun Any.to(definition: IntermediateNodeDefinition) {
 		val actualID = NodeID.ID(this)
 		val actualDefinition = definition.definition.map { NodeID.ID(it) }
 		val actualReduction = wrapReduction(actualID, definition.reduction)
@@ -38,16 +38,17 @@ class ParserBuilder<I, D> {
 	}
 
 	/** Creates a node definition */
-	fun def(vararg definition: I, reduction: (List<D?>) -> D) = IntermediateNodeDefinition(definition.toList(), reduction)
+	fun def(vararg definition: Any, reduction: (List<Any?>) -> Any) =
+		IntermediateNodeDefinition(definition.toList(), reduction)
 
 	/** The top node of the grammar (the root of the AST) */
-	var topNode: I? = null
+	var topNode: Any? = null
 
 	/**
 	 * Marks `nodes` to be error-recovering. These nodes will be then used to
 	 * contain syntax errors.
 	 */
-	fun errorRecovering(vararg nodes: I) {
+	fun errorRecovering(vararg nodes: Any) {
 		errorRecoveringNodes += nodes.map { NodeID.ID(it) }
 	}
 
@@ -56,31 +57,33 @@ class ParserBuilder<I, D> {
 	 * Error recovery is handled automatically. The erroneous token is passed
 	 * into the function for error reporting.
 	 */
-	fun onError(callback: (ASTNode<D>) -> Unit) {
+	fun onError(callback: (ASTNode) -> Unit) {
 		require(errorCallback == null) { "Only one `onError` block is allowed" }
 		errorCallback = callback
 	}
 
 	/** Declare conversions from lexer tokens (strings) to AST node values */
-	fun conversions(init: ConverterBuilder<I, D>.() -> Unit) {
+	fun conversions(init: ConverterBuilder.() -> Unit) {
 		require(conversionsMap == null) { "Only one `conversions` block is allowed" }
-		val builder = ConverterBuilder<I, D>()
+		val builder = ConverterBuilder()
 		builder.init()
 		conversionsMap = builder.getConversions()
 	}
 
 	/** Builds and returns the parser */
-	fun getParser(): ParserWrapper<I, D> {
-		requireNotNull(topNode) { "The top node of the grammar must be set" }
+	fun getParser(): ParserWrapper {
+		val topNodeNotNull = topNode;
+		requireNotNull(topNodeNotNull) { "The top node of the grammar must be set" }
 		val nullSafeConversions = requireNotNull(conversionsMap) {
 			"A `conversions` block must be present to define the conversions between the tokens and node values"
 		}
 
 		// Add the top node to the error-recovering nodes so the parser doesn't
 		// fail completely if the user hasn't specified any error-recovering nodes
-		errorRecoveringNodes += NodeID.ID(topNode)
+		errorRecoveringNodes += NodeID.ID(topNodeNotNull)
 
-		val dfa = DFABuilder(actualNodeDefs, NodeID.ID(topNode), errorRecoveringNodes.toList(), errorCallback ?: { }).build()
+		val dfa = DFABuilder(actualNodeDefs, NodeID.ID(topNodeNotNull), errorRecoveringNodes.toList(), errorCallback ?: { })
+			.build()
 		return ParserWrapper(dfa, nullSafeConversions)
 	}
 
@@ -92,7 +95,7 @@ class ParserBuilder<I, D> {
 	 *     (it has no value) and a correct program couldn't be created from
 	 *     such an AST anyway
 	 */
-	private fun wrapReduction(nodeID: NodeID, reduction: (List<D?>) -> D): (List<ASTNode<D>>) -> ASTNode<D> =
+	private fun wrapReduction(nodeID: NodeID, reduction: (List<Any?>) -> Any): (List<ASTNode>) -> ASTNode =
 		{ nodeList ->
 			if (nodeList.none { it is ASTNode.Erroneous })
 				ASTNode.Data(
@@ -116,5 +119,5 @@ class ParserBuilder<I, D> {
 	 * A structure used internally to represent a node definition. (This is
 	 * used to allow for a syntax with fewer braces.)
 	 */
-	data class IntermediateNodeDefinition<I, D>(val definition: List<I>, val reduction: (List<D?>) -> D)
+	data class IntermediateNodeDefinition(val definition: List<Any>, val reduction: (List<Any?>) -> Any)
 }

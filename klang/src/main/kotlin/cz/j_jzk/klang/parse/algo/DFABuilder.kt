@@ -7,8 +7,8 @@ import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.util.set
 import java.util.ArrayDeque
 
-internal data class LR1Item<N>(
-	val nodeDef: NodeDef<N>,
+internal data class LR1Item(
+	val nodeDef: NodeDef,
 	val dotBefore: Int, // which element of the def is the dot before
 	val sigma: Set<NodeID>,
 )
@@ -17,16 +17,16 @@ internal data class LR1Item<N>(
  * A convenience function for getting the element of the item after the dot.
  * If the dot is at the end, this returns null.
  */
-private fun <N> LR1Item<N>.elementAfterDot(): NodeID? =
+private fun LR1Item.elementAfterDot(): NodeID? =
 	nodeDef.elements.getOrNull(dotBefore)
 
 /**
  * This class builds a parser from the formal grammar.
  */
 // TODO: precompute & memoize everything we can
-class DFABuilder<N>(
+class DFABuilder(
 	/** The formal grammar */
-	val nodeDefs: Map<NodeID, Set<NodeDef<N>>>,
+	val nodeDefs: Map<NodeID, Set<NodeDef>>,
 
 	/**
 	 * The top node of the grammar. It needs to have a single definition, not
@@ -43,15 +43,15 @@ class DFABuilder<N>(
 	/**
 	 * A callback used when the parser encounters a syntax error.
 	 */
-	val onError: (ASTNode<N>) -> Unit,
+	val onError: (ASTNode) -> Unit,
 ) {
-	private val transitions = HashBasedTable.create<State, NodeID, Action<N>>()
+	private val transitions = HashBasedTable.create<State, NodeID, Action>()
 
 	/**
 	 * This variable maps the states as seen by the builder to the states seen
 	 * by the DFA
 	 */
-	private val constructorStates = mutableMapOf<Set<LR1Item<N>>, State>()
+	private val constructorStates = mutableMapOf<Set<LR1Item>, State>()
 
 	private val stateFactory = StateFactory()
 
@@ -59,10 +59,10 @@ class DFABuilder<N>(
 	 * This is here so we can unit test (functions can't be structurally
 	 * compared, so we must compare the exact same function)
 	 */
-	internal val identityReduction: (List<ASTNode<N>>) -> ASTNode<N> = { it[0] }
+	internal val identityReduction: (List<ASTNode>) -> ASTNode = { it[0] }
 
 	/** This function constructs the parser and returns it. */
-	fun build(): DFA<N> {
+	fun build(): DFA {
 		val topNodeDef = nodeDefs[topNode]!!.first()
 		var startingSet = mutableSetOf(
 			LR1Item(topNodeDef, 0, setOf(NodeID.Eof))
@@ -81,7 +81,7 @@ class DFABuilder<N>(
 		return DFA(transitions, topNode, startState, errorRecoveringNodes, onError)
 	}
 
-	private fun constructStates(itemSet: MutableSet<LR1Item<N>>, thisState: State) {
+	private fun constructStates(itemSet: MutableSet<LR1Item>, thisState: State) {
 		epsilonClosure(itemSet)
 
 		// The dot is after the last element => if the lookahead is in sigma, we reduce
@@ -114,8 +114,8 @@ class DFABuilder<N>(
 	}
 
 	/** Performs an epsilon closure on the item set. It modifies the `items` in place. */
-	private fun epsilonClosure(items: MutableSet<LR1Item<N>>) {
-		val unexpanded = ArrayDeque<LR1Item<N>>()
+	private fun epsilonClosure(items: MutableSet<LR1Item>) {
+		val unexpanded = ArrayDeque<LR1Item>()
 		unexpanded.addAll(items)
 
 		while (unexpanded.isNotEmpty()) {
@@ -138,7 +138,7 @@ class DFABuilder<N>(
 	}
 
 	@Suppress("NestedBlockDepth") // Performance is more important than readability here
-	private fun computeSigma(itemBeingExpanded: LR1Item<N>): Set<NodeID> {
+	private fun computeSigma(itemBeingExpanded: LR1Item): Set<NodeID> {
 		if (itemBeingExpanded.dotBefore + 1 == itemBeingExpanded.nodeDef.elements.size) {
 			return itemBeingExpanded.sigma
 		}
@@ -173,12 +173,12 @@ class DFABuilder<N>(
 	 * doesn't, it gets constructed.
 	 * @return The state represented by the items
 	 */
-	private fun getStateOrCreate(itemSet: MutableSet<LR1Item<N>>) =
+	private fun getStateOrCreate(itemSet: MutableSet<LR1Item>) =
 		constructorStates[itemSet] ?: stateFactory.new(isErrorRecovering(itemSet)).also { newState ->
 			constructorStates[itemSet] = newState
 
 			// We must duplicate the item set because it is modified by constructStates
-			var newItemSet = mutableSetOf<LR1Item<N>>()
+			var newItemSet = mutableSetOf<LR1Item>()
 			newItemSet.addAll(itemSet)
 
 			constructStates(newItemSet, newState)
@@ -190,7 +190,7 @@ class DFABuilder<N>(
 	 * in any of the items. E.g.
 	 * 	N -> a.Eb, where E is defined as an error-recovering node.
 	 */
-	private fun isErrorRecovering(itemSet: Set<LR1Item<N>>) =
+	private fun isErrorRecovering(itemSet: Set<LR1Item>) =
 		itemSet.any { it.elementAfterDot() in errorRecoveringNodes }
 
 	/** Checks if a node is nullable (if it can resolve to epsilon) */

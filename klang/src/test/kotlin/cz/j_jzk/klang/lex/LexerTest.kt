@@ -19,12 +19,12 @@ import kotlin.test.assertFailsWith
  */
 
 class LexerTest {
-	private val lexer = Lexer<String>(linkedMapOf(
+	private val lexer = Lexer(linkedMapOf(
 		re("if") to "if",
 		re("\\d+") to "int"
 	))
 
-	val lexerIgnoringSpaces = Lexer<String>(
+	val lexerIgnoringSpaces = Lexer(
 			linkedMapOf(
 				re("if") to "IF",
 				re("\\d+") to "INT"
@@ -52,7 +52,7 @@ class LexerTest {
 	}
 
 	@Test fun testNoMatchWithIgnored() {
-		val lexer = Lexer<String>(
+		val lexer = Lexer(
 			linkedMapOf(re("\\d+") to "INT"),
 			listOf(re(" "))
 		)
@@ -73,7 +73,7 @@ class LexerTest {
 	@Test fun testPrecedence() {
 		// case 1)
 		var input = iter("if")
-		var ambiguousLexer = Lexer<String>(linkedMapOf(
+		var ambiguousLexer = Lexer(linkedMapOf(
 			re("if") to "if",
 			re(".+") to "anything",
 		))
@@ -81,7 +81,7 @@ class LexerTest {
 
 		// case 2)
 		input = iter("if")
-		ambiguousLexer = Lexer<String>(linkedMapOf(
+		ambiguousLexer = Lexer(linkedMapOf(
 			re(".+") to "anything",
 			re("if") to "if"
 		))

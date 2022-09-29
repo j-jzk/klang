@@ -8,7 +8,7 @@ import cz.j_jzk.klang.testutils.iter
 import cz.j_jzk.klang.testutils.FToken
 
 class LexerWrapperTest {
-	private val lexer = lexer<String> {
+	private val lexer = lexer {
 		"INT" to "\\d+"
 		ignore("\\s")
 	}.getLexer()
@@ -32,6 +32,7 @@ class LexerWrapperTest {
 				FToken("INT", "1"),
 				FToken("INT", "23"),
 				FToken("INT", "4"),
+				null,
 			),
 			0
 		)
@@ -44,24 +45,28 @@ class LexerWrapperTest {
 				FToken("INT", "1"),
 				FToken("INT", "23"),
 				FToken("INT", "4"),
+				null,
 			),
 			2
 		)
 	}
 
 	@Test fun testNoMatch() {
-		testIterator("abc", emptyList(), 3)
+		testIterator("abc", listOf(null), 3)
 	}
 
-	private fun testIterator(input: String, expectedTokens: List<FToken>, expectedInvalidChars: Int) {
+	private fun testIterator(input: String, expectedTokens: List<FToken?>, expectedInvalidChars: Int) {
 		var invalidChars = 0
 		val inputIterator = iter(input)
 		val expectedTokensIterator = expectedTokens.iterator()
-		val lexerIterator = LexerWrapper(lexer.lexer) { _, _ -> invalidChars++ }.iterator(inputIterator)
+		val lexerWrapper = LexerWrapper(lexer.lexer) { _, _ -> invalidChars++ }
 
 		// check that all the tokens match
-		for (token in lexerIterator) {
-			assertEquals<Any?>(expectedTokensIterator.next(), token)
+		while (inputIterator.input.hasNext()) {
+			assertEquals<Any?>(
+				expectedTokensIterator.next(),
+				lexerWrapper.nextMatch(inputIterator, lexerWrapper.lexer.registeredTokenTypes)
+			)
 		}
 
 		// check that there aren't any tokens left to check

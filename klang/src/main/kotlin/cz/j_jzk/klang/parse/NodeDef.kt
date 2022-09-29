@@ -1,7 +1,7 @@
 package cz.j_jzk.klang.parse
 
 /** Represents a definition of a node of the AST (= one statement in the formal grammar) */
-data class NodeDef<N>(
+data class NodeDef(
 	val elements: List<NodeID>,
-	val reduction: (List<ASTNode<N>>) -> ASTNode<N>,
+	val reduction: (List<ASTNode>) -> ASTNode,
 )
