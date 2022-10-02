@@ -10,6 +10,7 @@ import cz.j_jzk.klang.parse.algo.LexerPPPIterator
 import cz.j_jzk.klang.parse.algo.State
 import cz.j_jzk.klang.parse.algo.DFABuilder
 import cz.j_jzk.klang.parse.NodeDef
+import cz.j_jzk.klang.parse.UnexpectedTokenError
 import com.google.common.collect.Table
 import com.google.common.collect.HashBasedTable
 // import org.mockito.kotlin.mock
@@ -53,7 +54,7 @@ val rightRecursiveGrammar: Map<NodeID, Set<NodeDef>> = mapOf(
 fun createDFA(
 	grammar: Map<NodeID, Set<NodeDef>>,
 	recoveryNodes: List<NodeID> = emptyList(),
-	recoveryFun: (ASTNode) -> Unit = {}
+	recoveryFun: (UnexpectedTokenError) -> Unit = {}
 ) =
 	DFABuilder(grammar, top, recoveryNodes, recoveryFun).build()
 

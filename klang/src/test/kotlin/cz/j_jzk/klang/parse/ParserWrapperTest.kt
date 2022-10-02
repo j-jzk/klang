@@ -34,9 +34,9 @@ import cz.j_jzk.klang.util.PositionInfo
 
 			errorRecovering("top", "addition")
 
-			onError { node ->
+			onError { error ->
 				numberOfErrors++
-				assertEquals(expectedErroneousNode, node)
+				assertEquals(expectedErroneousNode, error.got)
 			}
 		}.getParser()
 

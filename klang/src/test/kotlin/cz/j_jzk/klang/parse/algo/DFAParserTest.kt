@@ -2,6 +2,7 @@ package cz.j_jzk.klang.parse.algo
 
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.parse.testutil.createDFA
 import cz.j_jzk.klang.parse.testutil.leftRecursiveGrammar
 import cz.j_jzk.klang.parse.testutil.rightRecursiveGrammar
@@ -179,9 +180,9 @@ class DFAParserTest {
 
 		var timesCalled = 0
 		val expectedNode = node("e", posInfo=pos(3))
-		val errorCallback = { node: ASTNode ->
+		val errorCallback = { error: UnexpectedTokenError ->
 			timesCalled++
-			assertEquals(expectedNode, node)
+			assertEquals(expectedNode, error.got)
 		}
 
 		createDFA(leftRecursiveGrammar, listOf(e2, top), errorCallback).parse(input)

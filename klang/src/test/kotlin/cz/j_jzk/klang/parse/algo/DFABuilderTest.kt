@@ -5,6 +5,7 @@ import kotlin.test.assertEquals
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.ASTNode
+import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.util.set
 import cz.j_jzk.klang.parse.testutil.*
 
@@ -30,7 +31,7 @@ class DFABuilderTest {
 
 	private fun shift(i: Int, er: Boolean = false) = Action.Shift(s(i, er))
 	private fun reduce(len: Int) = Action.Reduce(len, exprReduction)
-	private val emptyFun: (ASTNode) -> Unit = { }
+	private val emptyFun: (UnexpectedTokenError) -> Unit = { }
 
 	@Test fun testBasicConstruction() {
 		val builder = DFABuilder(leftRecursiveGrammar, top, emptyList(), emptyFun)
