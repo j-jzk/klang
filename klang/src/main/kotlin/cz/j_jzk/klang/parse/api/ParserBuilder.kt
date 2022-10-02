@@ -5,6 +5,7 @@ import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.ParserWrapper
+import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.parse.algo.DFABuilder
 import cz.j_jzk.klang.util.PositionInfo
 
@@ -27,7 +28,7 @@ class ParserBuilder {
 	private val nodeDefs = LazyMap.lazyMap<NodeID, MutableSet<NodeDef>>(actualNodeDefs) { -> mutableSetOf() }
 	private val errorRecoveringNodes = mutableSetOf<NodeID>()
 	private var conversionsMap: Map<Any, (String) -> Any>? = null
-	private var errorCallback: ((ASTNode) -> Unit)? = null
+	private var errorCallback: ((UnexpectedTokenError) -> Unit)? = null
 
 	/** Maps a node to its definition. */
 	infix fun Any.to(definition: IntermediateNodeDefinition) {
@@ -57,7 +58,7 @@ class ParserBuilder {
 	 * Error recovery is handled automatically. The erroneous token is passed
 	 * into the function for error reporting.
 	 */
-	fun onError(callback: (ASTNode) -> Unit) {
+	fun onError(callback: (UnexpectedTokenError) -> Unit) {
 		require(errorCallback == null) { "Only one `onError` block is allowed" }
 		errorCallback = callback
 	}

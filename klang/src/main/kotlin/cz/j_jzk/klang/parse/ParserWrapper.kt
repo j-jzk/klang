@@ -3,7 +3,7 @@ package cz.j_jzk.klang.parse
 import cz.j_jzk.klang.parse.algo.DFA
 
 /** A utility class to simplify the interop between the lexer and the parser */
-class ParserWrapper(val dfa: DFA, val tokenConversions: Map<Any, (String) -> Any>) {
+data class ParserWrapper(val dfa: DFA, val tokenConversions: Map<Any, (String) -> Any>) {
 	/**
 	 * Parses the tokens from the `input`.
 	 * @param input A stream of tokens, ideally from LexerWrapper.iterator()
