@@ -53,13 +53,8 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 		stateStack.popTop(action.nNodes)
 	}
 
-	// we will need to handle error recovery differently than in the classical way
 	private fun recoverFromError() {
-		// for convenience
-		// TODO: do error recovery in a more clever way (differentiate between EOF, unexpected token etc)
-		//  - when moving to the expectedNodeTypes model, we won't have any unexpected nodes.
-		val eofExc = EOFException("Unexpected EOF in ${input.input.id}")
-		val gotToken = input.peek(input.lexerWrapper.lexer.registeredTokenTypes) ?: throw eofExc
+		val gotToken = input.peek(input.allNodeIDs) ?: throw EOFException("Unexpected EOF in ${input.input.id}")
 
 		dfa.onUnexpectedToken(UnexpectedTokenError(
 			gotToken,
@@ -88,7 +83,7 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 		}
 
 		// Skip over the input until we find a node that can appear after the dummy node
-		input.pushback(skipUntilExpected() ?: throw eofExc)
+		input.pushback(skipUntilExpected() ?: throw EOFException("Unexpected EOF in ${input.input.id}"))
 	}
 
 	/**
@@ -96,8 +91,8 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 	 * @return the last skipped node
 	 */
 	private fun skipUntilExpected(): ASTNode? {
-		while (input.input.input.hasNext()) {
-			val node = input.next(input.lexerWrapper.lexer.registeredTokenTypes) ?: return null
+		while (input.hasNext()) {
+			val node = input.next(input.allNodeIDs) ?: return null
 			if (dfa.actionTable.contains(stateStack.last(), node.id))
 				return node
 		}

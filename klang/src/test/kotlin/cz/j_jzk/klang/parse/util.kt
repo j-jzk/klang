@@ -3,7 +3,7 @@ package cz.j_jzk.klang.parse.testutil
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.util.set
-import cz.j_jzk.klang.util.PeekingPushbackIterator
+import cz.j_jzk.klang.testutil.PeekingPushbackIterator
 import cz.j_jzk.klang.parse.algo.ASTData
 import cz.j_jzk.klang.parse.algo.Action
 import cz.j_jzk.klang.parse.algo.LexerPPPIterator
@@ -66,11 +66,19 @@ fun Map<Pair<State, NodeID>, Action>.toTable(): Table<State, NodeID, Action> {
 	return table
 }
 
-fun fakePPPIter(nodes: List<ASTNode>): LexerPPPIterator =
+fun fakePPPIter(nodes: List<ASTNode?>): LexerPPPIterator =
 	mockk<LexerPPPIterator>().also { mock ->
+		// TODO: finish this
+		// on next() and peek(), we peek first, and if the node's id is in the expected ids, return it; else return null
 		val ppIter = PeekingPushbackIterator(nodes.iterator())
-		every { mock.next(any()) } answers { ppIter.next() }
+		every { mock.next(any()) } answers {
+			if (firstArg<Collection<Any>>().contains<Any?>(ppIter.peek()?.id?.id))
+				ppIter.next()
+			else
+				null
+		}
 		every { mock.peek(any()) } answers { ppIter.peek() }
 		every { mock.pushback(any()) } answers { ppIter.pushback(firstArg()) }
 		every { mock.hasNext() } answers { ppIter.hasNext() }
+		every { mock.allNodeIDs } answers { nodes.mapNotNull { it?.id } }
 	}
