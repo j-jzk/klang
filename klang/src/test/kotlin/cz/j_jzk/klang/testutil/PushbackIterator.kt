@@ -4,6 +4,7 @@ package cz.j_jzk.klang.testutil
  * Essentialy the same as PushbackIterator from Apache Commons, but allows null
  * values since it doesn't use ArrayDeque
  */
+@Suppress("IteratorNotThrowingNoSuchElementException")
 class PushbackIterator<T>(val iterator: Iterator<T>): Iterator<T> {
     private val pushbackBuffer = mutableListOf<T>()
 
@@ -14,5 +15,5 @@ class PushbackIterator<T>(val iterator: Iterator<T>): Iterator<T> {
         else
             iterator.next()
 
-    public fun pushback(element: T) = pushbackBuffer.add(element)
+    fun pushback(element: T) = pushbackBuffer.add(element)
 }

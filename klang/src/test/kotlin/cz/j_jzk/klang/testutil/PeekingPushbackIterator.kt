@@ -2,6 +2,7 @@ package cz.j_jzk.klang.testutil
 
 import kotlin.math.max
 
+@Suppress("IteratorNotThrowingNoSuchElementException")
 class PeekingPushbackIterator<T> private constructor(
 	private val pushbackIt: PushbackIterator<T>
 ): Iterator<T> {
@@ -14,6 +15,6 @@ class PeekingPushbackIterator<T> private constructor(
 	fun peek(): T = pushbackIt.next().also { pushbackIt.pushback(it) }
 	fun peekOrNull(): T? = if (hasNext()) peek() else null
 	fun pushback(item: T) = pushbackIt.pushback(item).also { pushbackCount++ }
-	public val hasItemsInPushbackBuffer
+	val hasItemsInPushbackBuffer
 		get() = pushbackCount > 0
 }

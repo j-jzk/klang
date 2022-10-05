@@ -76,7 +76,11 @@ private fun nodeIDToID(id: NodeID?): Any? =
 
 private fun peekId(iter: PeekingPushbackIterator<ASTNode?>): Any? = nodeIDToID(iter.peek()?.id)
 
-private fun getNextIfExpected(iter: PeekingPushbackIterator<ASTNode?>, expectedIDs: Collection<Any>, returnIfExpected: () -> ASTNode?): ASTNode? =
+private fun getNextIfExpected(
+	iter: PeekingPushbackIterator<ASTNode?>,
+	expectedIDs: Collection<Any>,
+	returnIfExpected: () -> ASTNode?
+): ASTNode? =
 	if (expectedIDs.contains(peekId(iter)))
 		returnIfExpected()
 	else if (iter.hasItemsInPushbackBuffer)
@@ -86,7 +90,6 @@ private fun getNextIfExpected(iter: PeekingPushbackIterator<ASTNode?>, expectedI
 	else
 		null
 
-// would there be a change if we ignored expectedIDs when returning from the buffer like the LexerPPPIterator actually does???
 fun fakePPPIter(nodes: List<ASTNode?>): LexerPPPIterator =
 	mockk<LexerPPPIterator>().also { mock ->
 		val ppIter = PeekingPushbackIterator(nodes.iterator())

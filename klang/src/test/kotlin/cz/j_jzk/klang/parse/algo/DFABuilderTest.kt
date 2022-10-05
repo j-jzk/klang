@@ -4,7 +4,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
-import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.util.set
 import cz.j_jzk.klang.parse.testutil.*

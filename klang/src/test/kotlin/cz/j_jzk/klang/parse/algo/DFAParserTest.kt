@@ -11,9 +11,7 @@ import cz.j_jzk.klang.parse.testutil.e2
 import cz.j_jzk.klang.parse.testutil.fakePPPIter
 import cz.j_jzk.klang.util.PositionInfo
 import org.junit.Test
-import org.junit.Ignore
 import kotlin.test.assertEquals
-import kotlin.test.assertContentEquals
 
 class DFAParserTest {
 	@Test fun testLeftRecursion() {

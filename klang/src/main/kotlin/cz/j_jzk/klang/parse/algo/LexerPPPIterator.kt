@@ -20,7 +20,7 @@ class LexerPPPIterator(val lexerWrapper: LexerWrapper, val input: IdentifiableIn
 	 */
 	private var wasEof = false
 
-	public val allNodeIDs: Collection<Any> = ArrayList(lexerWrapper.lexer.registeredTokenTypes)
+	val allNodeIDs: Collection<Any> = ArrayList(lexerWrapper.lexer.registeredTokenTypes)
 
 	/** Pushes the `node` back onto the input. */
 	fun pushback(node: ASTNode) { pushbackBuffer.add(node).also { wasEof = false } }
