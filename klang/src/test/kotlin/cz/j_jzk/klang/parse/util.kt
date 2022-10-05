@@ -66,19 +66,33 @@ fun Map<Pair<State, NodeID>, Action>.toTable(): Table<State, NodeID, Action> {
 	return table
 }
 
+// helper functions for fakePPPIter
+private fun nodeIDToID(id: NodeID?): Any? =
+	when (id) {
+		is NodeID.ID -> id.id
+		NodeID.Eof -> NodeID.Eof
+		null -> null
+	}
+
+private fun peekId(iter: PeekingPushbackIterator<ASTNode?>): Any? = nodeIDToID(iter.peek()?.id)
+
+private fun getNextIfExpected(iter: PeekingPushbackIterator<ASTNode?>, expectedIDs: Collection<Any>, returnIfExpected: () -> ASTNode?): ASTNode? =
+	if (expectedIDs.contains(peekId(iter)))
+		returnIfExpected()
+	else if (iter.hasItemsInPushbackBuffer)
+		// as with a real LexerPPPIterator, if we are getting items from the pushback buffer,
+		// we don't check if they are expected or not.
+		returnIfExpected()
+	else
+		null
+
+// would there be a change if we ignored expectedIDs when returning from the buffer like the LexerPPPIterator actually does???
 fun fakePPPIter(nodes: List<ASTNode?>): LexerPPPIterator =
 	mockk<LexerPPPIterator>().also { mock ->
-		// TODO: finish this
-		// on next() and peek(), we peek first, and if the node's id is in the expected ids, return it; else return null
 		val ppIter = PeekingPushbackIterator(nodes.iterator())
-		every { mock.next(any()) } answers {
-			if (firstArg<Collection<Any>>().contains<Any?>(ppIter.peek()?.id?.id))
-				ppIter.next()
-			else
-				null
-		}
-		every { mock.peek(any()) } answers { ppIter.peek() }
+		every { mock.next(any()) } answers { getNextIfExpected(ppIter, firstArg<Collection<Any>>(), ppIter::next) }
+		every { mock.peek(any()) } answers { getNextIfExpected(ppIter, firstArg<Collection<Any>>(), ppIter::peek) }
 		every { mock.pushback(any()) } answers { ppIter.pushback(firstArg()) }
 		every { mock.hasNext() } answers { ppIter.hasNext() }
-		every { mock.allNodeIDs } answers { nodes.mapNotNull { it?.id } }
+		every { mock.allNodeIDs } answers { nodes.mapNotNull { nodeIDToID(it?.id) } }
 	}

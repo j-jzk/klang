@@ -181,12 +181,11 @@ class DFAParserTest {
 
 		var timesCalled = 0
 		val unexpectedNode = node("e", posInfo=pos(3))
-		val expectedNodeIDs = listOf("+", NodeID.Eof)
+		val expectedNodeIDs = setOf("+", NodeID.Eof)
 		val errorCallback = { error: UnexpectedTokenError ->
 			timesCalled++
 			assertEquals(unexpectedNode, error.got)
-			println(error.expectedIDs)
-			assertContentEquals(expectedNodeIDs, error.expectedIDs)
+			assertEquals(expectedNodeIDs, error.expectedIDs.toSet())
 		}
 
 		createDFA(leftRecursiveGrammar, listOf(e2, top), errorCallback).parse(input)

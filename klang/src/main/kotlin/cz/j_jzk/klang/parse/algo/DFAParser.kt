@@ -105,7 +105,7 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 		dfa.actionTable.row(stateStack.last()).keys.mapNotNull { nodeId ->
 			when (nodeId) {
 				is NodeID.ID -> nodeId.id
-				is NodeID.Eof -> null
+				NodeID.Eof -> NodeID.Eof
 			}
 		}
 
