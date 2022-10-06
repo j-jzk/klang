@@ -3,6 +3,7 @@ package cz.j_jzk.klang.parse.algo
 import com.google.common.collect.Table
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.util.popTop
 import java.io.EOFException
 
@@ -12,7 +13,7 @@ data class DFA(
 	val finalNodeType: NodeID,
 	val startState: State,
 	val errorRecoveringNodes: List<NodeID>,
-	val onError: (ASTNode) -> Unit,
+	val onUnexpectedToken: (UnexpectedTokenError) -> Unit
 ) {
 	/** Runs the parser and returns the resulting syntax tree */
 	fun parse(input: LexerPPPIterator) = DFAParser(input, this).parse()
@@ -52,19 +53,17 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 		stateStack.popTop(action.nNodes)
 	}
 
-	// FIXME: THIS WHOLE FUNCTION
-	// we will need to handle error recovery differently than in the classical way
 	private fun recoverFromError() {
-		// for convenience
-		// TODO: do error recovery in a more clever way (differentiate between EOF, unexpected token etc)
-		//  - when moving to the expectedNodeTypes model, we won't have any unexpected nodes.
-		val eofExc = EOFException("Unexpected EOF when recovering from an error")
+		val gotToken = input.peek(input.allNodeIDs) ?: throw EOFException("Unexpected EOF in ${input.input.id}")
 
-		dfa.onError(input.peek(expectedIDs()) ?: throw eofExc)
+		dfa.onUnexpectedToken(UnexpectedTokenError(
+			gotToken,
+			expectedIDs()
+		))
 
 		// Search the stack for an error-recovering state.
 		// The position of the inserted token will be derived from the `lastRemoved`
-		var lastRemoved = input.peek(expectedIDs())!!
+		var lastRemoved = gotToken
 		while (!stateStack.last().errorRecovering) {
 			stateStack.removeLast()
 			lastRemoved = nodeStack.removeLast()
@@ -84,12 +83,21 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 		}
 
 		// Skip over the input until we find a node that can appear after the dummy node
-		// TODO: handle EOF properly
-		// commented out to make the code compile
-		// input.pushback(
-		// 	input.skipUntil { dfa.actionTable.contains(stateStack.last(), it.id) }
-		// 	?: throw eofExc
-		// )
+		input.pushback(skipUntilExpected() ?: throw EOFException("Unexpected EOF in ${input.input.id}"))
+	}
+
+	/**
+	 * Skips nodes from the input until we find an expected one
+	 * @return the last skipped node
+	 */
+	private fun skipUntilExpected(): ASTNode? {
+		while (input.hasNext()) {
+			val node = input.next(input.allNodeIDs) ?: return null
+			if (dfa.actionTable.contains(stateStack.last(), node.id))
+				return node
+		}
+
+		return null
 	}
 
 	// TODO: this should maybe be precomputed
@@ -97,7 +105,7 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 		dfa.actionTable.row(stateStack.last()).keys.mapNotNull { nodeId ->
 			when (nodeId) {
 				is NodeID.ID -> nodeId.id
-				is NodeID.Eof -> null
+				NodeID.Eof -> NodeID.Eof
 			}
 		}
 

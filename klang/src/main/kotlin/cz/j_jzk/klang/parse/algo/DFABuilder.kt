@@ -4,6 +4,7 @@ import com.google.common.collect.HashBasedTable
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.util.set
 import java.util.ArrayDeque
 
@@ -43,7 +44,7 @@ class DFABuilder(
 	/**
 	 * A callback used when the parser encounters a syntax error.
 	 */
-	val onError: (ASTNode) -> Unit,
+	val onUnexpectedToken: (UnexpectedTokenError) -> Unit,
 ) {
 	private val transitions = HashBasedTable.create<State, NodeID, Action>()
 
@@ -78,7 +79,7 @@ class DFABuilder(
 		transitions[startState, topNode] = Action.Shift(finalState)
 		transitions[finalState, NodeID.Eof] = Action.Reduce(1, identityReduction)
 
-		return DFA(transitions, topNode, startState, errorRecoveringNodes, onError)
+		return DFA(transitions, topNode, startState, errorRecoveringNodes, onUnexpectedToken)
 	}
 
 	private fun constructStates(itemSet: MutableSet<LR1Item>, thisState: State) {

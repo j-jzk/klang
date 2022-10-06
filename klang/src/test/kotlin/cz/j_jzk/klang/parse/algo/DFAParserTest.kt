@@ -2,6 +2,7 @@ package cz.j_jzk.klang.parse.algo
 
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.parse.testutil.createDFA
 import cz.j_jzk.klang.parse.testutil.leftRecursiveGrammar
 import cz.j_jzk.klang.parse.testutil.rightRecursiveGrammar
@@ -10,7 +11,6 @@ import cz.j_jzk.klang.parse.testutil.e2
 import cz.j_jzk.klang.parse.testutil.fakePPPIter
 import cz.j_jzk.klang.util.PositionInfo
 import org.junit.Test
-import org.junit.Ignore
 import kotlin.test.assertEquals
 
 class DFAParserTest {
@@ -64,7 +64,7 @@ class DFAParserTest {
 		assertEquals(expected, DFAParser(input, createDFA(rightRecursiveGrammar)).parse())
 	}
 
-	@Test @Ignore fun testLeftRecursiveError() {
+	@Test fun testLeftRecursiveError() {
 		val input = fakePPPIter(strInput("ee+e"))
 		val expected: ASTNode = ASTNode.Data(
 			id("top"),
@@ -85,7 +85,7 @@ class DFAParserTest {
 		assertEquals(expected, DFAParser(input, createDFA(leftRecursiveGrammar, listOf(e2, top))).parse())
 	}
 
-	@Test @Ignore fun testRightRecursiveError() {
+	@Test fun testRightRecursiveError() {
 		val input = fakePPPIter(strInput("e+ee"))
 		val expected: ASTNode = ASTNode.Data(
 			id("top"),
@@ -111,7 +111,7 @@ class DFAParserTest {
 			node("e", posInfo=pos(0)),
 			node("+", posInfo=pos(1)),
 			node("e", posInfo=pos(2)),
-			ASTNode.NoValue(NodeID.Eof, pos(3))
+			ASTNode.NoValue(NodeID.Eof, pos(3)),
 		))
 
 		val expected: ASTNode = ASTNode.Data(
@@ -142,7 +142,7 @@ class DFAParserTest {
 			node("e", posInfo=pos(0)),
 			node("+", posInfo=pos(1)),
 			node("e", posInfo=pos(2)),
-			ASTNode.NoValue(NodeID.Eof, pos(3))
+			ASTNode.NoValue(NodeID.Eof, pos(3)),
 		))
 
 		val expected: ASTNode = ASTNode.Data(
@@ -168,20 +168,22 @@ class DFAParserTest {
 		assertEquals(expected, DFAParser(input, createDFA(rightRecursiveGrammar)).parse())
 	}
 
-	@Test @Ignore fun testErrorCallback() {
+	@Test fun testErrorCallback() {
 		val input = fakePPPIter(listOf(
 			node("e", posInfo=pos(0)),
 			node("+", posInfo=pos(1)),
 			node("e", posInfo=pos(2)),
 			node("e", posInfo=pos(3)),
-			ASTNode.NoValue(NodeID.Eof, pos(4))
+			ASTNode.NoValue(NodeID.Eof, pos(4)),
 		))
 
 		var timesCalled = 0
-		val expectedNode = node("e", posInfo=pos(3))
-		val errorCallback = { node: ASTNode ->
+		val unexpectedNode = node("e", posInfo=pos(3))
+		val expectedNodeIDs = setOf("+", NodeID.Eof)
+		val errorCallback = { error: UnexpectedTokenError ->
 			timesCalled++
-			assertEquals(expectedNode, node)
+			assertEquals(unexpectedNode, error.got)
+			assertEquals(expectedNodeIDs, error.expectedIDs.toSet())
 		}
 
 		createDFA(leftRecursiveGrammar, listOf(e2, top), errorCallback).parse(input)

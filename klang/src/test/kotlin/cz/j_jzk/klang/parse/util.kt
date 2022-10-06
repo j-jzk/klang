@@ -3,13 +3,14 @@ package cz.j_jzk.klang.parse.testutil
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.util.set
-import cz.j_jzk.klang.util.PeekingPushbackIterator
+import cz.j_jzk.klang.testutil.PeekingPushbackIterator
 import cz.j_jzk.klang.parse.algo.ASTData
 import cz.j_jzk.klang.parse.algo.Action
 import cz.j_jzk.klang.parse.algo.LexerPPPIterator
 import cz.j_jzk.klang.parse.algo.State
 import cz.j_jzk.klang.parse.algo.DFABuilder
 import cz.j_jzk.klang.parse.NodeDef
+import cz.j_jzk.klang.parse.UnexpectedTokenError
 import com.google.common.collect.Table
 import com.google.common.collect.HashBasedTable
 // import org.mockito.kotlin.mock
@@ -53,7 +54,7 @@ val rightRecursiveGrammar: Map<NodeID, Set<NodeDef>> = mapOf(
 fun createDFA(
 	grammar: Map<NodeID, Set<NodeDef>>,
 	recoveryNodes: List<NodeID> = emptyList(),
-	recoveryFun: (ASTNode) -> Unit = {}
+	recoveryFun: (UnexpectedTokenError) -> Unit = {}
 ) =
 	DFABuilder(grammar, top, recoveryNodes, recoveryFun).build()
 
@@ -65,11 +66,36 @@ fun Map<Pair<State, NodeID>, Action>.toTable(): Table<State, NodeID, Action> {
 	return table
 }
 
-fun fakePPPIter(nodes: List<ASTNode>): LexerPPPIterator =
+// helper functions for fakePPPIter
+private fun nodeIDToID(id: NodeID?): Any? =
+	when (id) {
+		is NodeID.ID -> id.id
+		NodeID.Eof -> NodeID.Eof
+		null -> null
+	}
+
+private fun peekId(iter: PeekingPushbackIterator<ASTNode?>): Any? = nodeIDToID(iter.peek()?.id)
+
+private fun getNextIfExpected(
+	iter: PeekingPushbackIterator<ASTNode?>,
+	expectedIDs: Collection<Any>,
+	returnIfExpected: () -> ASTNode?
+): ASTNode? =
+	if (expectedIDs.contains(peekId(iter)))
+		returnIfExpected()
+	else if (iter.hasItemsInPushbackBuffer)
+		// as with a real LexerPPPIterator, if we are getting items from the pushback buffer,
+		// we don't check if they are expected or not.
+		returnIfExpected()
+	else
+		null
+
+fun fakePPPIter(nodes: List<ASTNode?>): LexerPPPIterator =
 	mockk<LexerPPPIterator>().also { mock ->
 		val ppIter = PeekingPushbackIterator(nodes.iterator())
-		every { mock.next(any()) } answers { ppIter.next() }
-		every { mock.peek(any()) } answers { ppIter.peek() }
+		every { mock.next(any()) } answers { getNextIfExpected(ppIter, firstArg<Collection<Any>>(), ppIter::next) }
+		every { mock.peek(any()) } answers { getNextIfExpected(ppIter, firstArg<Collection<Any>>(), ppIter::peek) }
 		every { mock.pushback(any()) } answers { ppIter.pushback(firstArg()) }
 		every { mock.hasNext() } answers { ppIter.hasNext() }
+		every { mock.allNodeIDs } answers { nodes.mapNotNull { nodeIDToID(it?.id) } }
 	}
