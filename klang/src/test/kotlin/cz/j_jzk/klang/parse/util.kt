@@ -20,13 +20,13 @@ import io.mockk.mockk
 import io.mockk.every
 
 // Shorthands
-val e: NodeID = "e"
-val e2: NodeID = "e2"
-val p: NodeID = "+"
-val lp: NodeID = "("
-val rp: NodeID = ")"
+const val e = "e"
+const val e2 = "e2"
+const val p = "+"
+const val lp = "("
+const val rp = ")"
 val eof = EOFNodeID
-val top: NodeID = "top"
+const val top = "top"
 fun s(i: Int, er: Boolean = false) = State(i, er)
 
 val topReduction: (List<ASTNode>) -> ASTNode =

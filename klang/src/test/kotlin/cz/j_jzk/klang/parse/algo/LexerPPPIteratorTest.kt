@@ -3,7 +3,6 @@ package cz.j_jzk.klang.parse.algo
 import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.lex.api.lexer
 import cz.j_jzk.klang.parse.ASTNode
-import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.EOFNodeID
 import cz.j_jzk.klang.util.PositionInfo
 import org.junit.Test
