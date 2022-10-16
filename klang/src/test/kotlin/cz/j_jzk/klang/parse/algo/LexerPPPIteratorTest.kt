@@ -4,6 +4,7 @@ import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.lex.api.lexer
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.parse.EOFNodeID
 import cz.j_jzk.klang.util.PositionInfo
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -22,7 +23,7 @@ class LexerPPPIteratorTest {
 
     @Test fun testPushback() {
         val iterator = LexerPPPIterator(lexerWrapper, createInput())
-        val node = ASTNode.Data(NodeID.ID("int"), "99", PositionInfo("input", 123))
+        val node = ASTNode.Data("int", "99", PositionInfo("input", 123))
 
         iterator.pushback(node)
         assertEquals(node, iterator.next(listOf("int")))
@@ -47,10 +48,10 @@ class LexerPPPIteratorTest {
     @Test fun testEof() {
         val iterator = LexerPPPIterator(lexerWrapper, createInput())
         for (i in 1..3)
-            assertIsNot<NodeID.Eof>(iterator.next(listOf("int"))!!.id)
+            assertIsNot<EOFNodeID>(iterator.next(listOf("int"))!!.id)
 
         assertTrue(iterator.hasNext())
-        assertIs<NodeID.Eof>(iterator.next(listOf("int"))!!.id)
+        assertIs<EOFNodeID>(iterator.next(listOf("int"))!!.id)
         assertEquals(null, iterator.next(listOf("int")))
         assertFalse(iterator.hasNext())
     }
@@ -63,7 +64,7 @@ class LexerPPPIteratorTest {
         assertNodeValueEquals("2", iterator.peek(listOf("int")))
 
         // test pushback & peek
-        val node = ASTNode.Data(NodeID.ID("int"), "99", PositionInfo("input", 123))
+        val node = ASTNode.Data("int", "99", PositionInfo("input", 123))
         iterator.pushback(node)
         assertEquals(node, iterator.peek(listOf("int")))
     }

@@ -1,6 +1,7 @@
 package cz.j_jzk.klang.parse.testutil
 
 import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.parse.EOFNodeID
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.util.set
 import cz.j_jzk.klang.testutil.PeekingPushbackIterator
@@ -19,13 +20,13 @@ import io.mockk.mockk
 import io.mockk.every
 
 // Shorthands
-val e = NodeID.ID("e")
-val e2 = NodeID.ID("e2")
-val p = NodeID.ID("+")
-val lp = NodeID.ID("(")
-val rp = NodeID.ID(")")
-val eof = NodeID.Eof
-val top = NodeID.ID("top")
+val e: NodeID = "e"
+val e2: NodeID = "e2"
+val p: NodeID = "+"
+val lp: NodeID = "("
+val rp: NodeID = ")"
+val eof = EOFNodeID
+val top: NodeID = "top"
 fun s(i: Int, er: Boolean = false) = State(i, er)
 
 val topReduction: (List<ASTNode>) -> ASTNode =
@@ -67,14 +68,7 @@ fun Map<Pair<State, NodeID>, Action>.toTable(): Table<State, NodeID, Action> {
 }
 
 // helper functions for fakePPPIter
-private fun nodeIDToID(id: NodeID?): Any? =
-	when (id) {
-		is NodeID.ID -> id.id
-		NodeID.Eof -> NodeID.Eof
-		null -> null
-	}
-
-private fun peekId(iter: PeekingPushbackIterator<ASTNode?>): Any? = nodeIDToID(iter.peek()?.id)
+private fun peekId(iter: PeekingPushbackIterator<ASTNode?>): Any? = iter.peek()?.id
 
 private fun getNextIfExpected(
 	iter: PeekingPushbackIterator<ASTNode?>,
@@ -97,5 +91,5 @@ fun fakePPPIter(nodes: List<ASTNode?>): LexerPPPIterator =
 		every { mock.peek(any()) } answers { getNextIfExpected(ppIter, firstArg<Collection<Any>>(), ppIter::peek) }
 		every { mock.pushback(any()) } answers { ppIter.pushback(firstArg()) }
 		every { mock.hasNext() } answers { ppIter.hasNext() }
-		every { mock.allNodeIDs } answers { nodes.mapNotNull { nodeIDToID(it?.id) } }
+		every { mock.allNodeIDs } answers { nodes.mapNotNull { it?.id } }
 	}

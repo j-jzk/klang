@@ -2,6 +2,7 @@ package cz.j_jzk.klang.parse.algo
 
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.parse.EOFNodeID
 import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.parse.testutil.createDFA
 import cz.j_jzk.klang.parse.testutil.leftRecursiveGrammar
@@ -111,7 +112,7 @@ class DFAParserTest {
 			node("e", posInfo=pos(0)),
 			node("+", posInfo=pos(1)),
 			node("e", posInfo=pos(2)),
-			ASTNode.NoValue(NodeID.Eof, pos(3)),
+			ASTNode.NoValue(EOFNodeID, pos(3)),
 		))
 
 		val expected: ASTNode = ASTNode.Data(
@@ -142,7 +143,7 @@ class DFAParserTest {
 			node("e", posInfo=pos(0)),
 			node("+", posInfo=pos(1)),
 			node("e", posInfo=pos(2)),
-			ASTNode.NoValue(NodeID.Eof, pos(3)),
+			ASTNode.NoValue(EOFNodeID, pos(3)),
 		))
 
 		val expected: ASTNode = ASTNode.Data(
@@ -174,12 +175,12 @@ class DFAParserTest {
 			node("+", posInfo=pos(1)),
 			node("e", posInfo=pos(2)),
 			node("e", posInfo=pos(3)),
-			ASTNode.NoValue(NodeID.Eof, pos(4)),
+			ASTNode.NoValue(EOFNodeID, pos(4)),
 		))
 
 		var timesCalled = 0
 		val unexpectedNode = node("e", posInfo=pos(3))
-		val expectedNodeIDs = setOf("+", NodeID.Eof)
+		val expectedNodeIDs = setOf("+", EOFNodeID)
 		val errorCallback = { error: UnexpectedTokenError ->
 			timesCalled++
 			assertEquals(unexpectedNode, error.got)
@@ -193,9 +194,9 @@ class DFAParserTest {
 
 	private fun node(id: String, value: String = "", posInfo: PositionInfo = noPos): ASTNode =
 		ASTNode.Data(id(id), ASTData.Terminal(value), posInfo)
-	private fun id(id: String) = NodeID.ID(id)
+	private fun id(id: String): NodeID = id
 	private val noPos = PositionInfo("", 0)
-	private val eof: ASTNode = ASTNode.Data(NodeID.Eof, ASTData.Terminal(""), noPos)
+	private val eof: ASTNode = ASTNode.Data(EOFNodeID, ASTData.Terminal(""), noPos)
 	private fun strInput(str: String) = (str.map { node(it.toString()) } + eof)
 	private fun pos(n: Int) = PositionInfo("in", n)
 }

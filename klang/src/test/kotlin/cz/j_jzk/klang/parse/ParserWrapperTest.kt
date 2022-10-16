@@ -19,7 +19,7 @@ import cz.j_jzk.klang.util.PositionInfo
 
 	@Test fun testErrorRecoveryInWrapper() {
 		var numberOfErrors = 0
-		val expectedErroneousNode = ASTNode.NoValue(NodeID.ID("plus"), PositionInfo("in", 4))
+		val expectedErroneousNode = ASTNode.NoValue("plus", PositionInfo("in", 4))
 
 		val parser = parser {
 			conversions {
