@@ -31,26 +31,24 @@ class ParserBuilder {
 	private var errorCallback: ((UnexpectedTokenError) -> Unit)? = null
 
 	/** Maps a node to its definition. */
-	infix fun Any.to(definition: IntermediateNodeDefinition) {
-		val actualID = NodeID.ID(this)
-		val actualDefinition = definition.definition.map { NodeID.ID(it) }
-		val actualReduction = wrapReduction(actualID, definition.reduction)
-		nodeDefs[actualID]!!.add(NodeDef(actualDefinition, actualReduction))
+	infix fun NodeID.to(definition: IntermediateNodeDefinition) {
+		val actualReduction = wrapReduction(this, definition.reduction)
+		nodeDefs[this]!!.add(NodeDef(definition.definition, actualReduction))
 	}
 
 	/** Creates a node definition */
-	fun def(vararg definition: Any, reduction: (List<Any?>) -> Any) =
+	fun def(vararg definition: NodeID, reduction: (List<Any?>) -> Any) =
 		IntermediateNodeDefinition(definition.toList(), reduction)
 
 	/** The top node of the grammar (the root of the AST) */
-	var topNode: Any? = null
+	var topNode: NodeID? = null
 
 	/**
 	 * Marks `nodes` to be error-recovering. These nodes will be then used to
 	 * contain syntax errors.
 	 */
-	fun errorRecovering(vararg nodes: Any) {
-		errorRecoveringNodes += nodes.map { NodeID.ID(it) }
+	fun errorRecovering(vararg nodes: NodeID) {
+		errorRecoveringNodes.addAll(nodes)
 	}
 
 	/**
@@ -81,9 +79,9 @@ class ParserBuilder {
 
 		// Add the top node to the error-recovering nodes so the parser doesn't
 		// fail completely if the user hasn't specified any error-recovering nodes
-		errorRecoveringNodes += NodeID.ID(topNodeNotNull)
+		errorRecoveringNodes += topNodeNotNull
 
-		val dfa = DFABuilder(actualNodeDefs, NodeID.ID(topNodeNotNull), errorRecoveringNodes.toList(), errorCallback ?: { })
+		val dfa = DFABuilder(actualNodeDefs, topNodeNotNull, errorRecoveringNodes.toList(), errorCallback ?: { })
 			.build()
 		return ParserWrapper(dfa, nullSafeConversions)
 	}
@@ -120,5 +118,5 @@ class ParserBuilder {
 	 * A structure used internally to represent a node definition. (This is
 	 * used to allow for a syntax with fewer braces.)
 	 */
-	data class IntermediateNodeDefinition(val definition: List<Any>, val reduction: (List<Any?>) -> Any)
+	data class IntermediateNodeDefinition(val definition: List<NodeID>, val reduction: (List<Any?>) -> Any)
 }

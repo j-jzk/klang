@@ -4,7 +4,7 @@ import cz.j_jzk.klang.lex.LexerWrapper
 import cz.j_jzk.klang.lex.Token
 import cz.j_jzk.klang.input.IdentifiableInput
 import cz.j_jzk.klang.parse.ASTNode
-import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.parse.EOFNodeID
 import cz.j_jzk.klang.util.PositionInfo
 
 /**
@@ -55,9 +55,9 @@ class LexerPPPIterator(val lexerWrapper: LexerWrapper, val input: IdentifiableIn
 		// handle EOF
 		if (token == null) {
 			wasEof = true
-			return ASTNode.NoValue(NodeID.Eof, PositionInfo(input.id, input.input.previousIndex()))
+			return ASTNode.NoValue(EOFNodeID, PositionInfo(input.id, input.input.previousIndex()))
 		}
 
-		return ASTNode.Data(NodeID.ID(token.id), token.value, token.position)
+		return ASTNode.Data(token.id, token.value, token.position)
 	}
 }
