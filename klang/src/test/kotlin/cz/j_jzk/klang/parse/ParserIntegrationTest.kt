@@ -57,8 +57,8 @@ class ParserIntegrationTest {
 	private fun createInput(input: String) =
 		fakePPPIter(input.split(" ").map { tok ->
 			if (tok == "+")
-				ASTNode.Data(NodeID.ID("plus"), 0, PositionInfo("", 0))
+				ASTNode.Data("plus", 0, PositionInfo("", 0))
 			else
-				ASTNode.Data(NodeID.ID("expr"), tok.toInt(), PositionInfo("", 0))
-		} + ASTNode.Data(NodeID.Eof, 0, PositionInfo("", 0)))
+				ASTNode.Data("expr", tok.toInt(), PositionInfo("", 0))
+		} + ASTNode.Data(EOFNodeID, 0, PositionInfo("", 0)))
 }

@@ -5,6 +5,7 @@ import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.UnexpectedTokenError
+import cz.j_jzk.klang.parse.EOFNodeID
 import cz.j_jzk.klang.util.set
 import java.util.ArrayDeque
 
@@ -66,7 +67,7 @@ class DFABuilder(
 	fun build(): DFA {
 		val topNodeDef = nodeDefs[topNode]!!.first()
 		var startingSet = mutableSetOf(
-			LR1Item(topNodeDef, 0, setOf(NodeID.Eof))
+			LR1Item(topNodeDef, 0, setOf(EOFNodeID))
 		)
 		// The top state will always be error-recovering (for protection)
 		val startState = stateFactory.new(true)
@@ -77,7 +78,7 @@ class DFABuilder(
 		// Final state (needed for e-r to work properly)
 		val finalState = stateFactory.new(false)
 		transitions[startState, topNode] = Action.Shift(finalState)
-		transitions[finalState, NodeID.Eof] = Action.Reduce(1, identityReduction)
+		transitions[finalState, EOFNodeID] = Action.Reduce(1, identityReduction)
 
 		return DFA(transitions, topNode, startState, errorRecoveringNodes, onUnexpectedToken)
 	}

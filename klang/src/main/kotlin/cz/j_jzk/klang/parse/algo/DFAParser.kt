@@ -101,13 +101,8 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 	}
 
 	// TODO: this should maybe be precomputed
-	private fun expectedIDs(): List<Any> =
-		dfa.actionTable.row(stateStack.last()).keys.mapNotNull { nodeId ->
-			when (nodeId) {
-				is NodeID.ID -> nodeId.id
-				NodeID.Eof -> NodeID.Eof
-			}
-		}
+	private fun expectedIDs(): List<NodeID> =
+		dfa.actionTable.row(stateStack.last()).keys.toList()
 
 	// Or should we have a special finishing state?
 	private fun isParsingFinished() =
