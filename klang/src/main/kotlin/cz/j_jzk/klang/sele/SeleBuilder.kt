@@ -10,6 +10,7 @@ import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.util.mergeSetValues
 import org.apache.commons.collections4.map.LazyMap
+import cz.j_jzk.klang.lex.re.compileRegex
 
 fun sele(init: SeleBuilder.() -> Unit): SeleBuilder =
         SeleBuilder().also { it.init() }
@@ -35,7 +36,16 @@ class SeleBuilder {
 	fun errorRecovering(vararg nodes: NodeID) {
 		parserDef.errorRecoveringNodes.addAll(nodes)
 	}
-    
+
+    /** Defines a regex node */
+    fun re(regex: String): NodeID =
+        RegexNodeID(regex).also { lexerDef.tokenDefs[compileRegex(regex).fa] = it }
+
+    /** Ignore the specified regexes when reading the input */
+    fun ignoreRegexes(vararg regexes: String) {
+        lexerDef.ignored.addAll(regexes.map { compileRegex(it).fa })
+    }
+
     /**
 	 * Returns an altered reduction function which:
 	 *   - translates the parameters and return values to/from `ASTNode`

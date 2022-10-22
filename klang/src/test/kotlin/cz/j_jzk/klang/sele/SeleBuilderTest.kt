@@ -5,7 +5,8 @@ import kotlin.test.Test
 class SeleBuilderTest {
 	@Test fun testBasicBuild() {
 		sele {
-			"sum" to def("int", "plus", "int") { it[0]!! as Int + it[2]!! as Int }
+			"int" to def(re("\\d+")) { (it[0]!! as String).toInt() }
+			"sum" to def("int", re("\\+"), "int") { it[0]!! as Int + it[2]!! as Int }
 
 			errorRecovering("sum")
 		}
