@@ -6,6 +6,7 @@ import kotlin.test.assertEquals
 import cz.j_jzk.klang.lex.api.lexer
 import cz.j_jzk.klang.parse.api.parser
 import cz.j_jzk.klang.input.InputFactory
+import cz.j_jzk.klang.sele.sele
 
 class OverallIntegrationTest {
 	@Test @Ignore fun testIntegration() {
@@ -33,5 +34,26 @@ class OverallIntegrationTest {
 		val result = 123
 
 		assertEquals(23, result)
+	}
+
+	@Test fun testSele() {
+		val sele = sele {
+			"int" to def(re("\\d+")) { (it[0]!! as String).toInt() }
+			"sum" to def("sum", re("\\+"), "int") { (it[0]!! as Int) + (it[2]!! as Int) }
+			"sum" to def("int") { it[0]!! as Int }
+
+			"top" to def("sum") { it[0]!! }
+
+			ignoreRegexes("\\s")
+			setTopNode("top")
+			errorRecovering("sum")
+		}.getSele()
+
+		println(sele.lexer.lexer)
+		println(sele.parser)
+
+		val input = "  12+ 8+3"
+		val idIn = InputFactory.fromString(input, "in")
+		assertEquals(23, sele.parse(idIn))
 	}
 }
