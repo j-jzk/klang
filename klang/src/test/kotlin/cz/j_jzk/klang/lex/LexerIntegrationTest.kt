@@ -1,6 +1,7 @@
 package cz.j_jzk.klang.lex
 
 import cz.j_jzk.klang.lex.api.lexer
+import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.testutils.testLex
 import cz.j_jzk.klang.testutils.FToken
 import cz.j_jzk.klang.input.InputFactory
@@ -28,7 +29,8 @@ class LexerIntegrationTest {
 				FToken("IF", "if"),
 				FToken("NUMBER", "15"),
 				FToken("IF", "if"),
-			)
+			),
+			listOf(" "),
 		)
 	}
 
@@ -60,7 +62,7 @@ class LexerIntegrationTest {
 		val input = InputFactory.fromString("10  123x5 :)", "input")
 
 		while (input.input.hasNext()) {
-			assertEquals(expectedTokens.next(), lexer.nextMatch(input, lexer.lexer.registeredTokenTypes))
+			assertEquals(expectedTokens.next(), lexer.nextMatch(input, lexer.lexer.registeredTokenTypes, listOf(compileRegex(" ").fa)))
 		}
 
 		assertFalse(expectedTokens.hasNext())

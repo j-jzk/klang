@@ -87,8 +87,8 @@ private fun getNextIfExpected(
 fun fakePPPIter(nodes: List<ASTNode?>): LexerPPPIterator =
 	mockk<LexerPPPIterator>().also { mock ->
 		val ppIter = PeekingPushbackIterator(nodes.iterator())
-		every { mock.next(any()) } answers { getNextIfExpected(ppIter, firstArg<Collection<Any>>(), ppIter::next) }
-		every { mock.peek(any()) } answers { getNextIfExpected(ppIter, firstArg<Collection<Any>>(), ppIter::peek) }
+		every { mock.next(any(), any()) } answers { getNextIfExpected(ppIter, firstArg<Collection<Any>>(), ppIter::next) }
+		every { mock.peek(any(), any()) } answers { getNextIfExpected(ppIter, firstArg<Collection<Any>>(), ppIter::peek) }
 		every { mock.pushback(any()) } answers { ppIter.pushback(firstArg()) }
 		every { mock.hasNext() } answers { ppIter.hasNext() }
 		every { mock.allNodeIDs } answers { nodes.mapNotNull { it?.id } }

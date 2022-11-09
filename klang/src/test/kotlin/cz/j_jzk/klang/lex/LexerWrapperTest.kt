@@ -4,6 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import cz.j_jzk.klang.lex.api.lexer
+import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.testutils.iter
 import cz.j_jzk.klang.testutils.FToken
 
@@ -65,7 +66,7 @@ class LexerWrapperTest {
 		while (inputIterator.input.hasNext()) {
 			assertEquals<Any?>(
 				expectedTokensIterator.next(),
-				lexerWrapper.nextMatch(inputIterator, lexerWrapper.lexer.registeredTokenTypes)
+				lexerWrapper.nextMatch(inputIterator, lexerWrapper.lexer.registeredTokenTypes, listOf(compileRegex("\\s").fa))
 			)
 		}
 

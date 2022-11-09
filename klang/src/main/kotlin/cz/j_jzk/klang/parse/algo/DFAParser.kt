@@ -5,6 +5,7 @@ import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.util.popTop
+import cz.j_jzk.klang.lex.re.fa.NFA
 import java.io.EOFException
 
 /** This class represents the DFA (the "structure" of the parser). */
@@ -13,7 +14,8 @@ data class DFA(
 	val finalNodeType: NodeID,
 	val startState: State,
 	val errorRecoveringNodes: List<NodeID>,
-	val onUnexpectedToken: (UnexpectedTokenError) -> Unit
+	val onUnexpectedToken: (UnexpectedTokenError) -> Unit,
+	val lexerIgnores: Map<State, Set<NFA>>,
 ) {
 	/** Runs the parser and returns the resulting syntax tree */
 	fun parse(input: LexerPPPIterator) = DFAParser(input, this).parse()
@@ -32,18 +34,18 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 	/** This method runs the parser and returns the resulting syntax tree. */
 	fun parse(): ASTNode {
 		while (!isParsingFinished()) {
-			when (val action = dfa.actionTable[stateStack.last(), input.peek(expectedIDs())?.id]) {
+			when (val action = dfa.actionTable[stateStack.last(), input.peek(expectedIDs(), lexerIgnores())?.id]) {
 				is Action.Shift -> shift(action)
 				is Action.Reduce -> reduce(action)
 				null -> recoverFromError()
 			}
 		}
 
-		return input.next(emptyList())!!
+		return input.next(emptyList(), lexerIgnores())!!
 	}
 
 	private fun shift(action: Action.Shift) {
-		nodeStack += input.next(expectedIDs())!! // the value was checked to be non-null in parse()
+		nodeStack += input.next(expectedIDs(), lexerIgnores())!! // the value was checked to be non-null in parse()
 		stateStack += action.nextState
 	}
 
@@ -54,7 +56,7 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 	}
 
 	private fun recoverFromError() {
-		val gotToken = input.peek(input.allNodeIDs) ?: throw EOFException("Unexpected EOF in ${input.input.id}")
+		val gotToken = input.peek(input.allNodeIDs, lexerIgnores()) ?: throw EOFException("Unexpected EOF in ${input.input.id}")
 
 		dfa.onUnexpectedToken(UnexpectedTokenError(
 			gotToken,
@@ -92,7 +94,7 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 	 */
 	private fun skipUntilExpected(): ASTNode? {
 		while (input.hasNext()) {
-			val node = input.next(input.allNodeIDs) ?: return null
+			val node = input.next(input.allNodeIDs, lexerIgnores()) ?: return null
 			if (dfa.actionTable.contains(stateStack.last(), node.id))
 				return node
 		}
@@ -104,9 +106,11 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 	private fun expectedIDs(): List<NodeID> =
 		dfa.actionTable.row(stateStack.last()).keys.toList()
 
+	private fun lexerIgnores() = dfa.lexerIgnores[stateStack.last()]!!
+
 	// Or should we have a special finishing state?
 	private fun isParsingFinished() =
-		input.peek(expectedIDs())?.let {
+		input.peek(expectedIDs(), lexerIgnores())?.let {
 			it.id == dfa.finalNodeType
 		} ?: false
 

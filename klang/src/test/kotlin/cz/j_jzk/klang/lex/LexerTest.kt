@@ -9,6 +9,7 @@ import cz.j_jzk.klang.testutils.FToken
 import cz.j_jzk.klang.testutils.testLexWithPositions
 import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.util.PositionInfo
+import cz.j_jzk.klang.lex.re.compileRegex
 import java.io.EOFException
 import kotlin.test.assertFailsWith
 
@@ -29,7 +30,6 @@ class LexerTest {
 				re("if") to "IF",
 				re("\\d+") to "INT"
 			),
-			listOf(re("\\s"))
 		)
 
 	@Test fun testBasicLex() {
@@ -54,11 +54,10 @@ class LexerTest {
 	@Test fun testNoMatchWithIgnored() {
 		val lexer = Lexer(
 			linkedMapOf(re("\\d+") to "INT"),
-			listOf(re(" "))
 		)
 
 		val input = iter("   a")
-		assertEquals(null, lexer.nextToken(input))
+		assertEquals(null, lexer.nextToken(input, listOf(compileRegex(" ").fa)))
 	}
 
 	@Test fun testMaximalMunch() {
@@ -98,7 +97,8 @@ class LexerTest {
 				FToken("INT", "0"),
 				FToken("INT", "0"),
 				FToken("IF", "if"),
-			)
+			),
+			listOf("\\s"),
 		)
 	}
 
@@ -111,7 +111,8 @@ class LexerTest {
 				Token("INT", "00", PositionInfo("a", 3)),
 				Token("IF", "if", PositionInfo("a", 7)),
 				Token("INT", "0", PositionInfo("a", 9))
-			)
+			),
+			listOf("\\s"),
 		)
 	}
 }

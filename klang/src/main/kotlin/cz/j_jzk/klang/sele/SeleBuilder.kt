@@ -36,7 +36,8 @@ class SeleBuilder {
 	/** Maps a node to its definition. */
 	infix fun NodeID.to(definition: IntermediateNodeDefinition) {
 		val actualReduction = wrapReduction(this, definition.reduction)
-		parserDef.nodeDefs[this]!!.add(NodeDef(definition.definition, actualReduction))
+		// TODO: test that lexer ignores defined after the node definition get added too
+		parserDef.nodeDefs[this]!!.add(NodeDef(definition.definition, actualReduction, parserDef.lexerIgnores))
 	}
 
 	/**
@@ -58,7 +59,7 @@ class SeleBuilder {
 
 	/** Ignore the specified regexes when reading the input */
 	fun ignoreRegexes(vararg regexes: String) {
-		lexerDef.ignored.addAll(regexes.map { compileRegex(it).fa })
+		parserDef.lexerIgnores.addAll(regexes.map { compileRegex(it).fa })
 	}
 
 	/**
@@ -104,9 +105,9 @@ class SeleBuilder {
 
 internal class LexerDefinition {
 	val tokenDefs: LinkedHashMap<NFA, NodeID> = linkedMapOf()
-	val ignored: MutableList<NFA> = mutableListOf()
+
 	var unexpectedCharacterHandler: ((Char, PositionInfo) -> Unit)? = null
-	fun getLexer() = LexerWrapper(Lexer(tokenDefs, ignored), unexpectedCharacterHandler ?: { _, _ -> })
+	fun getLexer() = LexerWrapper(Lexer(tokenDefs, /* ignored */), unexpectedCharacterHandler ?: { _, _ -> })
 
 	fun include(other: LexerDefinition) {
 		tokenDefs.putAll(other.tokenDefs)
@@ -123,6 +124,8 @@ internal class ParserDefinition {
 	var errorCallback: ((UnexpectedTokenError) -> Unit)? = null
 	/** The top node of the grammar (the root of the AST) */
 	var topNode: NodeID? = null
+	/** Lexer ignores in the current context */
+	val lexerIgnores = mutableSetOf<NFA>()
 
 	/** Builds and returns the parser */
 	fun getParser(): DFA {

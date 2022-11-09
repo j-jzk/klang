@@ -7,6 +7,7 @@ import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.parse.EOFNodeID
 import cz.j_jzk.klang.util.set
+import cz.j_jzk.klang.lex.re.fa.NFA
 import java.util.ArrayDeque
 
 internal data class LR1Item(
@@ -57,6 +58,9 @@ class DFABuilder(
 
 	private val stateFactory = StateFactory()
 
+	/** Assigns states to the lexer ignores that should apply in them */
+	private val lexerIgnores = mutableMapOf<State, Set<NFA>>()
+
 	/*
 	 * This is here so we can unit test (functions can't be structurally
 	 * compared, so we must compare the exact same function)
@@ -80,7 +84,7 @@ class DFABuilder(
 		transitions[startState, topNode] = Action.Shift(finalState)
 		transitions[finalState, EOFNodeID] = Action.Reduce(1, identityReduction)
 
-		return DFA(transitions, topNode, startState, errorRecoveringNodes, onUnexpectedToken)
+		return DFA(transitions, topNode, startState, errorRecoveringNodes, onUnexpectedToken, lexerIgnores)
 	}
 
 	private fun constructStates(itemSet: MutableSet<LR1Item>, thisState: State) {
@@ -113,6 +117,9 @@ class DFABuilder(
 			// Add a transition from this state to the state represented by the items
 			transitions[thisState, char] = Action.Shift(getStateOrCreate(newItems))
 		}
+
+		// Assign lexer ignores to the state according to the ignores specified in the NodeDefs
+		lexerIgnores[thisState] = itemSet.map { it.nodeDef.lexerIgnores }.reduce { item, acc -> acc + item }
 	}
 
 	/** Performs an epsilon closure on the item set. It modifies the `items` in place. */
