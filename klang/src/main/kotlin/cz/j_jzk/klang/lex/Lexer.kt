@@ -77,6 +77,8 @@ class Lexer(private val regexToId: LinkedHashMap<NFA, Any>, private val ignored:
 		}
 
 	private fun doesTokenPrecede(a: NFA, b: NFA) = precedenceTable[a]!! < precedenceTable[b]!!
+
+	override fun toString(): String = "Lexer(NFA -> ID = $regexToId)"
 }
 
 @Suppress("UndocumentedPublicClass")

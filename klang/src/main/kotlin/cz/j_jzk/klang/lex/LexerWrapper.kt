@@ -61,4 +61,6 @@ class LexerWrapper(val lexer: Lexer, private val onNoMatch: (Char, PositionInfo)
 				it
 			} ?: throw NoSuchElementException()
 	}
+
+	override fun toString(): String = "LexerWrapper(lexer=$lexer, onNoMatch=$onNoMatch)"
 }
