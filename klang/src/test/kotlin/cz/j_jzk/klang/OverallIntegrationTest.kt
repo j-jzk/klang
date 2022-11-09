@@ -49,9 +49,6 @@ class OverallIntegrationTest {
 			errorRecovering("sum")
 		}.getSele()
 
-		println(sele.lexer.lexer)
-		println(sele.parser)
-
 		val input = "  12+ 8+3"
 		val idIn = InputFactory.fromString(input, "in")
 		assertEquals(23, sele.parse(idIn))

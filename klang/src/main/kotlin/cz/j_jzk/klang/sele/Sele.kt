@@ -27,4 +27,7 @@ class Sele(val lexer: LexerWrapper, val parser: DFA) {
 		else
 			return result.data
 	}
+
+	override fun toString(): String =
+		"<Sele(lexer=$lexer, parser=$parser)>"
 }
