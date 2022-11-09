@@ -14,9 +14,17 @@ import cz.j_jzk.klang.util.mergeSetValues
 import org.apache.commons.collections4.map.LazyMap
 import cz.j_jzk.klang.lex.re.compileRegex
 
+/**
+ * A function for creating a sele.
+ */
+// TODO: add an example to the documentation
 fun sele(init: SeleBuilder.() -> Unit): SeleBuilder =
 		SeleBuilder().also { it.init() }
 
+/**
+ * An interface for defining a sele. You most probably don't want to create
+ * this class directly, but instead use the `sele()` function from this package.
+ */
 class SeleBuilder {
 	private val lexerDef = LexerDefinition()
 	private val parserDef = ParserDefinition()
@@ -53,6 +61,10 @@ class SeleBuilder {
 		lexerDef.ignored.addAll(regexes.map { compileRegex(it).fa })
 	}
 
+	/**
+	 * Finalizes the definition and returns the sele, which can be used to
+	 * do the parsing.
+	 */
 	fun getSele(): Sele = Sele(lexerDef.getLexer(), parserDef.getParser())
 
 	/**
