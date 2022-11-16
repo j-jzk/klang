@@ -61,11 +61,13 @@ class DFABuilder(
 	/** Assigns states to the lexer ignores that should apply in them */
 	private val lexerIgnores = mutableMapOf<State, Set<CompiledRegex>>()
 
-	/*
-	 * This is here so we can unit test (functions can't be structurally
-	 * compared, so we must compare the exact same function)
-	 */
-	internal val identityReduction: (List<ASTNode>) -> ASTNode = { it[0] }
+	internal companion object {
+		/*
+		 * This is here so we can unit test (functions can't be structurally
+		 * compared, so we must compare the exact same function)
+		 */
+		val identityReduction: (List<ASTNode>) -> ASTNode = { it[0] }
+	}
 
 	/** This function constructs the parser and returns it. */
 	fun build(): DFA {

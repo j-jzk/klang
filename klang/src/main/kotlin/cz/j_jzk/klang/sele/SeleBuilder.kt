@@ -31,7 +31,7 @@ class SeleBuilder {
 	private val parserDef = ParserDefinition()
 
 	/** Creates a node definition */
-	fun def(vararg definition: NodeID, reduction: (List<Any?>) -> Any) =
+	fun def(vararg definition: NodeID, reduction: (List<*>) -> Any) =
 		IntermediateNodeDefinition(definition.toList(), reduction)
 
 	/** Maps a node to its definition. */
@@ -61,6 +61,12 @@ class SeleBuilder {
 	/** Ignore the specified regexes when reading the input */
 	fun ignoreRegexes(vararg regexes: String) {
 		parserDef.lexerIgnores.addAll(regexes.map(::compileRegex))
+	}
+
+	fun include(subSele: SeleBuilder): NodeID {
+		lexerDef.include(subSele.lexerDef)
+		parserDef.include(subSele.parserDef)
+		return requireNotNull(subSele.parserDef.topNode)
 	}
 
 	/**

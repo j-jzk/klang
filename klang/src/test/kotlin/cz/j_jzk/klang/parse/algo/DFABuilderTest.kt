@@ -29,10 +29,6 @@ class DFABuilderTest {
 		)
 	)
 
-	private fun shift(i: Int, er: Boolean = false) = Action.Shift(s(i, er))
-	private fun reduce(len: Int) = Action.Reduce(len, exprReduction)
-	private val emptyFun: (UnexpectedTokenError) -> Unit = { }
-
 	@Test fun testBasicConstruction() {
 		val builder = DFABuilder(leftRecursiveGrammar, top, emptyList(), emptyFun)
 		val dfa = builder.build()
@@ -48,7 +44,7 @@ class DFABuilderTest {
 				(s(4) to p) to reduce(1),
 				(s(4) to eof) to reduce(1),
 				(s(0, true) to top) to shift(5),
-				(s(5) to eof) to Action.Reduce(1, builder.identityReduction),
+				(s(5) to eof) to Action.Reduce(1, DFABuilder.identityReduction),
 			).toTable(),
 			top,
 			s(0, true),
@@ -73,7 +69,7 @@ class DFABuilderTest {
 				(s(3) to e2) to shift(4),
 				(s(4) to eof) to reduce(3),
 				(s(0, true) to top) to shift(5),
-				(s(5) to eof) to Action.Reduce(1, builder.identityReduction)
+				(s(5) to eof) to Action.Reduce(1, DFABuilder.identityReduction)
 			).toTable(),
 			top,
 			s(0, true),
@@ -99,7 +95,7 @@ class DFABuilderTest {
 				(s(4) to p) to reduce(1),
 				(s(4) to eof) to reduce(1),
 				(s(0, true) to top) to shift(5),
-				(s(5) to eof) to Action.Reduce(1, builder.identityReduction),
+				(s(5) to eof) to Action.Reduce(1, DFABuilder.identityReduction),
 			).toTable(),
 			top,
 			s(0, true),
@@ -124,7 +120,7 @@ class DFABuilderTest {
 				(s(3, true) to e2) to shift(4),
 				(s(4) to eof) to reduce(3),
 				(s(0, true) to top) to shift(5),
-				(s(5) to eof) to Action.Reduce(1, builder.identityReduction),
+				(s(5) to eof) to Action.Reduce(1, DFABuilder.identityReduction),
 			).toTable(),
 			top,
 			s(0, true),
@@ -170,7 +166,7 @@ class DFABuilderTest {
 				(s(8) to lp) to shift(8),
 				(s(9) to rp) to shift(10),
 				(s(10) to rp) to reduce(3),
-				(s(11) to eof) to Action.Reduce(1, builder.identityReduction),
+				(s(11) to eof) to Action.Reduce(1, DFABuilder.identityReduction),
 			).toTable(),
 			top,
 			s(0, true),
