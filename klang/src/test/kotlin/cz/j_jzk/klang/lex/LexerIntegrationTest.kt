@@ -62,7 +62,10 @@ class LexerIntegrationTest {
 		val input = InputFactory.fromString("10  123x5 :)", "input")
 
 		while (input.input.hasNext()) {
-			assertEquals(expectedTokens.next(), lexer.nextMatch(input, lexer.lexer.registeredTokenTypes, listOf(compileRegex(" ").fa)))
+			assertEquals(
+				expectedTokens.next(),
+				lexer.nextMatch(input, lexer.lexer.registeredTokenTypes, listOf(compileRegex(" ").fa))
+			)
 		}
 
 		assertFalse(expectedTokens.hasNext())

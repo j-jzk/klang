@@ -29,7 +29,9 @@ class LexerPPPIterator(val lexerWrapper: LexerWrapper, val input: IdentifiableIn
 	 * Looks at the first element of the input.
 	 * (If there are nodes that were pushed back, `expectedTokenTypes` are ignored.)
 	 */
-	fun peek(expectedTokenTypes: Collection<Any>, ignored: Collection<NFA>) = next(expectedTokenTypes, ignored)?.also { pushback(it) }
+	fun peek(expectedTokenTypes: Collection<Any>, ignored: Collection<NFA>) =
+		next(expectedTokenTypes, ignored)?.also { pushback(it) }
+
 	/**
 	 * Returns true if the iterator will emit any more ASTNodes.
 	 * This can also change from false to true when pushing back nodes.

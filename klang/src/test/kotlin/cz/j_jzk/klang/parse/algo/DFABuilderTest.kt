@@ -4,7 +4,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
-import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.util.set
 import cz.j_jzk.klang.parse.testutil.*
 import cz.j_jzk.klang.lex.re.CompiledRegex
@@ -180,7 +179,7 @@ class DFABuilderTest {
 
 	private fun emptyIgnoreMap(maxStateId: Int, erStates: Set<Int> = setOf(0)): Map<State, Set<CompiledRegex>> {
 		val map = mutableMapOf<State, Set<CompiledRegex>>()
-		for (i in 0..maxStateId-1)
+		for (i in 0 until maxStateId)
 			map[s(i, i in erStates)] = emptySet()
 		return map
 	}

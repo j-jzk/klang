@@ -63,6 +63,11 @@ class SeleBuilder {
 		parserDef.lexerIgnores.addAll(regexes.map(::compileRegex))
 	}
 
+	/**
+	 * Includes another sele definition into this one.
+	 * Returns the top ID of the definition, which can then be used in other
+	 * node definitions.
+	 */
 	fun include(subSele: SeleBuilder): NodeID {
 		lexerDef.include(subSele.lexerDef)
 		parserDef.include(subSele.parserDef)

@@ -37,7 +37,11 @@ class Lexer(private val regexToId: LinkedHashMap<NFA, Any>) {
 	 * Returns `null` on no match.
 	 * Throws an `EOFException` on EOF.
 	 */
-	fun nextToken(idInput: IdentifiableInput, expectedTokenTypes: Collection<Any> = regexToId.values, ignored: Collection<NFA> = emptyList()): Token? {
+	fun nextToken(
+		idInput: IdentifiableInput,
+		expectedTokenTypes: Collection<Any> = regexToId.values,
+		ignored: Collection<NFA> = emptyList()
+	): Token? {
 		val input = idInput.input
 		if (!input.hasNext())
 			throw EOFException()

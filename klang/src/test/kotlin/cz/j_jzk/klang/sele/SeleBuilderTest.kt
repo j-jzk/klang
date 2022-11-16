@@ -1,12 +1,8 @@
 package cz.j_jzk.klang.sele
 
 import cz.j_jzk.klang.parse.testutil.s
-import cz.j_jzk.klang.parse.algo.DFA
-import cz.j_jzk.klang.parse.algo.Action
-import cz.j_jzk.klang.parse.algo.DFABuilder
 import cz.j_jzk.klang.lex.re.compileRegex
 import kotlin.test.Test
-import kotlin.test.assertTrue
 import kotlin.test.assertEquals
 
 class SeleBuilderTest {

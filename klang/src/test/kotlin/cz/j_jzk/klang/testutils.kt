@@ -3,7 +3,6 @@ package cz.j_jzk.klang.testutils
 import cz.j_jzk.klang.input.IdentifiableInput
 import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.lex.re.compileRegex
-import cz.j_jzk.klang.lex.re.fa.NFA
 import cz.j_jzk.klang.lex.Lexer
 import cz.j_jzk.klang.lex.Token
 import kotlin.test.assertEquals
@@ -19,7 +18,12 @@ fun testLex(lexer: Lexer, input: String, expectedTokens: List<FToken>, ignore: C
     }
 }
 
-fun testLexWithPositions(lexer: Lexer, input: IdentifiableInput, expectedTokens: List<Token>, ignore: Collection<String> = emptyList()) {
+fun testLexWithPositions(
+    lexer: Lexer,
+    input: IdentifiableInput,
+    expectedTokens: List<Token>,
+    ignore: Collection<String> = emptyList()
+) {
     val ignoreRe = ignore.map { compileRegex(it).fa }
     for (token in expectedTokens) {
         assertEquals(token, lexer.nextToken(input, lexer.registeredTokenTypes, ignoreRe))

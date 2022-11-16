@@ -56,7 +56,8 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 	}
 
 	private fun recoverFromError() {
-		val gotToken = input.peek(input.allNodeIDs, lexerIgnores()) ?: throw EOFException("Unexpected EOF in ${input.input.id}")
+		val gotToken = input.peek(input.allNodeIDs, lexerIgnores())
+			?: throw EOFException("Unexpected EOF in ${input.input.id}")
 
 		dfa.onUnexpectedToken(UnexpectedTokenError(
 			gotToken,
