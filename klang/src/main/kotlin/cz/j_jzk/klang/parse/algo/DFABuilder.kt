@@ -7,7 +7,7 @@ import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.parse.EOFNodeID
 import cz.j_jzk.klang.util.set
-import cz.j_jzk.klang.lex.re.fa.NFA
+import cz.j_jzk.klang.lex.re.CompiledRegex
 import java.util.ArrayDeque
 
 internal data class LR1Item(
@@ -59,7 +59,7 @@ class DFABuilder(
 	private val stateFactory = StateFactory()
 
 	/** Assigns states to the lexer ignores that should apply in them */
-	private val lexerIgnores = mutableMapOf<State, Set<NFA>>()
+	private val lexerIgnores = mutableMapOf<State, Set<CompiledRegex>>()
 
 	/*
 	 * This is here so we can unit test (functions can't be structurally

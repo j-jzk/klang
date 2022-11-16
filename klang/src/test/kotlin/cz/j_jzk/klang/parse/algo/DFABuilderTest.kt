@@ -7,7 +7,7 @@ import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.util.set
 import cz.j_jzk.klang.parse.testutil.*
-import cz.j_jzk.klang.lex.re.fa.NFA
+import cz.j_jzk.klang.lex.re.CompiledRegex
 
 /* TODO: make this less hacky
  * Specifically, find a way to structurally compare DFAs (this class currently
@@ -182,8 +182,8 @@ class DFABuilderTest {
 		assertEquals(expected, dfa)
 	}
 
-	private fun emptyIgnoreMap(maxStateId: Int, erStates: Set<Int> = setOf(0)): Map<State, Set<NFA>> {
-		val map = mutableMapOf<State, Set<NFA>>()
+	private fun emptyIgnoreMap(maxStateId: Int, erStates: Set<Int> = setOf(0)): Map<State, Set<CompiledRegex>> {
+		val map = mutableMapOf<State, Set<CompiledRegex>>()
 		for (i in 0..maxStateId-1)
 			map[s(i, i in erStates)] = emptySet()
 		return map

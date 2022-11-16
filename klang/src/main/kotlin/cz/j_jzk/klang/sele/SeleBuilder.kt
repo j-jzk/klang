@@ -2,6 +2,7 @@ package cz.j_jzk.klang.sele
 
 import cz.j_jzk.klang.lex.Lexer
 import cz.j_jzk.klang.lex.LexerWrapper
+import cz.j_jzk.klang.lex.re.CompiledRegex
 import cz.j_jzk.klang.lex.re.fa.NFA
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
@@ -59,7 +60,7 @@ class SeleBuilder {
 
 	/** Ignore the specified regexes when reading the input */
 	fun ignoreRegexes(vararg regexes: String) {
-		parserDef.lexerIgnores.addAll(regexes.map { compileRegex(it).fa })
+		parserDef.lexerIgnores.addAll(regexes.map(::compileRegex))
 	}
 
 	/**
@@ -125,7 +126,7 @@ internal class ParserDefinition {
 	/** The top node of the grammar (the root of the AST) */
 	var topNode: NodeID? = null
 	/** Lexer ignores in the current context */
-	val lexerIgnores = mutableSetOf<NFA>()
+	val lexerIgnores = mutableSetOf<CompiledRegex>()
 
 	/** Builds and returns the parser */
 	fun getParser(): DFA {

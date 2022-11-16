@@ -5,7 +5,7 @@ import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.util.popTop
-import cz.j_jzk.klang.lex.re.fa.NFA
+import cz.j_jzk.klang.lex.re.CompiledRegex
 import java.io.EOFException
 
 /** This class represents the DFA (the "structure" of the parser). */
@@ -15,7 +15,7 @@ data class DFA(
 	val startState: State,
 	val errorRecoveringNodes: List<NodeID>,
 	val onUnexpectedToken: (UnexpectedTokenError) -> Unit,
-	val lexerIgnores: Map<State, Set<NFA>>,
+	val lexerIgnores: Map<State, Set<CompiledRegex>>,
 ) {
 	/** Runs the parser and returns the resulting syntax tree */
 	fun parse(input: LexerPPPIterator) = DFAParser(input, this).parse()
@@ -106,7 +106,7 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 	private fun expectedIDs(): List<NodeID> =
 		dfa.actionTable.row(stateStack.last()).keys.toList()
 
-	private fun lexerIgnores() = dfa.lexerIgnores[stateStack.last()]!!
+	private fun lexerIgnores() = dfa.lexerIgnores[stateStack.last()]!!.map { it.fa }
 
 	// Or should we have a special finishing state?
 	private fun isParsingFinished() =
