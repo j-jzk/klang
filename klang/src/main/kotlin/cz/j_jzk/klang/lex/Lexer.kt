@@ -20,11 +20,11 @@ import com.google.common.collect.ArrayListMultimap
  * The lexer isn't tied to an input stream, so you can use the same lexer object
  * to parse multiple inputs in parallel.
  */
-class Lexer(private val regexToId: LinkedHashMap<NFA, Any>, private val ignored: List<NFA> = listOf()) {
+class Lexer(private val regexToId: LinkedHashMap<NFA, Any>) {
 	/** All the token IDs known to this lexer */
 	val registeredTokenTypes = regexToId.values
 
-	private val allNFAs = regexToId.keys + ignored
+	private val allNFAs = regexToId.keys
 	private val precedenceTable: Map<NFA, Int>
 	private val idToRegex = Multimaps.invertFrom(Multimaps.forMap(regexToId), ArrayListMultimap.create())
 	init {
@@ -37,7 +37,11 @@ class Lexer(private val regexToId: LinkedHashMap<NFA, Any>, private val ignored:
 	 * Returns `null` on no match.
 	 * Throws an `EOFException` on EOF.
 	 */
-	fun nextToken(idInput: IdentifiableInput, expectedTokenTypes: Collection<Any> = regexToId.values): Token? {
+	fun nextToken(
+		idInput: IdentifiableInput,
+		expectedTokenTypes: Collection<Any> = regexToId.values,
+		ignored: Collection<NFA> = emptyList()
+	): Token? {
 		val input = idInput.input
 		if (!input.hasNext())
 			throw EOFException()
@@ -50,7 +54,7 @@ class Lexer(private val regexToId: LinkedHashMap<NFA, Any>, private val ignored:
 
 		if (longestMatch.key in ignored)
 			return if (input.hasNext())
-				nextToken(idInput, expectedTokenTypes)
+				nextToken(idInput, expectedTokenTypes, ignored)
 			else
 				null
 

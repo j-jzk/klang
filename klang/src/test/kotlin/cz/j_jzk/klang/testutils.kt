@@ -10,16 +10,23 @@ import kotlin.test.assertEquals
 fun re(str: String) = compileRegex(str).fa
 fun iter(str: String) = InputFactory.fromString(str, "id")
 
-fun testLex(lexer: Lexer, input: String, expectedTokens: List<FToken>) {
+fun testLex(lexer: Lexer, input: String, expectedTokens: List<FToken>, ignore: Collection<String> = emptyList()) {
     val inputIter = InputFactory.fromString(input, "whatever")
+    val ignoreRe = ignore.map { compileRegex(it).fa }
     for (token in expectedTokens) {
-        assertEquals<Any?>(token, lexer.nextToken(inputIter))
+        assertEquals<Any?>(token, lexer.nextToken(inputIter, lexer.registeredTokenTypes, ignoreRe))
     }
 }
 
-fun testLexWithPositions(lexer: Lexer, input: IdentifiableInput, expectedTokens: List<Token>) {
+fun testLexWithPositions(
+    lexer: Lexer,
+    input: IdentifiableInput,
+    expectedTokens: List<Token>,
+    ignore: Collection<String> = emptyList()
+) {
+    val ignoreRe = ignore.map { compileRegex(it).fa }
     for (token in expectedTokens) {
-        assertEquals(token, lexer.nextToken(input))
+        assertEquals(token, lexer.nextToken(input, lexer.registeredTokenTypes, ignoreRe))
     }
 }
 

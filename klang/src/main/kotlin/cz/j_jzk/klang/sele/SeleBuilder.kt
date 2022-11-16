@@ -2,6 +2,7 @@ package cz.j_jzk.klang.sele
 
 import cz.j_jzk.klang.lex.Lexer
 import cz.j_jzk.klang.lex.LexerWrapper
+import cz.j_jzk.klang.lex.re.CompiledRegex
 import cz.j_jzk.klang.lex.re.fa.NFA
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
@@ -30,13 +31,14 @@ class SeleBuilder {
 	private val parserDef = ParserDefinition()
 
 	/** Creates a node definition */
-	fun def(vararg definition: NodeID, reduction: (List<Any?>) -> Any) =
+	fun def(vararg definition: NodeID, reduction: (List<*>) -> Any) =
 		IntermediateNodeDefinition(definition.toList(), reduction)
 
 	/** Maps a node to its definition. */
 	infix fun NodeID.to(definition: IntermediateNodeDefinition) {
 		val actualReduction = wrapReduction(this, definition.reduction)
-		parserDef.nodeDefs[this]!!.add(NodeDef(definition.definition, actualReduction))
+		// TODO: test that lexer ignores defined after the node definition get added too
+		parserDef.nodeDefs[this]!!.add(NodeDef(definition.definition, actualReduction, parserDef.lexerIgnores))
 	}
 
 	/**
@@ -58,7 +60,18 @@ class SeleBuilder {
 
 	/** Ignore the specified regexes when reading the input */
 	fun ignoreRegexes(vararg regexes: String) {
-		lexerDef.ignored.addAll(regexes.map { compileRegex(it).fa })
+		parserDef.lexerIgnores.addAll(regexes.map(::compileRegex))
+	}
+
+	/**
+	 * Includes another sele definition into this one.
+	 * Returns the top ID of the definition, which can then be used in other
+	 * node definitions.
+	 */
+	fun include(subSele: SeleBuilder): NodeID {
+		lexerDef.include(subSele.lexerDef)
+		parserDef.include(subSele.parserDef)
+		return requireNotNull(subSele.parserDef.topNode)
 	}
 
 	/**
@@ -104,9 +117,9 @@ class SeleBuilder {
 
 internal class LexerDefinition {
 	val tokenDefs: LinkedHashMap<NFA, NodeID> = linkedMapOf()
-	val ignored: MutableList<NFA> = mutableListOf()
+
 	var unexpectedCharacterHandler: ((Char, PositionInfo) -> Unit)? = null
-	fun getLexer() = LexerWrapper(Lexer(tokenDefs, ignored), unexpectedCharacterHandler ?: { _, _ -> })
+	fun getLexer() = LexerWrapper(Lexer(tokenDefs, /* ignored */), unexpectedCharacterHandler ?: { _, _ -> })
 
 	fun include(other: LexerDefinition) {
 		tokenDefs.putAll(other.tokenDefs)
@@ -123,6 +136,8 @@ internal class ParserDefinition {
 	var errorCallback: ((UnexpectedTokenError) -> Unit)? = null
 	/** The top node of the grammar (the root of the AST) */
 	var topNode: NodeID? = null
+	/** Lexer ignores in the current context */
+	val lexerIgnores = mutableSetOf<CompiledRegex>()
 
 	/** Builds and returns the parser */
 	fun getParser(): DFA {

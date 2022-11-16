@@ -29,12 +29,22 @@ val eof = EOFNodeID
 const val top = "top"
 fun s(i: Int, er: Boolean = false) = State(i, er)
 
+fun shift(i: Int, er: Boolean = false) = Action.Shift(s(i, er))
+fun reduce(len: Int) = Action.Reduce(len, exprReduction)
+val emptyFun: (UnexpectedTokenError) -> Unit = { }
+
 val topReduction: (List<ASTNode>) -> ASTNode =
 	{ ASTNode.Data(top, ASTData.Nonterminal(it), it[0].position) }
 val exprReduction: (List<ASTNode>) -> ASTNode =
 	{ ASTNode.Data(e2, ASTData.Nonterminal(it), it[0].position) }
 val identityReduction: (List<ASTNode>) -> ASTNode =
 	{ it[0] }
+/**
+ * A reduction function meant to be used in the parser builder, since it uses
+ * Any instead of ASTNode.
+ */
+val builderReduction: (List<Any?>) -> Any =
+	{ 0 }
 
 val leftRecursiveGrammar: Map<NodeID, Set<NodeDef>> = mapOf(
 	top to setOf(NodeDef(listOf(e2), topReduction)),
@@ -87,8 +97,8 @@ private fun getNextIfExpected(
 fun fakePPPIter(nodes: List<ASTNode?>): LexerPPPIterator =
 	mockk<LexerPPPIterator>().also { mock ->
 		val ppIter = PeekingPushbackIterator(nodes.iterator())
-		every { mock.next(any()) } answers { getNextIfExpected(ppIter, firstArg<Collection<Any>>(), ppIter::next) }
-		every { mock.peek(any()) } answers { getNextIfExpected(ppIter, firstArg<Collection<Any>>(), ppIter::peek) }
+		every { mock.next(any(), any()) } answers { getNextIfExpected(ppIter, firstArg<Collection<Any>>(), ppIter::next) }
+		every { mock.peek(any(), any()) } answers { getNextIfExpected(ppIter, firstArg<Collection<Any>>(), ppIter::peek) }
 		every { mock.pushback(any()) } answers { ppIter.pushback(firstArg()) }
 		every { mock.hasNext() } answers { ppIter.hasNext() }
 		every { mock.allNodeIDs } answers { nodes.mapNotNull { it?.id } }

@@ -6,6 +6,7 @@ import cz.j_jzk.klang.input.IdentifiableInput
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.EOFNodeID
 import cz.j_jzk.klang.util.PositionInfo
+import cz.j_jzk.klang.lex.re.fa.NFA
 
 /**
  * A parametrized peeking pushback iterator used as an interface between the lexer and the parser.
@@ -28,7 +29,9 @@ class LexerPPPIterator(val lexerWrapper: LexerWrapper, val input: IdentifiableIn
 	 * Looks at the first element of the input.
 	 * (If there are nodes that were pushed back, `expectedTokenTypes` are ignored.)
 	 */
-	fun peek(expectedTokenTypes: Collection<Any>) = next(expectedTokenTypes)?.also { pushback(it) }
+	fun peek(expectedTokenTypes: Collection<Any>, ignored: Collection<NFA>) =
+		next(expectedTokenTypes, ignored)?.also { pushback(it) }
+
 	/**
 	 * Returns true if the iterator will emit any more ASTNodes.
 	 * This can also change from false to true when pushing back nodes.
@@ -39,13 +42,13 @@ class LexerPPPIterator(val lexerWrapper: LexerWrapper, val input: IdentifiableIn
 	 * (If there are nodes that were pushed back, `expectedTokenTypes` are ignored.)
 	 * On EOF, this function emits one EOF node and then continues to emit `null`s.
 	 */
-	fun next(expectedTokenTypes: Collection<Any>): ASTNode? =
+	fun next(expectedTokenTypes: Collection<Any>, ignored: Collection<NFA>): ASTNode? =
 		if (wasEof)
 			null
 		else if (pushbackBuffer.isNotEmpty())
 			pushbackBuffer.removeLast()
 		else
-			convertToken(lexerWrapper.nextMatch(input, expectedTokenTypes))
+			convertToken(lexerWrapper.nextMatch(input, expectedTokenTypes, ignored))
 
 	/**
 	 * Converts a Token into a ASTNode.Data with the data being the token's string.

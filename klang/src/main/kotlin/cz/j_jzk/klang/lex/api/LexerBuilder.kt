@@ -59,6 +59,7 @@ class LexerBuilder {
 	/**
 	 * Declares some tokens to be ignored (e.g. comments, whitespace etc.)
 	 */
+	// TODO: remove this
 	fun ignore(vararg regex: String) {
 		ignored.addAll(regex.map { compileRegex(it).fa })
 	}
@@ -78,5 +79,5 @@ class LexerBuilder {
 	}
 
 	/** Builds the lexer. */
-	fun getLexer() = LexerWrapper(Lexer(tokenDefs, ignored), onNoMatchHandler ?: { _, _ -> })
+	fun getLexer() = LexerWrapper(Lexer(tokenDefs), onNoMatchHandler ?: { _, _ -> })
 }

@@ -4,9 +4,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
-import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.util.set
 import cz.j_jzk.klang.parse.testutil.*
+import cz.j_jzk.klang.lex.re.CompiledRegex
 
 /* TODO: make this less hacky
  * Specifically, find a way to structurally compare DFAs (this class currently
@@ -28,10 +28,6 @@ class DFABuilderTest {
 		)
 	)
 
-	private fun shift(i: Int, er: Boolean = false) = Action.Shift(s(i, er))
-	private fun reduce(len: Int) = Action.Reduce(len, exprReduction)
-	private val emptyFun: (UnexpectedTokenError) -> Unit = { }
-
 	@Test fun testBasicConstruction() {
 		val builder = DFABuilder(leftRecursiveGrammar, top, emptyList(), emptyFun)
 		val dfa = builder.build()
@@ -47,12 +43,13 @@ class DFABuilderTest {
 				(s(4) to p) to reduce(1),
 				(s(4) to eof) to reduce(1),
 				(s(0, true) to top) to shift(5),
-				(s(5) to eof) to Action.Reduce(1, builder.identityReduction),
+				(s(5) to eof) to Action.Reduce(1, DFABuilder.identityReduction),
 			).toTable(),
 			top,
 			s(0, true),
 			emptyList(),
-			emptyFun
+			emptyFun,
+			emptyIgnoreMap(5),
 		)
 		assertEquals(expected, dfa)
 	}
@@ -71,12 +68,13 @@ class DFABuilderTest {
 				(s(3) to e2) to shift(4),
 				(s(4) to eof) to reduce(3),
 				(s(0, true) to top) to shift(5),
-				(s(5) to eof) to Action.Reduce(1, builder.identityReduction)
+				(s(5) to eof) to Action.Reduce(1, DFABuilder.identityReduction)
 			).toTable(),
 			top,
 			s(0, true),
 			emptyList(),
-			emptyFun
+			emptyFun,
+			emptyIgnoreMap(5),
 		)
 		assertEquals(expected, dfa)
 	}
@@ -96,12 +94,13 @@ class DFABuilderTest {
 				(s(4) to p) to reduce(1),
 				(s(4) to eof) to reduce(1),
 				(s(0, true) to top) to shift(5),
-				(s(5) to eof) to Action.Reduce(1, builder.identityReduction),
+				(s(5) to eof) to Action.Reduce(1, DFABuilder.identityReduction),
 			).toTable(),
 			top,
 			s(0, true),
 			listOf(e2, top),
-			emptyFun
+			emptyFun,
+			emptyIgnoreMap(5),
 		)
 		assertEquals(expected, dfa)
 	}
@@ -120,12 +119,13 @@ class DFABuilderTest {
 				(s(3, true) to e2) to shift(4),
 				(s(4) to eof) to reduce(3),
 				(s(0, true) to top) to shift(5),
-				(s(5) to eof) to Action.Reduce(1, builder.identityReduction),
+				(s(5) to eof) to Action.Reduce(1, DFABuilder.identityReduction),
 			).toTable(),
 			top,
 			s(0, true),
 			listOf(e2, top),
-			emptyFun
+			emptyFun,
+			emptyIgnoreMap(5, setOf(0, 3)),
 		)
 		assertEquals(expected, dfa)
 	}
@@ -165,14 +165,22 @@ class DFABuilderTest {
 				(s(8) to lp) to shift(8),
 				(s(9) to rp) to shift(10),
 				(s(10) to rp) to reduce(3),
-				(s(11) to eof) to Action.Reduce(1, builder.identityReduction),
+				(s(11) to eof) to Action.Reduce(1, DFABuilder.identityReduction),
 			).toTable(),
 			top,
 			s(0, true),
 			emptyList(),
-			emptyFun
+			emptyFun,
+			emptyIgnoreMap(11),
 		)
 
 		assertEquals(expected, dfa)
+	}
+
+	private fun emptyIgnoreMap(maxStateId: Int, erStates: Set<Int> = setOf(0)): Map<State, Set<CompiledRegex>> {
+		val map = mutableMapOf<State, Set<CompiledRegex>>()
+		for (i in 0 until maxStateId)
+			map[s(i, i in erStates)] = emptySet()
+		return map
 	}
 }
