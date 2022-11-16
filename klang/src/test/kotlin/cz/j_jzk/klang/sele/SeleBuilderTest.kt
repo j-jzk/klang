@@ -22,6 +22,24 @@ class SeleBuilderTest {
 		// assertTrue(false)
 	}
 
+	@Test fun testBasicIgnores() {
+		// test that ignores added after a definition have effect
+		val sele = sele {
+			ignoreRegexes("before")
+			"a" to def("a") { "a" }
+			ignoreRegexes("after")
+
+			setTopNode("a")
+		}.getSele()
+
+		val expected = mapOf(
+			s(0, true) to setOf(compileRegex("before"), compileRegex("after")),
+			s(1) to setOf(compileRegex("before"), compileRegex("after")),
+		)
+
+		assertEquals(expected, sele.parser.lexerIgnores)
+	}
+
 	@Test fun testImportableIgnores() {
 		val sub = sele {
 			"sub" to def(re("a")) { 0 }
