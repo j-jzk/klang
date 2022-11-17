@@ -5,6 +5,7 @@ import cz.j_jzk.klang.lex.re.nextMatchFromMultiple
 import cz.j_jzk.klang.util.listiterator.previousString
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.input.IdentifiableInput
+import cz.j_jzk.klang.parse.NodeID
 import java.io.EOFException
 import com.google.common.collect.Multimaps
 import com.google.common.collect.ArrayListMultimap
@@ -20,7 +21,7 @@ import com.google.common.collect.ArrayListMultimap
  * The lexer isn't tied to an input stream, so you can use the same lexer object
  * to parse multiple inputs in parallel.
  */
-class Lexer(private val regexToId: LinkedHashMap<NFA, Any>) {
+class Lexer(private val regexToId: LinkedHashMap<NFA, NodeID<*>>) {
 	/** All the token IDs known to this lexer */
 	val registeredTokenTypes = regexToId.values
 
@@ -39,7 +40,7 @@ class Lexer(private val regexToId: LinkedHashMap<NFA, Any>) {
 	 */
 	fun nextToken(
 		idInput: IdentifiableInput,
-		expectedTokenTypes: Collection<Any> = regexToId.values,
+		expectedTokenTypes: Collection<NodeID<*>> = regexToId.values,
 		ignored: Collection<NFA> = emptyList()
 	): Token? {
 		val input = idInput.input
@@ -87,7 +88,7 @@ class Lexer(private val regexToId: LinkedHashMap<NFA, Any>) {
 
 @Suppress("UndocumentedPublicClass")
 data class Token(
-	val id: Any,
+	val id: NodeID<*>,
 	val value: String,
 	val position: PositionInfo,
 )

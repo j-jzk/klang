@@ -2,6 +2,7 @@ package cz.j_jzk.klang.lex
 
 import cz.j_jzk.klang.input.IdentifiableInput
 import cz.j_jzk.klang.util.PositionInfo
+import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.lex.re.fa.NFA
 
 /**
@@ -16,7 +17,7 @@ class LexerWrapper(val lexer: Lexer, private val onNoMatch: (Char, PositionInfo)
 	 */
 	tailrec fun nextMatch(
 		input: IdentifiableInput,
-		expectedTokenTypes: Collection<Any>,
+		expectedTokenTypes: Collection<NodeID<*>>,
 		ignored: Collection<NFA>
 	): Token? {
 		if (!input.input.hasNext()) return null

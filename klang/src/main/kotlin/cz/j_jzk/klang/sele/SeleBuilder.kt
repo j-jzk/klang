@@ -14,6 +14,8 @@ import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.util.mergeSetValues
 import org.apache.commons.collections4.map.LazyMap
 import cz.j_jzk.klang.lex.re.compileRegex
+import cz.j_jzk.klang.sele.tuple.DataTuple
+import cz.j_jzk.klang.sele.tuple.dataTupleFromList
 
 /**
  * A function for creating a sele.
@@ -31,13 +33,15 @@ class SeleBuilder {
 	private val parserDef = ParserDefinition()
 
 	/** Creates a node definition */
-	fun def(vararg definition: NodeID, reduction: (List<*>) -> Any) =
-		IntermediateNodeDefinition(definition.toList(), reduction)
+	// fun def(vararg definition: NodeID, reduction: (List<*>) -> Any) =
+	// 	IntermediateNodeDefinition(definition.toList(), reduction)
+
+	fun <T1, R> def(id1: NodeID<T1>, reduction: (DataTuple.Tuple1<T1>) -> R) =
+		IntermediateNodeDefinition<T1, Nothing, Nothing, Nothing, DataTuple.Tuple1<T1>, R>(listOf(id1), reduction)
 
 	/** Maps a node to its definition. */
-	infix fun NodeID.to(definition: IntermediateNodeDefinition) {
+	infix fun <R> NodeID<R>.to(definition: IntermediateNodeDefinition<Any?, Any?, Any?, Any?, DataTuple<Any?,Any?,Any?,Any?>, R>) {
 		val actualReduction = wrapReduction(this, definition.reduction)
-		// TODO: test that lexer ignores defined after the node definition get added too
 		parserDef.nodeDefs[this]!!.add(NodeDef(definition.definition, actualReduction, parserDef.lexerIgnores))
 	}
 
@@ -45,17 +49,17 @@ class SeleBuilder {
 	 * Marks `nodes` to be error-recovering. These nodes will be then used to
 	 * contain syntax errors.
 	 */
-	fun errorRecovering(vararg nodes: NodeID) {
+	fun errorRecovering(vararg nodes: NodeID<Any?>) {
 		parserDef.errorRecoveringNodes.addAll(nodes)
 	}
 
 	/** Sets the root node of this sele */
-	fun setTopNode(node: NodeID) {
+	fun setTopNode(node: NodeID<Any?>) {
 		parserDef.topNode = node
 	}
 
 	/** Defines a regex node */
-	fun re(regex: String): NodeID =
+	fun re(regex: String): NodeID<String> =
 		RegexNodeID(regex).also { lexerDef.tokenDefs[compileRegex(regex).fa] = it }
 
 	/** Ignore the specified regexes when reading the input */
@@ -68,7 +72,7 @@ class SeleBuilder {
 	 * Returns the top ID of the definition, which can then be used in other
 	 * node definitions.
 	 */
-	fun include(subSele: SeleBuilder): NodeID {
+	fun include(subSele: SeleBuilder): NodeID<Any?> { // FIXME: type safety for includes
 		lexerDef.include(subSele.lexerDef)
 		parserDef.include(subSele.parserDef)
 		return requireNotNull(subSele.parserDef.topNode)
@@ -88,18 +92,22 @@ class SeleBuilder {
 	 *     (it has no value) and a correct program couldn't be created from
 	 *     such an AST anyway
 	 */
-	private fun wrapReduction(nodeID: NodeID, reduction: (List<Any?>) -> Any): (List<ASTNode>) -> ASTNode =
+	private fun <T1, T2, T3, T4, R> wrapReduction(nodeID: NodeID<R>, reduction: (DataTuple<T1, T2, T3, T4>) -> R): (List<ASTNode>) -> ASTNode =
 	{ nodeList ->
 		if (nodeList.none { it is ASTNode.Erroneous })
 			ASTNode.Data(
 					nodeID,
-					reduction(nodeList.map { node ->
-						when (node) {
-							is ASTNode.Data -> node.data
-							is ASTNode.NoValue -> null
-							else -> throw IllegalStateException("This should never happen")
-						}
-					}),
+					reduction(
+						dataTupleFromList(
+							nodeList.map { node ->
+								when (node) {
+									is ASTNode.Data -> node.data
+									is ASTNode.NoValue -> null
+									else -> throw IllegalStateException("This should never happen")
+								}
+							}
+						)
+					),
 
 					nodeList.firstOrNull { it.position.character != -1 }
 							?.position ?: PositionInfo("__undefined", -1)
@@ -112,11 +120,11 @@ class SeleBuilder {
 	 * A structure used internally to represent a node definition. (This is
 	 * used to allow for a syntax with fewer braces.)
 	 */
-	data class IntermediateNodeDefinition(val definition: List<NodeID>, val reduction: (List<Any?>) -> Any)
+	data class IntermediateNodeDefinition<T1, T2, T3, T4, U: DataTuple<T1,T2,T3,T4>, R>(val definition: List<NodeID<out Any?>>, val reduction: (U) -> R)
 }
 
 internal class LexerDefinition {
-	val tokenDefs: LinkedHashMap<NFA, NodeID> = linkedMapOf()
+	val tokenDefs: LinkedHashMap<NFA, NodeID<Any?>> = linkedMapOf()
 
 	var unexpectedCharacterHandler: ((Char, PositionInfo) -> Unit)? = null
 	fun getLexer() = LexerWrapper(Lexer(tokenDefs, /* ignored */), unexpectedCharacterHandler ?: { _, _ -> })
@@ -129,13 +137,13 @@ internal class LexerDefinition {
 
 internal class ParserDefinition {
 	/** The actual node definition data */
-	val actualNodeDefs: MutableMap<NodeID, MutableSet<NodeDef>> = mutableMapOf()
+	val actualNodeDefs: MutableMap<NodeID<Any?>, MutableSet<NodeDef>> = mutableMapOf()
 	/** Used for simpler code - returns an empty set when a node ID isn't defined */
-	val nodeDefs: LazyMap<NodeID, MutableSet<NodeDef>> = LazyMap.lazyMap(actualNodeDefs) { -> mutableSetOf() }
-	val errorRecoveringNodes: MutableSet<NodeID> = mutableSetOf()
+	val nodeDefs: LazyMap<NodeID<Any?>, MutableSet<NodeDef>> = LazyMap.lazyMap(actualNodeDefs) { -> mutableSetOf() }
+	val errorRecoveringNodes: MutableSet<NodeID<Any?>> = mutableSetOf()
 	var errorCallback: ((UnexpectedTokenError) -> Unit)? = null
 	/** The top node of the grammar (the root of the AST) */
-	var topNode: NodeID? = null
+	var topNode: NodeID<Any?>? = null
 	/** Lexer ignores in the current context */
 	val lexerIgnores = mutableSetOf<CompiledRegex>()
 

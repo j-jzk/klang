@@ -4,6 +4,7 @@ import cz.j_jzk.klang.lex.LexerWrapper
 import cz.j_jzk.klang.lex.Token
 import cz.j_jzk.klang.input.IdentifiableInput
 import cz.j_jzk.klang.parse.ASTNode
+import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.EOFNodeID
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.lex.re.fa.NFA
@@ -21,7 +22,7 @@ class LexerPPPIterator(val lexerWrapper: LexerWrapper, val input: IdentifiableIn
 	 */
 	private var wasEof = false
 
-	val allNodeIDs: Collection<Any> = ArrayList(lexerWrapper.lexer.registeredTokenTypes)
+	val allNodeIDs: Collection<NodeID<*>> = ArrayList(lexerWrapper.lexer.registeredTokenTypes)
 
 	/** Pushes the `node` back onto the input. */
 	fun pushback(node: ASTNode) { pushbackBuffer.add(node).also { wasEof = false } }
@@ -29,7 +30,7 @@ class LexerPPPIterator(val lexerWrapper: LexerWrapper, val input: IdentifiableIn
 	 * Looks at the first element of the input.
 	 * (If there are nodes that were pushed back, `expectedTokenTypes` are ignored.)
 	 */
-	fun peek(expectedTokenTypes: Collection<Any>, ignored: Collection<NFA>) =
+	fun peek(expectedTokenTypes: Collection<NodeID<*>>, ignored: Collection<NFA>) =
 		next(expectedTokenTypes, ignored)?.also { pushback(it) }
 
 	/**
@@ -42,7 +43,7 @@ class LexerPPPIterator(val lexerWrapper: LexerWrapper, val input: IdentifiableIn
 	 * (If there are nodes that were pushed back, `expectedTokenTypes` are ignored.)
 	 * On EOF, this function emits one EOF node and then continues to emit `null`s.
 	 */
-	fun next(expectedTokenTypes: Collection<Any>, ignored: Collection<NFA>): ASTNode? =
+	fun next(expectedTokenTypes: Collection<NodeID<*>>, ignored: Collection<NFA>): ASTNode? =
 		if (wasEof)
 			null
 		else if (pushbackBuffer.isNotEmpty())

@@ -13,14 +13,14 @@ import java.util.ArrayDeque
 internal data class LR1Item(
 	val nodeDef: NodeDef,
 	val dotBefore: Int, // which element of the def is the dot before
-	val sigma: Set<NodeID>,
+	val sigma: Set<NodeID<*>>,
 )
 
 /**
  * A convenience function for getting the element of the item after the dot.
  * If the dot is at the end, this returns null.
  */
-private fun LR1Item.elementAfterDot(): NodeID? =
+private fun LR1Item.elementAfterDot(): NodeID<*>? =
 	nodeDef.elements.getOrNull(dotBefore)
 
 /**
@@ -29,26 +29,26 @@ private fun LR1Item.elementAfterDot(): NodeID? =
 // TODO: precompute & memoize everything we can
 class DFABuilder(
 	/** The formal grammar */
-	val nodeDefs: Map<NodeID, Set<NodeDef>>,
+	val nodeDefs: Map<NodeID<Any?>, Set<NodeDef>>,
 
 	/**
 	 * The top node of the grammar. It needs to have a single definition, not
 	 * ending in EOF.
 	 */
-	val topNode: NodeID,
+	val topNode: NodeID<*>,
 
 	/**
 	 * The error-recovering nodes (nodes which will be used to contain syntax
 	 * errors)
 	 */
-	val errorRecoveringNodes: List<NodeID>,
+	val errorRecoveringNodes: List<NodeID<*>>,
 
 	/**
 	 * A callback used when the parser encounters a syntax error.
 	 */
 	val onUnexpectedToken: (UnexpectedTokenError) -> Unit,
 ) {
-	private val transitions = HashBasedTable.create<State, NodeID, Action>()
+	private val transitions = HashBasedTable.create<State, NodeID<*>, Action>()
 
 	/**
 	 * This variable maps the states as seen by the builder to the states seen
@@ -149,13 +149,13 @@ class DFABuilder(
 	}
 
 	@Suppress("NestedBlockDepth") // Performance is more important than readability here
-	private fun computeSigma(itemBeingExpanded: LR1Item): Set<NodeID> {
+	private fun computeSigma(itemBeingExpanded: LR1Item): Set<NodeID<*>> {
 		if (itemBeingExpanded.dotBefore + 1 == itemBeingExpanded.nodeDef.elements.size) {
 			return itemBeingExpanded.sigma
 		}
 
-		val sigma = mutableSetOf<NodeID>()
-		val unexpanded = ArrayDeque<NodeID>()
+		val sigma = mutableSetOf<NodeID<*>>()
+		val unexpanded = ArrayDeque<NodeID<*>>()
 
 		unexpanded.add(itemBeingExpanded.nodeDef.elements[itemBeingExpanded.dotBefore + 1])
 
@@ -205,5 +205,5 @@ class DFABuilder(
 		itemSet.any { it.elementAfterDot() in errorRecoveringNodes }
 
 	/** Checks if a node is nullable (if it can resolve to epsilon) */
-	private fun isNullable(node: NodeID) = nodeDefs[node]?.any { it.elements.isEmpty() } ?: false
+	private fun isNullable(node: NodeID<*>) = nodeDefs[node]?.any { it.elements.isEmpty() } ?: false
 }
