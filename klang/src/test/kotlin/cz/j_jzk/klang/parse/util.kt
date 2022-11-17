@@ -12,6 +12,7 @@ import cz.j_jzk.klang.parse.algo.State
 import cz.j_jzk.klang.parse.algo.DFABuilder
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.UnexpectedTokenError
+import cz.j_jzk.klang.parse.api.AnyNodeID
 import com.google.common.collect.Table
 import com.google.common.collect.HashBasedTable
 // import org.mockito.kotlin.mock
@@ -20,13 +21,14 @@ import io.mockk.mockk
 import io.mockk.every
 
 // Shorthands
-const val e = "e"
-const val e2 = "e2"
-const val p = "+"
-const val lp = "("
-const val rp = ")"
+val e = AnyNodeID("e")
+val e2 = AnyNodeID("e2")
+val p = AnyNodeID("+")
+val lp = AnyNodeID("(")
+val rp = AnyNodeID(")")
 val eof = EOFNodeID
-const val top = "top"
+val top = AnyNodeID("top")
+fun id(v: String) = AnyNodeID(v)
 fun s(i: Int, er: Boolean = false) = State(i, er)
 
 fun shift(i: Int, er: Boolean = false) = Action.Shift(s(i, er))
@@ -46,7 +48,7 @@ val identityReduction: (List<ASTNode>) -> ASTNode =
 val builderReduction: (List<Any?>) -> Any =
 	{ 0 }
 
-val leftRecursiveGrammar: Map<NodeID, Set<NodeDef>> = mapOf(
+val leftRecursiveGrammar: Map<NodeID<*>, Set<NodeDef>> = mapOf(
 	top to setOf(NodeDef(listOf(e2), topReduction)),
 	e2 to setOf(
 		NodeDef(listOf(e2, p, e), exprReduction),
@@ -54,7 +56,7 @@ val leftRecursiveGrammar: Map<NodeID, Set<NodeDef>> = mapOf(
 	)
 )
 
-val rightRecursiveGrammar: Map<NodeID, Set<NodeDef>> = mapOf(
+val rightRecursiveGrammar: Map<NodeID<*>, Set<NodeDef>> = mapOf(
 	top to setOf(NodeDef(listOf(e2), topReduction)),
 	e2 to setOf(
 		NodeDef(listOf(e, p, e2), exprReduction),
@@ -63,14 +65,14 @@ val rightRecursiveGrammar: Map<NodeID, Set<NodeDef>> = mapOf(
 )
 
 fun createDFA(
-	grammar: Map<NodeID, Set<NodeDef>>,
-	recoveryNodes: List<NodeID> = emptyList(),
+	grammar: Map<NodeID<*>, Set<NodeDef>>,
+	recoveryNodes: List<NodeID<*>> = emptyList(),
 	recoveryFun: (UnexpectedTokenError) -> Unit = {}
 ) =
 	DFABuilder(grammar, top, recoveryNodes, recoveryFun).build()
 
-fun Map<Pair<State, NodeID>, Action>.toTable(): Table<State, NodeID, Action> {
-	val table = HashBasedTable.create<State, NodeID, Action>()
+fun Map<Pair<State, NodeID<*>>, Action>.toTable(): Table<State, NodeID<*>, Action> {
+	val table = HashBasedTable.create<State, NodeID<*>, Action>()
 	for ((k, v) in this) {
 		table[k.first, k.second] = v
 	}

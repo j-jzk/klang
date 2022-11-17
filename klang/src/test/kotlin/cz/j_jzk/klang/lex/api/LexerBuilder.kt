@@ -5,6 +5,7 @@ import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.lex.Lexer
 import cz.j_jzk.klang.lex.LexerWrapper
 import cz.j_jzk.klang.util.PositionInfo
+import cz.j_jzk.klang.parse.NodeID
 
 /**
  * A function to create a lexer.
@@ -39,12 +40,14 @@ fun lexer(init: LexerBuilder.() -> Unit): LexerBuilder {
 	return builder
 }
 
+class AnyNodeID(val v: Any): NodeID<Any>()
+
 /**
  * A lexer builder. You probably don't want to create this directly, but
  * instead use the function lexer() from this package.
  */
 class LexerBuilder {
-	private val tokenDefs = linkedMapOf<NFA, Any>()
+	private val tokenDefs = linkedMapOf<NFA, NodeID<*>>()
 	private val ignored = mutableListOf<NFA>()
 	private var onNoMatchHandler: ((Char, PositionInfo) -> Unit)? = null
 
@@ -53,7 +56,7 @@ class LexerBuilder {
 	 * See https://github.com/j-jzk/klang-re for a reference of the supported syntax.
 	 */
 	infix fun Any.to(b: String) {
-		tokenDefs.set(compileRegex(b).fa, this)
+		tokenDefs.set(compileRegex(b).fa, AnyNodeID(this))
 	}
 
 	/**

@@ -7,6 +7,7 @@ import cz.j_jzk.klang.lex.api.lexer
 import cz.j_jzk.klang.parse.api.parser
 import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.util.PositionInfo
+import cz.j_jzk.klang.parse.testutil.id
 
 @Ignore class ParserWrapperTest {
 	private val lexer = lexer {
@@ -19,7 +20,7 @@ import cz.j_jzk.klang.util.PositionInfo
 
 	@Test fun testErrorRecoveryInWrapper() {
 		var numberOfErrors = 0
-		val expectedErroneousNode = ASTNode.NoValue("plus", PositionInfo("in", 4))
+		val expectedErroneousNode = ASTNode.NoValue(id("plus"), PositionInfo("in", 4))
 
 		val parser = parser {
 			conversions {
@@ -30,9 +31,9 @@ import cz.j_jzk.klang.util.PositionInfo
 			"addition" to def("addition", "plus", "int") { (it[0]!! as Int) + (it[2]!! as Int) }
 			"addition" to def("int") { it[0]!! }
 
-			topNode = "top"
+			topNode = id("top")
 
-			errorRecovering("top", "addition")
+			errorRecovering(id("top"), id("addition"))
 
 			onError { error ->
 				numberOfErrors++
@@ -58,7 +59,7 @@ import cz.j_jzk.klang.util.PositionInfo
 			"addition" to def("addition", "plus", "int") { (it[0]!! as Int) + (it[2]!! as Int) }
 			"addition" to def("int") { it[0]!! }
 
-			topNode = "top"
+			topNode = id("top")
 		}.getParser()
 
 		val input = input("12 ++ 8 + 3")
@@ -72,7 +73,7 @@ import cz.j_jzk.klang.util.PositionInfo
 				"int" to { it.toInt() }
 			}
 
-			topNode = "top"
+			topNode = id("top")
 			"top" to def("list") { it[0]!! }
 			"list" to def("list", "int") { (it[0]!! as Int) + (it[2]!! as Int) }
 			"list" to def() { 0 }

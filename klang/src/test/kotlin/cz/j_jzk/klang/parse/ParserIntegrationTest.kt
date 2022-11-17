@@ -2,6 +2,7 @@ package cz.j_jzk.klang.parse
 
 import cz.j_jzk.klang.parse.api.parser
 import cz.j_jzk.klang.parse.testutil.fakePPPIter
+import cz.j_jzk.klang.parse.testutil.id
 import cz.j_jzk.klang.util.PositionInfo
 import java.lang.IllegalArgumentException
 import kotlin.test.Ignore
@@ -16,8 +17,8 @@ class ParserIntegrationTest {
 		"expr2" to def("expr2", "plus", "expr") { (it[0]!! as Int) + (it[2]!! as Int) }
 		"expr2" to def("expr") { it[0]!! }
 
-		topNode = "top"
-		errorRecovering("top", "expr2")
+		topNode = id("top")
+		errorRecovering(id("top"), id("expr2"))
 		conversions { }
 	}.getParser()
 
@@ -42,7 +43,7 @@ class ParserIntegrationTest {
 		assertFailsWith(IllegalArgumentException::class) {
 			parser {
 				"foo" to def("bar") { it[0]!! }
-				topNode = "foo"
+				topNode = id("foo")
 			}.getParser()
 		}
 	}
@@ -57,8 +58,8 @@ class ParserIntegrationTest {
 	private fun createInput(input: String) =
 		fakePPPIter(input.split(" ").map { tok ->
 			if (tok == "+")
-				ASTNode.Data("plus", 0, PositionInfo("", 0))
+				ASTNode.Data(id("plus"), 0, PositionInfo("", 0))
 			else
-				ASTNode.Data("expr", tok.toInt(), PositionInfo("", 0))
+				ASTNode.Data(id("expr"), tok.toInt(), PositionInfo("", 0))
 		} + ASTNode.Data(EOFNodeID, 0, PositionInfo("", 0)))
 }

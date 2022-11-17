@@ -5,6 +5,7 @@ import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import cz.j_jzk.klang.lex.api.lexer
 import cz.j_jzk.klang.parse.api.parser
+import cz.j_jzk.klang.parse.api.AnyNodeID
 import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.sele.sele
 
@@ -25,7 +26,7 @@ class OverallIntegrationTest {
 			"addition" to def("addition", "plus", "int") { (it[0]!! as Int) + (it[2]!! as Int) }
 			"addition" to def("int") { it[0]!! }
 
-			topNode = "top"
+			topNode = AnyNodeID("top")
 		}.getParser()
 
 		val input = "12+ 8+3"
