@@ -11,6 +11,7 @@ import cz.j_jzk.klang.parse.testutil.top
 import cz.j_jzk.klang.parse.testutil.e2
 import cz.j_jzk.klang.parse.testutil.fakePPPIter
 import cz.j_jzk.klang.util.PositionInfo
+import cz.j_jzk.klang.parse.api.AnyNodeID
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -194,7 +195,7 @@ class DFAParserTest {
 
 	private fun node(id: String, value: String = "", posInfo: PositionInfo = noPos): ASTNode =
 		ASTNode.Data(id(id), ASTData.Terminal(value), posInfo)
-	private fun id(id: String): NodeID = id
+	private fun id(id: String): AnyNodeID = AnyNodeID(id)
 	private val noPos = PositionInfo("", 0)
 	private val eof: ASTNode = ASTNode.Data(EOFNodeID, ASTData.Terminal(""), noPos)
 	private fun strInput(str: String) = (str.map { node(it.toString()) } + eof)

@@ -39,9 +39,11 @@ data class FToken(
     val value: String
 ) {
     override fun equals(other: Any?) =
-        if (other is FToken) {
+        if (other is FToken)
             this.id == other.id && this.value == other.value
-        } else if (other is Token && other.id is AnyNodeID) {
-            this.id == other.id.v && this.value == other.value
-        } else false
+        else if (other is Token)
+            other.id.let { id -> 
+                id is AnyNodeID && this.id == id.v && this.value == other.value
+            }
+        else false
 }

@@ -27,7 +27,7 @@ internal fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, > dataTupleFromList(list:
 		8 -> DataTuple.Tuple8(list[0] as T1, list[1] as T2, list[2] as T3, list[3] as T4, list[4] as T5, list[5] as T6, list[6] as T7, list[7] as T8, ) as DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >
 		9 -> DataTuple.Tuple9(list[0] as T1, list[1] as T2, list[2] as T3, list[3] as T4, list[4] as T5, list[5] as T6, list[6] as T7, list[7] as T8, list[8] as T9, ) as DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >
 		10 -> DataTuple.Tuple10(list[0] as T1, list[1] as T2, list[2] as T3, list[3] as T4, list[4] as T5, list[5] as T6, list[6] as T7, list[7] as T8, list[8] as T9, list[9] as T10, ) as DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >
-		else -> throw IllegalArgumentException("List too long to convert to a tuple")
+		else -> throw IllegalArgumentException("List too long to convert to a tuple. This should never happen, file a bug report.")
 }
 
 /*

@@ -32,7 +32,7 @@ class DFABuilderTest {
 		val builder = DFABuilder(leftRecursiveGrammar, top, emptyList(), emptyFun)
 		val dfa = builder.build()
 		val expected = DFA(
-			mapOf(
+			mapOf<Pair<State, NodeID<*>>, Action>(
 				(s(0, true) to e2) to shift(1),
 				(s(0, true) to e) to shift(4),
 				(s(1) to eof) to Action.Reduce(1, topReduction),
@@ -58,7 +58,7 @@ class DFABuilderTest {
 		val builder = DFABuilder(rightRecursiveGrammar, top, emptyList(), emptyFun)
 		val dfa = builder.build()
 		val expected = DFA(
-			mapOf(
+			mapOf<Pair<State, NodeID<*>>, Action>(
 				(s(0, true) to e2) to shift(1),
 				(s(0, true) to e) to shift(2),
 				(s(1) to eof) to Action.Reduce(1, topReduction),
@@ -83,7 +83,7 @@ class DFABuilderTest {
 		val builder = DFABuilder(leftRecursiveGrammar, top, listOf(e2, top), emptyFun)
 		val dfa = builder.build()
 		val expected = DFA(
-			mapOf(
+			mapOf<Pair<State, NodeID<*>>, Action>(
 				(s(0, true) to e2) to shift(1),
 				(s(0, true) to e) to shift(4),
 				(s(1) to eof) to Action.Reduce(1, topReduction),
@@ -109,7 +109,7 @@ class DFABuilderTest {
 		val builder = DFABuilder(rightRecursiveGrammar, top, listOf(e2, top), emptyFun)
 		val dfa = builder.build()
 		val expected = DFA(
-			mapOf(
+			mapOf<Pair<State, NodeID<*>>, Action>(
 				(s(0, true) to e2) to shift(1),
 				(s(0, true) to e) to shift(2),
 				(s(1) to eof) to Action.Reduce(1, topReduction),
@@ -144,7 +144,7 @@ class DFABuilderTest {
 		val dfa = builder.build()
 
 		val expected = DFA(
-			mapOf(
+			mapOf<Pair<State, NodeID<*>>, Action>(
 				(s(0, true) to e) to shift(2),
 				(s(0, true) to e2) to shift(1),
 				(s(0, true) to top) to shift(11),

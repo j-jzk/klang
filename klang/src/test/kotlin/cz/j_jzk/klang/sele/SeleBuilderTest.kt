@@ -1,20 +1,24 @@
 package cz.j_jzk.klang.sele
 
 import cz.j_jzk.klang.parse.testutil.s
+import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.lex.re.compileRegex
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class SeleBuilderTest {
+	private val int = NodeID<Int>()
+	private val sum = NodeID<Int>()
+
 	@Test fun testBasicBuild() {
 		val sele = sele {
-			"int" to def(re("\\d+")) { (it[0]!! as String).toInt() }
-			"sum" to def("int", re("\\+"), "int") { it[0]!! as Int + it[2]!! as Int }
+			int to def(re("\\d+")) { (it) -> it.toInt() }
+			sum to def(int, re("\\+"), int) { (a, _, b) -> a + b }
 
 			ignoreRegexes("\\s+")
 
-			errorRecovering("sum")
-			setTopNode("sum")
+			errorRecovering(sum)
+			setTopNode(sum)
 		}.getSele()
 
 		// TODO: compare the output with an expected value when all the basic features are complete
@@ -26,10 +30,10 @@ class SeleBuilderTest {
 		// test that ignores added after a definition have effect
 		val sele = sele {
 			ignoreRegexes("before")
-			"a" to def("a") { "a" }
+			int to def(int) { (int) -> int }
 			ignoreRegexes("after")
 
-			setTopNode("a")
+			setTopNode(int)
 		}.getSele()
 
 		val expected = mapOf(
@@ -42,15 +46,15 @@ class SeleBuilderTest {
 
 	@Test fun testImportableIgnores() {
 		val sub = sele {
-			"sub" to def(re("a")) { 0 }
+			int to def(re("a")) { 0 }
 			ignoreRegexes("ignA")
-			setTopNode("sub")
+			setTopNode(int)
 		}
 		val sup = sele {
 			val a = include(sub)
-			"sup" to def(re("b"), a) { 0 }
+			sum to def(re("b"), a) { 0 }
 			ignoreRegexes("ignB")
-			setTopNode("sup")
+			setTopNode(sum)
 		}.getSele()
 
 		val expected = mapOf(
