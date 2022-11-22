@@ -71,6 +71,7 @@ class DFABuilder(
 
 	/** This function constructs the parser and returns it. */
 	fun build(): DFA {
+		println("Top node: $topNode, nodeDefs: $nodeDefs")
 		val topNodeDef = nodeDefs[topNode]!!.first()
 		var startingSet = mutableSetOf(
 			LR1Item(topNodeDef, 0, setOf(EOFNodeID))

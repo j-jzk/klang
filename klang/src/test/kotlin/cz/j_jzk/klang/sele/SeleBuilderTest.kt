@@ -12,7 +12,7 @@ class SeleBuilderTest {
 
 	@Test fun testBasicBuild() {
 		val sele = sele {
-			int to def(re("\\d+")) { (it) -> it.toInt() }
+			int isby def<String, Int>(re("\\d+")) { (it) -> it.toInt() }
 			sum to def(int, re("\\+"), int) { (a, _, b) -> a + b }
 
 			ignoreRegexes("\\s+")

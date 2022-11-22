@@ -35,7 +35,7 @@ class ParserBuilder {
 	/** Maps a node to its definition. */
 	infix fun Any.to(definition: IntermediateNodeDefinition) {
 		val actualReduction = wrapReduction(AnyNodeID(this), definition.reduction)
-		nodeDefs[this]!!.add(NodeDef(definition.definition, actualReduction))
+		nodeDefs[AnyNodeID(this)]!!.add(NodeDef(definition.definition, actualReduction))
 	}
 
 	/** Creates a node definition */

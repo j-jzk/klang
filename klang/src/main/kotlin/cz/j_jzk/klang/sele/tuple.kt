@@ -2,7 +2,7 @@ package cz.j_jzk.klang.sele.tuple
 
 import cz.j_jzk.klang.parse.NodeID
 
-sealed class DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, > {
+sealed class DataTuple<out T1, out T2, out T3, out T4, out T5, out T6, out T7, out T8, out T9, out T10, > {
 	data class Tuple1<T1, >(var id1: T1, ): DataTuple<T1, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, >()
 	data class Tuple2<T1, T2, >(var id1: T1, var id2: T2, ): DataTuple<T1, T2, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, >()
 	data class Tuple3<T1, T2, T3, >(var id1: T1, var id2: T2, var id3: T3, ): DataTuple<T1, T2, T3, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, >()

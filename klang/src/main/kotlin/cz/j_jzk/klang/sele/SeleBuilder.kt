@@ -59,7 +59,7 @@ class SeleBuilder {
 
 
 	/** Maps a node to its definition. */
-	infix fun <R> NodeID<R>.to(
+	infix fun <R> NodeID<R>.isby(
 		definition: IntermediateNodeDefinition<
 			Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?,
 			DataTuple<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?,>,
@@ -67,6 +67,7 @@ class SeleBuilder {
 		>
 	) {
 		val actualReduction = wrapReduction(this, definition.reduction)
+		println("Adding a def for $this")
 		parserDef.nodeDefs[this]!!.add(NodeDef(definition.definition, actualReduction, parserDef.lexerIgnores))
 	}
 
@@ -188,6 +189,7 @@ internal class ParserDefinition {
 		// fail completely if the user hasn't specified any error-recovering nodes
 		errorRecoveringNodes += topNodeNotNull
 
+		println("node defs when constructing: $actualNodeDefs")
 		return DFABuilder(actualNodeDefs, topNodeNotNull, errorRecoveringNodes.toList(), errorCallback ?: { })
 			.build()
 	}

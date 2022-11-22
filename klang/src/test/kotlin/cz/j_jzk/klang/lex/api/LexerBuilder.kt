@@ -40,7 +40,7 @@ fun lexer(init: LexerBuilder.() -> Unit): LexerBuilder {
 	return builder
 }
 
-class AnyNodeID(val v: Any): NodeID<Any>()
+data class AnyNodeID(val v: Any): NodeID<Any>()
 
 /**
  * A lexer builder. You probably don't want to create this directly, but
