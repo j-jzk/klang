@@ -37,32 +37,53 @@ class SeleBuilder {
 	// 	IntermediateNodeDefinition(definition.toList(), reduction)
 
 	fun <T1, R> def(id1: NodeID<T1>, reduction: (DataTuple.Tuple1<T1>) -> R) =
-		IntermediateNodeDefinition<T1, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, DataTuple.Tuple1<T1>, R>(listOf(id1), reduction)
-	fun <T1, T2, R> def(id1: NodeID<T1>, id2: NodeID<T2>, reduction: (DataTuple.Tuple2<T1, T2>) -> R) =
-		IntermediateNodeDefinition<T1, T2, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, DataTuple.Tuple2<T1, T2>, R>(listOf(id1, id2), reduction)
-	fun <T1, T2, T3, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, reduction: (DataTuple.Tuple3<T1, T2, T3>) -> R) =
-		IntermediateNodeDefinition<T1, T2, T3, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, DataTuple.Tuple3<T1, T2, T3>, R>(listOf(id1, id2, id3), reduction)
-	fun <T1, T2, T3, T4, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, reduction: (DataTuple.Tuple4<T1, T2, T3, T4>) -> R) =
-		IntermediateNodeDefinition<T1, T2, T3, T4, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, DataTuple.Tuple4<T1, T2, T3, T4>, R>(listOf(id1, id2, id3, id4), reduction)
-	fun <T1, T2, T3, T4, T5, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, reduction: (DataTuple.Tuple5<T1, T2, T3, T4, T5>) -> R) =
-		IntermediateNodeDefinition<T1, T2, T3, T4, T5, Nothing, Nothing, Nothing, Nothing, Nothing, DataTuple.Tuple5<T1, T2, T3, T4, T5>, R>(listOf(id1, id2, id3, id4, id5), reduction)
-	fun <T1, T2, T3, T4, T5, T6, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, reduction: (DataTuple.Tuple6<T1, T2, T3, T4, T5, T6>) -> R) =
-		IntermediateNodeDefinition<T1, T2, T3, T4, T5, T6, Nothing, Nothing, Nothing, Nothing, DataTuple.Tuple6<T1, T2, T3, T4, T5, T6>, R>(listOf(id1, id2, id3, id4, id5, id6), reduction)
-	fun <T1, T2, T3, T4, T5, T6, T7, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, reduction: (DataTuple.Tuple7<T1, T2, T3, T4, T5, T6, T7>) -> R) =
-		IntermediateNodeDefinition<T1, T2, T3, T4, T5, T6, T7, Nothing, Nothing, Nothing, DataTuple.Tuple7<T1, T2, T3, T4, T5, T6, T7>, R>(listOf(id1, id2, id3, id4, id5, id6, id7), reduction)
-	fun <T1, T2, T3, T4, T5, T6, T7, T8, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, reduction: (DataTuple.Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>) -> R) =
-		IntermediateNodeDefinition<T1, T2, T3, T4, T5, T6, T7, T8, Nothing, Nothing, DataTuple.Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>, R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8), reduction)
-	fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, reduction: (DataTuple.Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>) -> R) =
-		IntermediateNodeDefinition<T1, T2, T3, T4, T5, T6, T7, T8, T9, Nothing, DataTuple.Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>, R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9), reduction)
-	fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, id10: NodeID<T10>, reduction: (DataTuple.Tuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>) -> R) =
-		IntermediateNodeDefinition<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, DataTuple.Tuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9, id10), reduction)
-
+	IntermediateNodeDefinition<R>(listOf(id1), reduction)
+fun <T1, T2, R> def(id1: NodeID<T1>, id2: NodeID<T2>, reduction: (DataTuple.Tuple2<T1, T2>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2), reduction)
+fun <T1, T2, T3, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, reduction: (DataTuple.Tuple3<T1, T2, T3>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3), reduction)
+fun <T1, T2, T3, T4, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, reduction: (DataTuple.Tuple4<T1, T2, T3, T4>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4), reduction)
+fun <T1, T2, T3, T4, T5, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, reduction: (DataTuple.Tuple5<T1, T2, T3, T4, T5>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5), reduction)
+fun <T1, T2, T3, T4, T5, T6, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, reduction: (DataTuple.Tuple6<T1, T2, T3, T4, T5, T6>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6), reduction)
+fun <T1, T2, T3, T4, T5, T6, T7, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, reduction: (DataTuple.Tuple7<T1, T2, T3, T4, T5, T6, T7>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6, id7), reduction)
+fun <T1, T2, T3, T4, T5, T6, T7, T8, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, reduction: (DataTuple.Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8), reduction)
+fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, reduction: (DataTuple.Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9), reduction)
+fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, id10: NodeID<T10>, reduction: (DataTuple.Tuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9, id10), reduction)
+fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, id10: NodeID<T10>, id11: NodeID<T11>, reduction: (DataTuple.Tuple11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9, id10, id11), reduction)
+fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, id10: NodeID<T10>, id11: NodeID<T11>, id12: NodeID<T12>, reduction: (DataTuple.Tuple12<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9, id10, id11, id12), reduction)
+fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, id10: NodeID<T10>, id11: NodeID<T11>, id12: NodeID<T12>, id13: NodeID<T13>, reduction: (DataTuple.Tuple13<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9, id10, id11, id12, id13), reduction)
+fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, id10: NodeID<T10>, id11: NodeID<T11>, id12: NodeID<T12>, id13: NodeID<T13>, id14: NodeID<T14>, reduction: (DataTuple.Tuple14<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9, id10, id11, id12, id13, id14), reduction)
+fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, id10: NodeID<T10>, id11: NodeID<T11>, id12: NodeID<T12>, id13: NodeID<T13>, id14: NodeID<T14>, id15: NodeID<T15>, reduction: (DataTuple.Tuple15<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9, id10, id11, id12, id13, id14, id15), reduction)
+fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, id10: NodeID<T10>, id11: NodeID<T11>, id12: NodeID<T12>, id13: NodeID<T13>, id14: NodeID<T14>, id15: NodeID<T15>, id16: NodeID<T16>, reduction: (DataTuple.Tuple16<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9, id10, id11, id12, id13, id14, id15, id16), reduction)
+fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, id10: NodeID<T10>, id11: NodeID<T11>, id12: NodeID<T12>, id13: NodeID<T13>, id14: NodeID<T14>, id15: NodeID<T15>, id16: NodeID<T16>, id17: NodeID<T17>, reduction: (DataTuple.Tuple17<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9, id10, id11, id12, id13, id14, id15, id16, id17), reduction)
+fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, id10: NodeID<T10>, id11: NodeID<T11>, id12: NodeID<T12>, id13: NodeID<T13>, id14: NodeID<T14>, id15: NodeID<T15>, id16: NodeID<T16>, id17: NodeID<T17>, id18: NodeID<T18>, reduction: (DataTuple.Tuple18<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9, id10, id11, id12, id13, id14, id15, id16, id17, id18), reduction)
+fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, id10: NodeID<T10>, id11: NodeID<T11>, id12: NodeID<T12>, id13: NodeID<T13>, id14: NodeID<T14>, id15: NodeID<T15>, id16: NodeID<T16>, id17: NodeID<T17>, id18: NodeID<T18>, id19: NodeID<T19>, reduction: (DataTuple.Tuple19<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9, id10, id11, id12, id13, id14, id15, id16, id17, id18, id19), reduction)
+fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, id10: NodeID<T10>, id11: NodeID<T11>, id12: NodeID<T12>, id13: NodeID<T13>, id14: NodeID<T14>, id15: NodeID<T15>, id16: NodeID<T16>, id17: NodeID<T17>, id18: NodeID<T18>, id19: NodeID<T19>, id20: NodeID<T20>, reduction: (DataTuple.Tuple20<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>) -> R) =
+	IntermediateNodeDefinition<R>(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9, id10, id11, id12, id13, id14, id15, id16, id17, id18, id19, id20), reduction)
 
 	/** Maps a node to its definition. */
 	infix fun <R> NodeID<R>.isby(
 		definition: IntermediateNodeDefinition<
 			Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?,
-			DataTuple<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?,>,
+			// in DataTuple<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?,>,
+			// out DataTuple<*,*,*,*,*,*,*,*,*,*>,
+			*,
 			R
 		>
 	) {
@@ -118,10 +139,13 @@ class SeleBuilder {
 	 *     (it has no value) and a correct program couldn't be created from
 	 *     such an AST anyway
 	 */
-	private fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>
-	wrapReduction(
+	private fun <
+		// T1, T2, T3, T4, T5, T6, T7, T8, T9, T10,
+		// U: DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >,
+		R
+	>wrapReduction(
 		nodeID: NodeID<R>,
-		reduction: (DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >) -> R
+		reduction: (Nothing /*DataTuple<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?>*/) -> R
 	): (List<ASTNode>) -> ASTNode = { nodeList ->
 		if (nodeList.none { it is ASTNode.Erroneous })
 			ASTNode.Data(
@@ -150,10 +174,8 @@ class SeleBuilder {
 	 * used to allow for a syntax with fewer braces.)
 	 */
 	data class IntermediateNodeDefinition<
-		T1, T2, T3, T4, T5, T6, T7, T8, T9, T10,
-		U: DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >,
 		R
-	>(val definition: List<NodeID<Any?>>, val reduction: (U) -> R)
+	>(val definition: List<NodeID<Any?>>, val reduction: (in DataTuple<*,*,*,*,*,*,*,*,*,*>) -> R)
 }
 
 internal class LexerDefinition {
