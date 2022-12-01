@@ -1,7 +1,6 @@
 package cz.j_jzk.klang.parse.algo
 
 import cz.j_jzk.klang.parse.ASTNode
-import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.EOFNodeID
 import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.parse.testutil.createDFA
@@ -181,7 +180,7 @@ class DFAParserTest {
 
 		var timesCalled = 0
 		val unexpectedNode = node("e", posInfo=pos(3))
-		val expectedNodeIDs = setOf("+", EOFNodeID)
+		val expectedNodeIDs = setOf(AnyNodeID("+"), EOFNodeID)
 		val errorCallback = { error: UnexpectedTokenError ->
 			timesCalled++
 			assertEquals(unexpectedNode, error.got)

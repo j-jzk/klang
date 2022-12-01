@@ -1,18 +1,30 @@
+@file:Suppress("MagicNumber", "MaxLineLength")
+
 package cz.j_jzk.klang.sele.tuple
 
-import cz.j_jzk.klang.parse.NodeID
-
+/** A type-safe tuple class */
 sealed class DataTuple<out T1, out T2, out T3, out T4, out T5, out T6, out T7, out T8, out T9, out T10, > {
-	data class Tuple1<T1, >(var id1: T1, ): DataTuple<T1, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, >()
-	data class Tuple2<T1, T2, >(var id1: T1, var id2: T2, ): DataTuple<T1, T2, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, >()
-	data class Tuple3<T1, T2, T3, >(var id1: T1, var id2: T2, var id3: T3, ): DataTuple<T1, T2, T3, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, >()
-	data class Tuple4<T1, T2, T3, T4, >(var id1: T1, var id2: T2, var id3: T3, var id4: T4, ): DataTuple<T1, T2, T3, T4, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, >()
-	data class Tuple5<T1, T2, T3, T4, T5, >(var id1: T1, var id2: T2, var id3: T3, var id4: T4, var id5: T5, ): DataTuple<T1, T2, T3, T4, T5, Nothing, Nothing, Nothing, Nothing, Nothing, >()
-	data class Tuple6<T1, T2, T3, T4, T5, T6, >(var id1: T1, var id2: T2, var id3: T3, var id4: T4, var id5: T5, var id6: T6, ): DataTuple<T1, T2, T3, T4, T5, T6, Nothing, Nothing, Nothing, Nothing, >()
-	data class Tuple7<T1, T2, T3, T4, T5, T6, T7, >(var id1: T1, var id2: T2, var id3: T3, var id4: T4, var id5: T5, var id6: T6, var id7: T7, ): DataTuple<T1, T2, T3, T4, T5, T6, T7, Nothing, Nothing, Nothing, >()
-	data class Tuple8<T1, T2, T3, T4, T5, T6, T7, T8, >(var id1: T1, var id2: T2, var id3: T3, var id4: T4, var id5: T5, var id6: T6, var id7: T7, var id8: T8, ): DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, Nothing, Nothing, >()
-	data class Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9, >(var id1: T1, var id2: T2, var id3: T3, var id4: T4, var id5: T5, var id6: T6, var id7: T7, var id8: T8, var id9: T9, ): DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, Nothing, >()
-	data class Tuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >(var id1: T1, var id2: T2, var id3: T3, var id4: T4, var id5: T5, var id6: T6, var id7: T7, var id8: T8, var id9: T9, var id10: T10, ): DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >()
+	/** A class holding 1 value of the specified data type */
+	data class Tuple1<T1, >(val v1: T1, ): DataTuple<T1, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, >()
+	/** A class holding 2 values of the specified data types */
+	data class Tuple2<T1, T2, >(val v1: T1, val v2: T2, ): DataTuple<T1, T2, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, >()
+	/** A class holding 3 values of the specified data types */
+	data class Tuple3<T1, T2, T3, >(val v1: T1, val v2: T2, val v3: T3, ): DataTuple<T1, T2, T3, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, >()
+	/** A class holding 4 values of the specified data types */
+	data class Tuple4<T1, T2, T3, T4, >(val v1: T1, val v2: T2, val v3: T3, val v4: T4, ): DataTuple<T1, T2, T3, T4, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, >()
+	/** A class holding 5 values of the specified data types */
+	data class Tuple5<T1, T2, T3, T4, T5, >(val v1: T1, val v2: T2, val v3: T3, val v4: T4, val v5: T5, ): DataTuple<T1, T2, T3, T4, T5, Nothing, Nothing, Nothing, Nothing, Nothing, >()
+	/** A class holding 6 values of the specified data types */
+	data class Tuple6<T1, T2, T3, T4, T5, T6, >(val v1: T1, val v2: T2, val v3: T3, val v4: T4, val v5: T5, val v6: T6, ): DataTuple<T1, T2, T3, T4, T5, T6, Nothing, Nothing, Nothing, Nothing, >()
+	/** A class holding 7 values of the specified data types */
+	data class Tuple7<T1, T2, T3, T4, T5, T6, T7, >(val v1: T1, val v2: T2, val v3: T3, val v4: T4, val v5: T5, val v6: T6, val v7: T7, ): DataTuple<T1, T2, T3, T4, T5, T6, T7, Nothing, Nothing, Nothing, >()
+	/** A class holding 8 values of the specified data types */
+	data class Tuple8<T1, T2, T3, T4, T5, T6, T7, T8, >(val v1: T1, val v2: T2, val v3: T3, val v4: T4, val v5: T5, val v6: T6, val v7: T7, val v8: T8, ): DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, Nothing, Nothing, >()
+	/** A class holding 9 values of the specified data types */
+	data class Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9, >(val v1: T1, val v2: T2, val v3: T3, val v4: T4, val v5: T5, val v6: T6, val v7: T7, val v8: T8, val v9: T9, ): DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, Nothing, >()
+	/** A class holding 10 values of the specified data types */
+	data class Tuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >(val v1: T1, val v2: T2, val v3: T3, val v4: T4, val v5: T5, val v6: T6, val v7: T7, val v8: T8, val v9: T9, val v10: T10, ): DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >()
+
 }
 
 internal fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, > dataTupleFromList(list: List<Any?>): DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, > =
@@ -61,7 +73,7 @@ for i in range(1, 21):
 		tupledef += "Nothing, "
 	tupledef += ">()"
 	tupledefs.append(tupledef)
-	
+
 	whenrow = f"{i} -> DataTuple.Tuple{i}("
 	for j in range(i):
 		whenrow += f"list[{j}] as T{j+1}, "

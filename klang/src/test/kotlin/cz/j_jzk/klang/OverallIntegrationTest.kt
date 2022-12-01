@@ -45,10 +45,10 @@ class OverallIntegrationTest {
 
 			int to def(re("\\d+")) { (re: String) -> re.toInt() }
 			sum to def(sum, re("\\+"), int) { (a, _, b) -> a + b }
-			sum to def(int) { it }
+			sum to def(int) { it.v1 }
 
 			val top = NodeID<Int>()
-			top to def(sum) { it }
+			top to def(sum) { it.v1 }
 
 			ignoreRegexes("\\s")
 			setTopNode(top)

@@ -5,7 +5,7 @@ package cz.j_jzk.klang.parse
  * The type parameter D represents the data type that will be stored
  * in nodes with this ID.
  */
-open class NodeID<out D> { }
+open class NodeID<out D>
 
 /**
  * A NodeID representing EOF
