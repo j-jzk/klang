@@ -70,7 +70,6 @@ class SeleBuilder<T> {
 	/** Maps a node to its definition. */
 	infix fun <R> NodeID<R>.to(definition: IntermediateNodeDefinition<R>) {
 		val actualReduction = wrapReduction(this, definition.reduction)
-		println("Adding a def for $this")
 		parserDef.nodeDefs[this]!!.add(NodeDef(definition.definition, actualReduction, parserDef.lexerIgnores))
 	}
 
