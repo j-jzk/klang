@@ -39,7 +39,7 @@ class OverallIntegrationTest {
 	}
 
 	@Test fun testSele() {
-		val sele = sele {
+		val sele = sele<Int> {
 			val int = NodeID<Int>()
 			val sum = NodeID<Int>()
 

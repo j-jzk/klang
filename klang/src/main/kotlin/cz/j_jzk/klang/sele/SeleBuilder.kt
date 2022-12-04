@@ -21,17 +21,18 @@ import cz.j_jzk.klang.sele.tuple.dataTupleFromList
  * A function for creating a sele.
  */
 // TODO: add an example to the documentation
-fun sele(init: SeleBuilder.() -> Unit): SeleBuilder =
-		SeleBuilder().also { it.init() }
+fun <T> sele(init: SeleBuilder<T>.() -> Unit): SeleBuilder<T> =
+		SeleBuilder<T>().also { it.init() }
 
 /**
  * An interface for defining a sele. You most probably don't want to create
  * this class directly, but instead use the `sele()` function from this package.
+ * The type parameter T is the type of the final data (topNode).
  */
 @Suppress("LongParameterList", "TooManyFunctions", "MaxLineLength") // for generated functions
-class SeleBuilder {
+class SeleBuilder<T> {
 	private val lexerDef = LexerDefinition()
-	private val parserDef = ParserDefinition()
+	private val parserDef = ParserDefinition<T>()
 
 	// GENERATED - see tuple.kt
 	/** Creates a node definition of 1 element */
@@ -82,7 +83,7 @@ class SeleBuilder {
 	}
 
 	/** Sets the root node of this sele */
-	fun setTopNode(node: NodeID<Any?>) {
+	fun setTopNode(node: NodeID<T>) {
 		parserDef.topNode = node
 	}
 
@@ -100,7 +101,7 @@ class SeleBuilder {
 	 * Returns the top ID of the definition, which can then be used in other
 	 * node definitions.
 	 */
-	fun include(subSele: SeleBuilder): NodeID<Any?> { // FIXME: type safety for includes
+	fun <U> include(subSele: SeleBuilder<U>): NodeID<U> {
 		lexerDef.include(subSele.lexerDef)
 		parserDef.include(subSele.parserDef)
 		return requireNotNull(subSele.parserDef.topNode)
@@ -168,7 +169,11 @@ internal class LexerDefinition {
 	}
 }
 
-internal class ParserDefinition {
+/**
+ * This class stores the parser part of the definition.
+ * The type parameter T is the type of data in the topNode.
+ */
+internal class ParserDefinition<T> {
 	/** The actual node definition data */
 	val actualNodeDefs: MutableMap<NodeID<Any?>, MutableSet<NodeDef>> = mutableMapOf()
 	/** Used for simpler code - returns an empty set when a node ID isn't defined */
@@ -176,7 +181,7 @@ internal class ParserDefinition {
 	val errorRecoveringNodes: MutableSet<NodeID<Any?>> = mutableSetOf()
 	var errorCallback: ((UnexpectedTokenError) -> Unit)? = null
 	/** The top node of the grammar (the root of the AST) */
-	var topNode: NodeID<Any?>? = null
+	var topNode: NodeID<T>? = null
 	/** Lexer ignores in the current context */
 	val lexerIgnores = mutableSetOf<CompiledRegex>()
 
@@ -189,12 +194,11 @@ internal class ParserDefinition {
 		// fail completely if the user hasn't specified any error-recovering nodes
 		errorRecoveringNodes += topNodeNotNull
 
-		println("node defs when constructing: $actualNodeDefs")
 		return DFABuilder(actualNodeDefs, topNodeNotNull, errorRecoveringNodes.toList(), errorCallback ?: { })
 			.build()
 	}
 
-	fun include(other: ParserDefinition) {
+	fun include(other: ParserDefinition<*>) {
 		nodeDefs.mergeSetValues(other.nodeDefs)
 		errorRecoveringNodes.addAll(other.errorRecoveringNodes)
 	}

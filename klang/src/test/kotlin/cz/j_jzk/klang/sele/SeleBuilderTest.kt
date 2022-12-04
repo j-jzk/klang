@@ -5,13 +5,14 @@ import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.lex.re.compileRegex
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class SeleBuilderTest {
 	private val int = NodeID<Int>()
 	private val sum = NodeID<Int>()
 
 	@Test fun testBasicBuild() {
-		val sele = sele {
+		val sele = sele<Int> {
 			int to def<String, Int>(re("\\d+")) { (it) -> it.toInt() }
 			sum to def(int, re("\\+"), int) { (a, _, b) -> a + b }
 
@@ -28,7 +29,7 @@ class SeleBuilderTest {
 
 	@Test fun testBasicIgnores() {
 		// test that ignores added after a definition have effect
-		val sele = sele {
+		val sele = sele<Int> {
 			ignoreRegexes("before")
 			int to def(int) { (int) -> int }
 			ignoreRegexes("after")
@@ -45,12 +46,12 @@ class SeleBuilderTest {
 	}
 
 	@Test fun testImportableIgnores() {
-		val sub = sele {
+		val sub = sele<Int> {
 			int to def(re("a")) { 0 }
 			ignoreRegexes("ignA")
 			setTopNode(int)
 		}
-		val sup = sele {
+		val sup = sele<Int> {
 			val a = include(sub)
 			sum to def(re("b"), a) { 0 }
 			ignoreRegexes("ignB")
@@ -65,5 +66,19 @@ class SeleBuilderTest {
 		)
 
 		assertEquals(expected, sup.parser.lexerIgnores)
+	}
+
+	@Test fun testImportTypeSafety() {
+		val sub = sele<String> {
+			val id = NodeID<String>()
+
+			id to def(re("a")) { "..." }
+			setTopNode(id)
+		}
+
+		sele<Int> {
+			val included = include(sub)
+			assertIs<NodeID<String>>(included)
+		}
 	}
 }
