@@ -5,6 +5,8 @@ import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import cz.j_jzk.klang.lex.api.lexer
 import cz.j_jzk.klang.parse.api.parser
+import cz.j_jzk.klang.parse.api.AnyNodeID
+import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.sele.sele
 
@@ -25,7 +27,7 @@ class OverallIntegrationTest {
 			"addition" to def("addition", "plus", "int") { (it[0]!! as Int) + (it[2]!! as Int) }
 			"addition" to def("int") { it[0]!! }
 
-			topNode = "top"
+			topNode = AnyNodeID("top")
 		}.getParser()
 
 		val input = "12+ 8+3"
@@ -37,16 +39,20 @@ class OverallIntegrationTest {
 	}
 
 	@Test fun testSele() {
-		val sele = sele {
-			"int" to def(re("\\d+")) { (it[0]!! as String).toInt() }
-			"sum" to def("sum", re("\\+"), "int") { (it[0]!! as Int) + (it[2]!! as Int) }
-			"sum" to def("int") { it[0]!! as Int }
+		val sele = sele<Int> {
+			val int = NodeID<Int>()
+			val sum = NodeID<Int>()
 
-			"top" to def("sum") { it[0]!! }
+			int to def(re("\\d+")) { (re: String) -> re.toInt() }
+			sum to def(sum, re("\\+"), int) { (a, _, b) -> a + b }
+			sum to def(int) { it.v1 }
+
+			val top = NodeID<Int>()
+			top to def(sum) { it.v1 }
 
 			ignoreRegexes("\\s")
-			setTopNode("top")
-			errorRecovering("sum")
+			setTopNode(top)
+			errorRecovering(sum)
 		}.getSele()
 
 		val input = "  12+ 8+3"

@@ -1,7 +1,6 @@
 package cz.j_jzk.klang.parse.algo
 
 import cz.j_jzk.klang.parse.ASTNode
-import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.EOFNodeID
 import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.parse.testutil.createDFA
@@ -11,6 +10,7 @@ import cz.j_jzk.klang.parse.testutil.top
 import cz.j_jzk.klang.parse.testutil.e2
 import cz.j_jzk.klang.parse.testutil.fakePPPIter
 import cz.j_jzk.klang.util.PositionInfo
+import cz.j_jzk.klang.parse.api.AnyNodeID
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -180,7 +180,7 @@ class DFAParserTest {
 
 		var timesCalled = 0
 		val unexpectedNode = node("e", posInfo=pos(3))
-		val expectedNodeIDs = setOf("+", EOFNodeID)
+		val expectedNodeIDs = setOf(AnyNodeID("+"), EOFNodeID)
 		val errorCallback = { error: UnexpectedTokenError ->
 			timesCalled++
 			assertEquals(unexpectedNode, error.got)
@@ -194,7 +194,7 @@ class DFAParserTest {
 
 	private fun node(id: String, value: String = "", posInfo: PositionInfo = noPos): ASTNode =
 		ASTNode.Data(id(id), ASTData.Terminal(value), posInfo)
-	private fun id(id: String): NodeID = id
+	private fun id(id: String): AnyNodeID = AnyNodeID(id)
 	private val noPos = PositionInfo("", 0)
 	private val eof: ASTNode = ASTNode.Data(EOFNodeID, ASTData.Terminal(""), noPos)
 	private fun strInput(str: String) = (str.map { node(it.toString()) } + eof)

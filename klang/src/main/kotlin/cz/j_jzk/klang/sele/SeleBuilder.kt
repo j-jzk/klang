@@ -14,30 +14,62 @@ import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.util.mergeSetValues
 import org.apache.commons.collections4.map.LazyMap
 import cz.j_jzk.klang.lex.re.compileRegex
+import cz.j_jzk.klang.sele.tuple.DataTuple
+import cz.j_jzk.klang.sele.tuple.dataTupleFromList
 
 /**
  * A function for creating a sele.
  */
 // TODO: add an example to the documentation
-fun sele(init: SeleBuilder.() -> Unit): SeleBuilder =
-		SeleBuilder().also { it.init() }
+fun <T> sele(init: SeleBuilder<T>.() -> Unit): SeleBuilder<T> =
+		SeleBuilder<T>().also { it.init() }
 
 /**
  * An interface for defining a sele. You most probably don't want to create
  * this class directly, but instead use the `sele()` function from this package.
+ * The type parameter T is the type of the final data (topNode).
  */
-class SeleBuilder {
+@Suppress("LongParameterList", "TooManyFunctions", "MaxLineLength") // for generated functions
+class SeleBuilder<T> {
 	private val lexerDef = LexerDefinition()
-	private val parserDef = ParserDefinition()
+	private val parserDef = ParserDefinition<T>()
 
-	/** Creates a node definition */
-	fun def(vararg definition: NodeID, reduction: (List<*>) -> Any) =
-		IntermediateNodeDefinition(definition.toList(), reduction)
+	// GENERATED - see tuple.kt
+	/** Creates a node definition of 1 element */
+	fun <T1, R> def(id1: NodeID<T1>, reduction: (DataTuple.Tuple1<T1>) -> R) =
+			IntermediateNodeDefinition<R, >(listOf(id1), reduction as (DataTuple<*,*,*,*,*,*,*,*,*,*>) -> R)
+	/** Creates a node definition of 2 elements */
+	fun <T1, T2, R> def(id1: NodeID<T1>, id2: NodeID<T2>, reduction: (DataTuple.Tuple2<T1, T2>) -> R) =
+			IntermediateNodeDefinition<R, >(listOf(id1, id2), reduction as (DataTuple<*,*,*,*,*,*,*,*,*,*>) -> R)
+	/** Creates a node definition of 3 elements */
+	fun <T1, T2, T3, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, reduction: (DataTuple.Tuple3<T1, T2, T3>) -> R) =
+			IntermediateNodeDefinition<R, >(listOf(id1, id2, id3), reduction as (DataTuple<*,*,*,*,*,*,*,*,*,*>) -> R)
+	/** Creates a node definition of 4 elements */
+	fun <T1, T2, T3, T4, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, reduction: (DataTuple.Tuple4<T1, T2, T3, T4>) -> R) =
+			IntermediateNodeDefinition<R, >(listOf(id1, id2, id3, id4), reduction as (DataTuple<*,*,*,*,*,*,*,*,*,*>) -> R)
+	/** Creates a node definition of 5 elements */
+	fun <T1, T2, T3, T4, T5, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, reduction: (DataTuple.Tuple5<T1, T2, T3, T4, T5>) -> R) =
+			IntermediateNodeDefinition<R, >(listOf(id1, id2, id3, id4, id5), reduction as (DataTuple<*,*,*,*,*,*,*,*,*,*>) -> R)
+	/** Creates a node definition of 6 elements */
+	fun <T1, T2, T3, T4, T5, T6, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, reduction: (DataTuple.Tuple6<T1, T2, T3, T4, T5, T6>) -> R) =
+			IntermediateNodeDefinition<R, >(listOf(id1, id2, id3, id4, id5, id6), reduction as (DataTuple<*,*,*,*,*,*,*,*,*,*>) -> R)
+	/** Creates a node definition of 7 elements */
+	fun <T1, T2, T3, T4, T5, T6, T7, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, reduction: (DataTuple.Tuple7<T1, T2, T3, T4, T5, T6, T7>) -> R) =
+			IntermediateNodeDefinition<R, >(listOf(id1, id2, id3, id4, id5, id6, id7), reduction as (DataTuple<*,*,*,*,*,*,*,*,*,*>) -> R)
+	/** Creates a node definition of 8 elements */
+	fun <T1, T2, T3, T4, T5, T6, T7, T8, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, reduction: (DataTuple.Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>) -> R) =
+			IntermediateNodeDefinition<R, >(listOf(id1, id2, id3, id4, id5, id6, id7, id8), reduction as (DataTuple<*,*,*,*,*,*,*,*,*,*>) -> R)
+	/** Creates a node definition of 9 elements */
+	fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, reduction: (DataTuple.Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>) -> R) =
+			IntermediateNodeDefinition<R, >(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9), reduction as (DataTuple<*,*,*,*,*,*,*,*,*,*>) -> R)
+	/** Creates a node definition of 10 elements */
+	fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> def(id1: NodeID<T1>, id2: NodeID<T2>, id3: NodeID<T3>, id4: NodeID<T4>, id5: NodeID<T5>, id6: NodeID<T6>, id7: NodeID<T7>, id8: NodeID<T8>, id9: NodeID<T9>, id10: NodeID<T10>, reduction: (DataTuple.Tuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>) -> R) =
+			IntermediateNodeDefinition<R, >(listOf(id1, id2, id3, id4, id5, id6, id7, id8, id9, id10), reduction as (DataTuple<*,*,*,*,*,*,*,*,*,*>) -> R)
+
 
 	/** Maps a node to its definition. */
-	infix fun NodeID.to(definition: IntermediateNodeDefinition) {
+	infix fun <R> NodeID<R>.to(definition: IntermediateNodeDefinition<R>) {
 		val actualReduction = wrapReduction(this, definition.reduction)
-		// TODO: test that lexer ignores defined after the node definition get added too
 		parserDef.nodeDefs[this]!!.add(NodeDef(definition.definition, actualReduction, parserDef.lexerIgnores))
 	}
 
@@ -45,17 +77,17 @@ class SeleBuilder {
 	 * Marks `nodes` to be error-recovering. These nodes will be then used to
 	 * contain syntax errors.
 	 */
-	fun errorRecovering(vararg nodes: NodeID) {
+	fun errorRecovering(vararg nodes: NodeID<Any?>) {
 		parserDef.errorRecoveringNodes.addAll(nodes)
 	}
 
 	/** Sets the root node of this sele */
-	fun setTopNode(node: NodeID) {
+	fun setTopNode(node: NodeID<T>) {
 		parserDef.topNode = node
 	}
 
 	/** Defines a regex node */
-	fun re(regex: String): NodeID =
+	fun re(regex: String): NodeID<String> =
 		RegexNodeID(regex).also { lexerDef.tokenDefs[compileRegex(regex).fa] = it }
 
 	/** Ignore the specified regexes when reading the input */
@@ -68,7 +100,7 @@ class SeleBuilder {
 	 * Returns the top ID of the definition, which can then be used in other
 	 * node definitions.
 	 */
-	fun include(subSele: SeleBuilder): NodeID {
+	fun <U> include(subSele: SeleBuilder<U>): NodeID<U> {
 		lexerDef.include(subSele.lexerDef)
 		parserDef.include(subSele.parserDef)
 		return requireNotNull(subSele.parserDef.topNode)
@@ -88,18 +120,24 @@ class SeleBuilder {
 	 *     (it has no value) and a correct program couldn't be created from
 	 *     such an AST anyway
 	 */
-	private fun wrapReduction(nodeID: NodeID, reduction: (List<Any?>) -> Any): (List<ASTNode>) -> ASTNode =
-	{ nodeList ->
+	private fun <R> wrapReduction(
+		nodeID: NodeID<R>,
+		reduction: (DataTuple<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?>) -> R
+	): (List<ASTNode>) -> ASTNode = { nodeList ->
 		if (nodeList.none { it is ASTNode.Erroneous })
 			ASTNode.Data(
 					nodeID,
-					reduction(nodeList.map { node ->
-						when (node) {
-							is ASTNode.Data -> node.data
-							is ASTNode.NoValue -> null
-							else -> throw IllegalStateException("This should never happen")
-						}
-					}),
+					reduction(
+						dataTupleFromList(
+							nodeList.map { node ->
+								when (node) {
+									is ASTNode.Data -> node.data
+									is ASTNode.NoValue -> null
+									else -> throw IllegalStateException("This should never happen")
+								}
+							}
+						)
+					),
 
 					nodeList.firstOrNull { it.position.character != -1 }
 							?.position ?: PositionInfo("__undefined", -1)
@@ -112,11 +150,14 @@ class SeleBuilder {
 	 * A structure used internally to represent a node definition. (This is
 	 * used to allow for a syntax with fewer braces.)
 	 */
-	data class IntermediateNodeDefinition(val definition: List<NodeID>, val reduction: (List<Any?>) -> Any)
+	data class IntermediateNodeDefinition<R>(
+		val definition: List<NodeID<Any?>>,
+		val reduction: (DataTuple<*,*,*,*,*,*,*,*,*,*>) -> R
+	)
 }
 
 internal class LexerDefinition {
-	val tokenDefs: LinkedHashMap<NFA, NodeID> = linkedMapOf()
+	val tokenDefs: LinkedHashMap<NFA, NodeID<Any?>> = linkedMapOf()
 
 	var unexpectedCharacterHandler: ((Char, PositionInfo) -> Unit)? = null
 	fun getLexer() = LexerWrapper(Lexer(tokenDefs, /* ignored */), unexpectedCharacterHandler ?: { _, _ -> })
@@ -127,15 +168,19 @@ internal class LexerDefinition {
 	}
 }
 
-internal class ParserDefinition {
+/**
+ * This class stores the parser part of the definition.
+ * The type parameter T is the type of data in the topNode.
+ */
+internal class ParserDefinition<T> {
 	/** The actual node definition data */
-	val actualNodeDefs: MutableMap<NodeID, MutableSet<NodeDef>> = mutableMapOf()
+	val actualNodeDefs: MutableMap<NodeID<Any?>, MutableSet<NodeDef>> = mutableMapOf()
 	/** Used for simpler code - returns an empty set when a node ID isn't defined */
-	val nodeDefs: LazyMap<NodeID, MutableSet<NodeDef>> = LazyMap.lazyMap(actualNodeDefs) { -> mutableSetOf() }
-	val errorRecoveringNodes: MutableSet<NodeID> = mutableSetOf()
+	val nodeDefs: LazyMap<NodeID<Any?>, MutableSet<NodeDef>> = LazyMap.lazyMap(actualNodeDefs) { -> mutableSetOf() }
+	val errorRecoveringNodes: MutableSet<NodeID<Any?>> = mutableSetOf()
 	var errorCallback: ((UnexpectedTokenError) -> Unit)? = null
 	/** The top node of the grammar (the root of the AST) */
-	var topNode: NodeID? = null
+	var topNode: NodeID<T>? = null
 	/** Lexer ignores in the current context */
 	val lexerIgnores = mutableSetOf<CompiledRegex>()
 
@@ -152,7 +197,7 @@ internal class ParserDefinition {
 			.build()
 	}
 
-	fun include(other: ParserDefinition) {
+	fun include(other: ParserDefinition<*>) {
 		nodeDefs.mergeSetValues(other.nodeDefs)
 		errorRecoveringNodes.addAll(other.errorRecoveringNodes)
 	}

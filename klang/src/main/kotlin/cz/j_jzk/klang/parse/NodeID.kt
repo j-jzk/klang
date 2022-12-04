@@ -1,13 +1,15 @@
 package cz.j_jzk.klang.parse
 
 /**
- * Used for semantics anywhere a node ID is expected.
+ * An AST node ID. All node IDs must extend this class.
+ * The type parameter D represents the data type that will be stored
+ * in nodes with this ID.
  */
-typealias NodeID = Any
+open class NodeID<out D>
 
 /**
  * A NodeID representing EOF
  */
-object EOFNodeID: NodeID() {
+object EOFNodeID: NodeID<Nothing>() {
     override fun toString() = "EOF"
 }

@@ -19,35 +19,37 @@ import cz.j_jzk.klang.util.PositionInfo
  */
 fun parser(init: ParserBuilder.() -> Unit) = ParserBuilder().also { it.init() }
 
+data class AnyNodeID(val v: Any): NodeID<Any>()
+
 /**
  * An interface for building a parser. You probably don't want to use this
  * directly, but instead use the function parser() from this package.
  */
 class ParserBuilder {
-	private val actualNodeDefs = mutableMapOf<NodeID, MutableSet<NodeDef>>()
-	private val nodeDefs = LazyMap.lazyMap<NodeID, MutableSet<NodeDef>>(actualNodeDefs) { -> mutableSetOf() }
-	private val errorRecoveringNodes = mutableSetOf<NodeID>()
+	private val actualNodeDefs = mutableMapOf<NodeID<*>, MutableSet<NodeDef>>()
+	private val nodeDefs = LazyMap.lazyMap<NodeID<*>, MutableSet<NodeDef>>(actualNodeDefs) { -> mutableSetOf() }
+	private val errorRecoveringNodes = mutableSetOf<NodeID<*>>()
 	private var conversionsMap: Map<Any, (String) -> Any>? = null
 	private var errorCallback: ((UnexpectedTokenError) -> Unit)? = null
 
 	/** Maps a node to its definition. */
-	infix fun NodeID.to(definition: IntermediateNodeDefinition) {
-		val actualReduction = wrapReduction(this, definition.reduction)
-		nodeDefs[this]!!.add(NodeDef(definition.definition, actualReduction))
+	infix fun Any.to(definition: IntermediateNodeDefinition) {
+		val actualReduction = wrapReduction(AnyNodeID(this), definition.reduction)
+		nodeDefs[AnyNodeID(this)]!!.add(NodeDef(definition.definition, actualReduction))
 	}
 
 	/** Creates a node definition */
-	fun def(vararg definition: NodeID, reduction: (List<Any?>) -> Any) =
-		IntermediateNodeDefinition(definition.toList(), reduction)
+	fun def(vararg definition: Any, reduction: (List<Any?>) -> Any) =
+		IntermediateNodeDefinition(definition.map { AnyNodeID(it) }, reduction)
 
 	/** The top node of the grammar (the root of the AST) */
-	var topNode: NodeID? = null
+	var topNode: NodeID<*>? = null
 
 	/**
 	 * Marks `nodes` to be error-recovering. These nodes will be then used to
 	 * contain syntax errors.
 	 */
-	fun errorRecovering(vararg nodes: NodeID) {
+	fun errorRecovering(vararg nodes: NodeID<*>) {
 		errorRecoveringNodes.addAll(nodes)
 	}
 
@@ -94,7 +96,7 @@ class ParserBuilder {
 	 *     (it has no value) and a correct program couldn't be created from
 	 *     such an AST anyway
 	 */
-	private fun wrapReduction(nodeID: NodeID, reduction: (List<Any?>) -> Any): (List<ASTNode>) -> ASTNode =
+	private fun wrapReduction(nodeID: NodeID<*>, reduction: (List<Any?>) -> Any): (List<ASTNode>) -> ASTNode =
 		{ nodeList ->
 			if (nodeList.none { it is ASTNode.Erroneous })
 				ASTNode.Data(
@@ -118,5 +120,5 @@ class ParserBuilder {
 	 * A structure used internally to represent a node definition. (This is
 	 * used to allow for a syntax with fewer braces.)
 	 */
-	data class IntermediateNodeDefinition(val definition: List<NodeID>, val reduction: (List<Any?>) -> Any)
+	data class IntermediateNodeDefinition(val definition: List<NodeID<*>>, val reduction: (List<Any?>) -> Any)
 }

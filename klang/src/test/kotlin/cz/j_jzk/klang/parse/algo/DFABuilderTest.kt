@@ -12,7 +12,7 @@ import cz.j_jzk.klang.lex.re.CompiledRegex
  * Specifically, find a way to structurally compare DFAs (this class currently
  * relies on the iteration order of sets, which is undefined) */
 class DFABuilderTest {
-	private val leftRecursiveGrammar: Map<NodeID, Set<NodeDef>> = mapOf(
+	private val leftRecursiveGrammar: Map<NodeID<*>, Set<NodeDef>> = mapOf(
 		top to setOf(NodeDef(listOf(e2), topReduction)),
 		e2 to setOf(
 			NodeDef(listOf(e2, p, e), exprReduction),
@@ -20,7 +20,7 @@ class DFABuilderTest {
 		)
 	)
 
-	private val rightRecursiveGrammar: Map<NodeID, Set<NodeDef>> = mapOf(
+	private val rightRecursiveGrammar: Map<NodeID<*>, Set<NodeDef>> = mapOf(
 		top to setOf(NodeDef(listOf(e2), topReduction)),
 		e2 to setOf(
 			NodeDef(listOf(e, p, e2), exprReduction),
@@ -32,7 +32,7 @@ class DFABuilderTest {
 		val builder = DFABuilder(leftRecursiveGrammar, top, emptyList(), emptyFun)
 		val dfa = builder.build()
 		val expected = DFA(
-			mapOf(
+			mapOf<Pair<State, NodeID<*>>, Action>(
 				(s(0, true) to e2) to shift(1),
 				(s(0, true) to e) to shift(4),
 				(s(1) to eof) to Action.Reduce(1, topReduction),
@@ -58,7 +58,7 @@ class DFABuilderTest {
 		val builder = DFABuilder(rightRecursiveGrammar, top, emptyList(), emptyFun)
 		val dfa = builder.build()
 		val expected = DFA(
-			mapOf(
+			mapOf<Pair<State, NodeID<*>>, Action>(
 				(s(0, true) to e2) to shift(1),
 				(s(0, true) to e) to shift(2),
 				(s(1) to eof) to Action.Reduce(1, topReduction),
@@ -83,7 +83,7 @@ class DFABuilderTest {
 		val builder = DFABuilder(leftRecursiveGrammar, top, listOf(e2, top), emptyFun)
 		val dfa = builder.build()
 		val expected = DFA(
-			mapOf(
+			mapOf<Pair<State, NodeID<*>>, Action>(
 				(s(0, true) to e2) to shift(1),
 				(s(0, true) to e) to shift(4),
 				(s(1) to eof) to Action.Reduce(1, topReduction),
@@ -109,7 +109,7 @@ class DFABuilderTest {
 		val builder = DFABuilder(rightRecursiveGrammar, top, listOf(e2, top), emptyFun)
 		val dfa = builder.build()
 		val expected = DFA(
-			mapOf(
+			mapOf<Pair<State, NodeID<*>>, Action>(
 				(s(0, true) to e2) to shift(1),
 				(s(0, true) to e) to shift(2),
 				(s(1) to eof) to Action.Reduce(1, topReduction),
@@ -132,7 +132,7 @@ class DFABuilderTest {
 
 	// Regression test for issue #45
 	@Test fun testInnerRecursion() {
-		val grammar: Map<NodeID, Set<NodeDef>> = mapOf(
+		val grammar: Map<NodeID<*>, Set<NodeDef>> = mapOf(
 			top to setOf(NodeDef(listOf(e2), topReduction)),
 			e2 to setOf(
 				NodeDef(listOf(e), exprReduction),
@@ -144,7 +144,7 @@ class DFABuilderTest {
 		val dfa = builder.build()
 
 		val expected = DFA(
-			mapOf(
+			mapOf<Pair<State, NodeID<*>>, Action>(
 				(s(0, true) to e) to shift(2),
 				(s(0, true) to e2) to shift(1),
 				(s(0, true) to top) to shift(11),

@@ -10,6 +10,7 @@ import cz.j_jzk.klang.testutils.testLexWithPositions
 import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.lex.re.compileRegex
+import cz.j_jzk.klang.lex.api.AnyNodeID
 import java.io.EOFException
 import kotlin.test.assertFailsWith
 
@@ -21,14 +22,14 @@ import kotlin.test.assertFailsWith
 
 class LexerTest {
 	private val lexer = Lexer(linkedMapOf(
-		re("if") to "if",
-		re("\\d+") to "int"
+		re("if") to AnyNodeID("if"),
+		re("\\d+") to AnyNodeID("int")
 	))
 
 	val lexerIgnoringSpaces = Lexer(
 			linkedMapOf(
-				re("if") to "IF",
-				re("\\d+") to "INT"
+				re("if") to AnyNodeID("IF"),
+				re("\\d+") to AnyNodeID("INT"),
 			),
 		)
 
@@ -53,17 +54,17 @@ class LexerTest {
 
 	@Test fun testNoMatchWithIgnored() {
 		val lexer = Lexer(
-			linkedMapOf(re("\\d+") to "INT"),
+			linkedMapOf(re("\\d+") to AnyNodeID("INT")),
 		)
 
 		val input = iter("   a")
-		assertEquals(null, lexer.nextToken(input, listOf(compileRegex(" ").fa)))
+		assertEquals(null, lexer.nextToken(input, lexer.registeredTokenTypes, listOf(compileRegex(" ").fa)))
 	}
 
 	@Test fun testMaximalMunch() {
 		val lexer = Lexer(linkedMapOf(
-			re("a") to "singleA",
-			re("aa") to "doubleA"
+			re("a") to AnyNodeID("singleA"),
+			re("aa") to AnyNodeID("doubleA"),
 		))
 		val input = iter("aa")
 		assertEquals<Any?>(FToken("doubleA", "aa"), lexer.nextToken(input))
@@ -73,16 +74,16 @@ class LexerTest {
 		// case 1)
 		var input = iter("if")
 		var ambiguousLexer = Lexer(linkedMapOf(
-			re("if") to "if",
-			re(".+") to "anything",
+			re("if") to AnyNodeID("if"),
+			re(".+") to AnyNodeID("anything"),
 		))
 		assertEquals<Any?>(FToken("if", "if"), ambiguousLexer.nextToken(input))
 
 		// case 2)
 		input = iter("if")
 		ambiguousLexer = Lexer(linkedMapOf(
-			re(".+") to "anything",
-			re("if") to "if"
+			re(".+") to AnyNodeID("anything"),
+			re("if") to AnyNodeID("if")
 		))
 		assertEquals<Any?>(FToken("anything", "if"), ambiguousLexer.nextToken(input))
 	}
@@ -107,10 +108,10 @@ class LexerTest {
 			lexerIgnoringSpaces,
 			InputFactory.fromString(" if00  if0", "a"),
 			listOf(
-				Token("IF", "if", PositionInfo("a", 1)),
-				Token("INT", "00", PositionInfo("a", 3)),
-				Token("IF", "if", PositionInfo("a", 7)),
-				Token("INT", "0", PositionInfo("a", 9))
+				Token(AnyNodeID("IF"), "if", PositionInfo("a", 1)),
+				Token(AnyNodeID("INT"), "00", PositionInfo("a", 3)),
+				Token(AnyNodeID("IF"), "if", PositionInfo("a", 7)),
+				Token(AnyNodeID("INT"), "0", PositionInfo("a", 9))
 			),
 			listOf("\\s"),
 		)

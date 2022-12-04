@@ -2,6 +2,7 @@ package cz.j_jzk.klang.parse.algo
 
 import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.lex.api.lexer
+import cz.j_jzk.klang.lex.api.AnyNodeID
 import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.EOFNodeID
@@ -18,28 +19,28 @@ class LexerPPPIteratorTest {
 	@Test fun testNext() {
 		val iterator = LexerPPPIterator(lexerWrapper, createInput())
         for (i in 1..3)
-            assertNodeValueEquals("$i", iterator.next(listOf("int"), ignoreSpace))
+            assertNodeValueEquals("$i", iterator.next(intList, ignoreSpace))
 	}
 
     @Test fun testPushback() {
         val iterator = LexerPPPIterator(lexerWrapper, createInput())
-        val node = ASTNode.Data("int", "99", PositionInfo("input", 123))
+        val node = ASTNode.Data(AnyNodeID("int"), "99", PositionInfo("input", 123))
 
         iterator.pushback(node)
-        assertEquals(node, iterator.next(listOf("int"), ignoreSpace))
+        assertEquals(node, iterator.next(intList, ignoreSpace))
 
         for (i in 1..3)
-            iterator.next(listOf("int"), ignoreSpace)
+            iterator.next(intList, ignoreSpace)
 
         iterator.pushback(node)
-        assertEquals(node, iterator.next(listOf("int"), ignoreSpace))
+        assertEquals(node, iterator.next(intList, ignoreSpace))
     }
 
     @Test fun testHasNext() {
         val iterator = LexerPPPIterator(lexerWrapper, createInput())
         for (i in 1..4) {
             assertTrue(iterator.hasNext())
-            iterator.next(listOf("int"), ignoreSpace)
+            iterator.next(intList, ignoreSpace)
         }
 
         assertFalse(iterator.hasNext())
@@ -48,31 +49,32 @@ class LexerPPPIteratorTest {
     @Test fun testEof() {
         val iterator = LexerPPPIterator(lexerWrapper, createInput())
         for (i in 1..3)
-            assertIsNot<EOFNodeID>(iterator.next(listOf("int"), ignoreSpace)!!.id)
+            assertIsNot<EOFNodeID>(iterator.next(intList, ignoreSpace)!!.id)
 
         assertTrue(iterator.hasNext())
-        assertIs<EOFNodeID>(iterator.next(listOf("int"), ignoreSpace)!!.id)
-        assertEquals(null, iterator.next(listOf("int"), ignoreSpace))
+        assertIs<EOFNodeID>(iterator.next(intList, ignoreSpace)!!.id)
+        assertEquals(null, iterator.next(intList, ignoreSpace))
         assertFalse(iterator.hasNext())
     }
 
     @Test fun testPeek() {
         val iterator = LexerPPPIterator(lexerWrapper, createInput())
-        assertNodeValueEquals("1", iterator.peek(listOf("int"), ignoreSpace))
-        assertNodeValueEquals("1", iterator.peek(listOf("int"), ignoreSpace))
-        assertNodeValueEquals("1", iterator.next(listOf("int"), ignoreSpace))
-        assertNodeValueEquals("2", iterator.peek(listOf("int"), ignoreSpace))
+        assertNodeValueEquals("1", iterator.peek(intList, ignoreSpace))
+        assertNodeValueEquals("1", iterator.peek(intList, ignoreSpace))
+        assertNodeValueEquals("1", iterator.next(intList, ignoreSpace))
+        assertNodeValueEquals("2", iterator.peek(intList, ignoreSpace))
 
         // test pushback & peek
-        val node = ASTNode.Data("int", "99", PositionInfo("input", 123))
+        val node = ASTNode.Data(AnyNodeID("int"), "99", PositionInfo("input", 123))
         iterator.pushback(node)
-        assertEquals(node, iterator.peek(listOf("int"), ignoreSpace))
+        assertEquals(node, iterator.peek(intList, ignoreSpace))
     }
 
     private val lexerWrapper = lexer {
         ignore(" ")
         "int" to "\\d+"
     }.getLexer()
+    private val intList = listOf(AnyNodeID("int"))
     private val ignoreSpace = setOf(compileRegex(" ").fa)
     private fun createInput() = InputFactory.fromString("1 2 3", "input")
     private fun assertNodeValueEquals(expectedVal: String, node: ASTNode?) {

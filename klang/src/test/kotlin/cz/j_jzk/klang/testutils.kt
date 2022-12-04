@@ -5,6 +5,7 @@ import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.lex.Lexer
 import cz.j_jzk.klang.lex.Token
+import cz.j_jzk.klang.lex.api.AnyNodeID
 import kotlin.test.assertEquals
 
 fun re(str: String) = compileRegex(str).fa
@@ -38,9 +39,11 @@ data class FToken(
     val value: String
 ) {
     override fun equals(other: Any?) =
-        if (other is FToken) {
+        if (other is FToken)
             this.id == other.id && this.value == other.value
-        } else if (other is Token && other.id is String) {
-            this.id == other.id && this.value == other.value
-        } else false
+        else if (other is Token)
+            other.id.let { id ->
+                id is AnyNodeID && this.id == id.v && this.value == other.value
+            }
+        else false
 }

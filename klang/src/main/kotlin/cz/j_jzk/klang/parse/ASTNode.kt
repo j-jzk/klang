@@ -9,20 +9,20 @@ import cz.j_jzk.klang.util.PositionInfo
 // Do we need the type parameter N?
 sealed interface ASTNode {
 	/** The identifier of the node. */
-	val id: NodeID
+	val id: NodeID<*>
 	/** Information about the position of the node in the input text */
 	val position: PositionInfo
 
 	/** A regular node of the AST. */
 	data class Data(
-		override val id: NodeID,
-		val data: Any,
+		override val id: NodeID<*>,
+		val data: Any?,
 		override val position: PositionInfo
 	): ASTNode
 
 	/** A dummy AST node used for error recovery. */
 	data class Erroneous(
-		override val id: NodeID,
+		override val id: NodeID<*>,
 		override val position: PositionInfo
 	): ASTNode
 
@@ -31,7 +31,7 @@ sealed interface ASTNode {
 	 * between the lexer and the parser)
 	 */
 	data class NoValue(
-		override val id: NodeID,
+		override val id: NodeID<*>,
 		override val position: PositionInfo
 	): ASTNode
 }

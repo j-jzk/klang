@@ -1,6 +1,7 @@
 package cz.j_jzk.klang.lex
 
 import cz.j_jzk.klang.lex.api.lexer
+import cz.j_jzk.klang.lex.api.AnyNodeID
 import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.testutils.testLex
 import cz.j_jzk.klang.testutils.FToken
@@ -37,9 +38,9 @@ class LexerIntegrationTest {
 	@Test fun testOnNoMatch() {
 		var onNoMatchInvocations = 0
 		val expectedTokens = listOf(
-			Token("INT", "10", PositionInfo("input", 0)),
-			Token("INT", "123", PositionInfo("input", 4)),
-			Token("INT", "5", PositionInfo("input", 8)),
+			Token(AnyNodeID("INT"), "10", PositionInfo("input", 0)),
+			Token(AnyNodeID("INT"), "123", PositionInfo("input", 4)),
+			Token(AnyNodeID("INT"), "5", PositionInfo("input", 8)),
 			null,
 		).iterator()
 

@@ -10,10 +10,10 @@ import java.io.EOFException
 
 /** This class represents the DFA (the "structure" of the parser). */
 data class DFA(
-	val actionTable: Table<State, NodeID, Action>,
-	val finalNodeType: NodeID,
+	val actionTable: Table<State, NodeID<*>, Action>,
+	val finalNodeType: NodeID<*>,
 	val startState: State,
-	val errorRecoveringNodes: List<NodeID>,
+	val errorRecoveringNodes: List<NodeID<*>>,
 	val onUnexpectedToken: (UnexpectedTokenError) -> Unit,
 	val lexerIgnores: Map<State, Set<CompiledRegex>>,
 ) {
@@ -104,7 +104,7 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 	}
 
 	// TODO: this should maybe be precomputed
-	private fun expectedIDs(): List<NodeID> =
+	private fun expectedIDs(): List<NodeID<*>> =
 		dfa.actionTable.row(stateStack.last()).keys.toList()
 
 	private fun lexerIgnores() = dfa.lexerIgnores[stateStack.last()]!!.map { it.fa }
