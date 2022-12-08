@@ -163,14 +163,13 @@ internal class LexerDefinition {
 
 	var unexpectedCharacterHandler: ((Char, PositionInfo) -> Unit)? = null
 	fun getLexer() = LexerWrapper(
-		// add a catch-all def for error recovery
-		Lexer(tokenDefs + (compileRegex(".").fa to UnexpectedCharacter)),
+		Lexer(tokenDefs),
 		unexpectedCharacterHandler ?: { _, _ -> }
 	)
 
 	fun include(other: LexerDefinition) {
 		tokenDefs.putAll(other.tokenDefs)
-		// TODO: include ignored regexes
+		// TODO: include ignored regexes?
 	}
 }
 
