@@ -37,7 +37,6 @@ class Lexer(regexToId: LinkedHashMap<NFA, NodeID<*>>) {
 	init {
 		var i = 0
 		precedenceTable = this.regexToId.map { (k, _) -> k to i++ }.toMap()
-		println("regexToID: ${this.regexToId.map { (k,v)->k.startState to v} }")
 	}
 
 	/**
@@ -81,6 +80,9 @@ class Lexer(regexToId: LinkedHashMap<NFA, NodeID<*>>) {
 			when {
 				// maximal munch
 				a.value > b.value -> 1
+				// the unexpected character def should always have the lowest precedence
+				a.key === unexpectedCharDef.first -> -1
+				b.key === unexpectedCharDef.first -> 1
 				// token precedence
 				a.value == b.value && doesTokenPrecede(a.key, b.key) -> 1
 				a === b -> 0
@@ -88,11 +90,8 @@ class Lexer(regexToId: LinkedHashMap<NFA, NodeID<*>>) {
 			}
 		}
 
-	private fun doesTokenPrecede(a: NFA, b: NFA): Boolean {
-		// DEBUG
-		println("DTP: ${a.startState} vs ${b.startState}")
-		return precedenceTable[a]!! < precedenceTable[b]!!
-	}
+	private fun doesTokenPrecede(a: NFA, b: NFA): Boolean =
+		(precedenceTable[a] ?: Int.MAX_VALUE) < (precedenceTable[b] ?: Int.MIN_VALUE)
 
 	override fun toString(): String = "Lexer(NFA -> ID = $regexToId)"
 }

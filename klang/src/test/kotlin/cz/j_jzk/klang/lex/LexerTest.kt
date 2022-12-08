@@ -11,6 +11,7 @@ import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.lex.api.AnyNodeID
+import cz.j_jzk.klang.parse.UnexpectedCharacter
 import java.io.EOFException
 import kotlin.test.assertFailsWith
 
@@ -114,6 +115,22 @@ class LexerTest {
 				Token(AnyNodeID("INT"), "0", PositionInfo("a", 9))
 			),
 			listOf("\\s"),
+		)
+	}
+
+	@Test fun testUnexpectedCharacterPrecedence() {
+		// test that the UnexpectedCharacter is really emitted as a last resort
+		testLex(
+			Lexer(linkedMapOf(
+				re("[a-z]") to AnyNodeID("letter"),
+			)),
+			"a1-",
+			listOf(
+				FToken("letter", "a"),
+				// <ignored character>,
+				FToken(UnexpectedCharacter, "-"),
+			),
+			listOf("[0-9]"),
 		)
 	}
 }
