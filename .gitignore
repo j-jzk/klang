@@ -6,3 +6,7 @@ build
 
 # Ignore IntelliJ config files
 .idea
+klang/bin
+
+# Local VS Code configuration
+.vscode
