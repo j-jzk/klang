@@ -107,7 +107,13 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 	private fun expectedIDs(): List<NodeID<*>> =
 		dfa.actionTable.row(stateStack.last()).keys.toList()
 
-	private fun lexerIgnores() = dfa.lexerIgnores[stateStack.last()]!!.map { it.fa }
+	private fun lexerIgnores() = try { dfa.lexerIgnores[stateStack.last()]!!.map { it.fa } }
+	catch (_: NullPointerException) {
+		println("NPE in lexerIgnores. state: ${stateStack.last()}")
+		println("   lexerIgnores: ${dfa.lexerIgnores}")
+		println("   states in table: ${dfa.actionTable}")
+		throw Exception()
+	}
 
 	// Or should we have a special finishing state?
 	private fun isParsingFinished() =

@@ -13,3 +13,5 @@ open class NodeID<out D>
 object EOFNodeID: NodeID<Nothing>() {
     override fun toString() = "EOF"
 }
+
+object UnexpectedCharacter: NodeID<String>()

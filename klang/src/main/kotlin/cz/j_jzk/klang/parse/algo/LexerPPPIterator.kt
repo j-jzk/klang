@@ -6,6 +6,7 @@ import cz.j_jzk.klang.input.IdentifiableInput
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.EOFNodeID
+import cz.j_jzk.klang.parse.UnexpectedCharacter
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.lex.re.fa.NFA
 
@@ -49,7 +50,7 @@ class LexerPPPIterator(val lexerWrapper: LexerWrapper, val input: IdentifiableIn
 		else if (pushbackBuffer.isNotEmpty())
 			pushbackBuffer.removeLast()
 		else
-			convertToken(lexerWrapper.nextMatch(input, expectedTokenTypes, ignored))
+			convertToken(lexerWrapper.nextMatch(input, expectedTokenTypes + UnexpectedCharacter, ignored))
 
 	/**
 	 * Converts a Token into a ASTNode.Data with the data being the token's string.

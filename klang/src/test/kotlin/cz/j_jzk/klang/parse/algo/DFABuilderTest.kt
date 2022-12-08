@@ -179,7 +179,7 @@ class DFABuilderTest {
 
 	private fun emptyIgnoreMap(maxStateId: Int, erStates: Set<Int> = setOf(0)): Map<State, Set<CompiledRegex>> {
 		val map = mutableMapOf<State, Set<CompiledRegex>>()
-		for (i in 0 until maxStateId)
+		for (i in 0..maxStateId)
 			map[s(i, i in erStates)] = emptySet()
 		return map
 	}

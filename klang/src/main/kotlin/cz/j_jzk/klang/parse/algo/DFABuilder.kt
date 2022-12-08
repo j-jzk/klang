@@ -85,6 +85,9 @@ class DFABuilder(
 		val finalState = stateFactory.new(false)
 		transitions[startState, topNode] = Action.Shift(finalState)
 		transitions[finalState, EOFNodeID] = Action.Reduce(1, identityReduction)
+		// the ignore set for the final state doesn't get passed to the lexer,
+		// but we need a value anyway to not run into a NPE
+		lexerIgnores[finalState] = emptySet()
 
 		return DFA(transitions, topNode, startState, errorRecoveringNodes, onUnexpectedToken, lexerIgnores)
 	}

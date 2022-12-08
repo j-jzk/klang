@@ -40,6 +40,7 @@ class SeleBuilderTest {
 		val expected = mapOf(
 			s(0, true) to setOf(compileRegex("before"), compileRegex("after")),
 			s(1) to setOf(compileRegex("before"), compileRegex("after")),
+			s(2) to emptySet(),
 		)
 
 		assertEquals(expected, sele.parser.lexerIgnores)
@@ -63,6 +64,7 @@ class SeleBuilderTest {
 			s(1) to setOf(compileRegex("ignA"), compileRegex("ignB")),
 			s(2) to setOf(compileRegex("ignB")),
 			s(3) to setOf(compileRegex("ignA")),
+			s(4) to emptySet(),
 		)
 
 		assertEquals(expected, sup.parser.lexerIgnores)

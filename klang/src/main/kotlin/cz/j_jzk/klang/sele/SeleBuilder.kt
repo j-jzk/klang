@@ -10,8 +10,10 @@ import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.parse.algo.DFA
 import cz.j_jzk.klang.parse.algo.DFABuilder
+import cz.j_jzk.klang.parse.UnexpectedCharacter
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.util.mergeSetValues
+import cz.j_jzk.klang.util.plus
 import org.apache.commons.collections4.map.LazyMap
 import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.sele.tuple.DataTuple
@@ -160,7 +162,11 @@ internal class LexerDefinition {
 	val tokenDefs: LinkedHashMap<NFA, NodeID<Any?>> = linkedMapOf()
 
 	var unexpectedCharacterHandler: ((Char, PositionInfo) -> Unit)? = null
-	fun getLexer() = LexerWrapper(Lexer(tokenDefs, /* ignored */), unexpectedCharacterHandler ?: { _, _ -> })
+	fun getLexer() = LexerWrapper(
+		// add a catch-all def for error recovery
+		Lexer(tokenDefs + (compileRegex(".").fa to UnexpectedCharacter)),
+		unexpectedCharacterHandler ?: { _, _ -> }
+	)
 
 	fun include(other: LexerDefinition) {
 		tokenDefs.putAll(other.tokenDefs)
