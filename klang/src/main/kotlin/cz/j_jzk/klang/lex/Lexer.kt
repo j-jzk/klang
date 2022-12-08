@@ -41,8 +41,7 @@ class Lexer(regexToId: LinkedHashMap<NFA, NodeID<*>>) {
 
 	/**
 	 * Match a token from an input.
-	 * Returns `null` on no match.
-	 * Throws an `EOFException` on EOF.
+	 * Returns `null` on EOF
 	 */
 	fun nextToken(
 		idInput: IdentifiableInput,
@@ -51,19 +50,16 @@ class Lexer(regexToId: LinkedHashMap<NFA, NodeID<*>>) {
 	): Token? {
 		val input = idInput.input
 		if (!input.hasNext())
-			throw EOFException()
+			return null
 
 		// TODO: we should make sure that there aren't more IDs assigned to one RE
 		// (it is acceptable as long as they won't be expected simultaneously)
 		// (or maybe we should merge equal REs into one ID)
 		val nfas = expectedTokenTypes.map { idToRegex[it] }.flatten() + ignored + unexpectedCharDef.first
-		val longestMatch = chooseMatch(nextMatchFromMultiple(nfas, input)) ?: return null
+		val longestMatch = chooseMatch(nextMatchFromMultiple(nfas, input))!!
 
 		if (longestMatch.key in ignored)
-			return if (input.hasNext())
-				nextToken(idInput, expectedTokenTypes, ignored)
-			else
-				null
+			return nextToken(idInput, expectedTokenTypes, ignored)
 
 		return Token(
 			regexToId[longestMatch.key]!!,

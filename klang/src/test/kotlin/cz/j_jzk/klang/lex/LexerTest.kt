@@ -43,7 +43,7 @@ class LexerTest {
 
 	@Test fun testNoMatch() {
 		val input = iter("xyz")
-		assertEquals(null, lexer.nextToken(input))
+		assertEquals<Any?>(FToken(UnexpectedCharacter, "x"), lexer.nextToken(input))
 	}
 
 	@Test fun testEndOfInput() {
@@ -59,7 +59,10 @@ class LexerTest {
 		)
 
 		val input = iter("   a")
-		assertEquals(null, lexer.nextToken(input, lexer.registeredTokenTypes, listOf(compileRegex(" ").fa)))
+		assertEquals<Any?>(
+			FToken(UnexpectedCharacter, "a"),
+			lexer.nextToken(input, lexer.registeredTokenTypes, listOf(compileRegex(" ").fa))
+		)
 	}
 
 	@Test fun testMaximalMunch() {

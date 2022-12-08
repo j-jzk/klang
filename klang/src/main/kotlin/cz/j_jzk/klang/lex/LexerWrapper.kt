@@ -24,7 +24,7 @@ class LexerWrapper(val lexer: Lexer, private val onNoMatch: (Char, PositionInfo)
 
 		val match = lexer.nextToken(input, expectedTokenTypes, ignored)
 
-		if (match == null && input.input.hasNext()) {
+		if (match == null && input.input.hasNext()) { // FIXME: this will never happen
 			onNoMatch(
 				input.input.next(),
 				PositionInfo(input.id, input.input.previousIndex())
