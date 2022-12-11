@@ -161,10 +161,8 @@ class SeleBuilder<T> {
 internal class LexerDefinition {
 	val tokenDefs: LinkedHashMap<NFA, NodeID<Any?>> = linkedMapOf()
 
-	var unexpectedCharacterHandler: ((Char, PositionInfo) -> Unit)? = null
 	fun getLexer() = LexerWrapper(
 		Lexer(tokenDefs),
-		unexpectedCharacterHandler ?: { _, _ -> }
 	)
 
 	fun include(other: LexerDefinition) {

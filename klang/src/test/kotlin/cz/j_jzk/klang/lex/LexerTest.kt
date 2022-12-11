@@ -50,7 +50,7 @@ class LexerTest {
 		val input = iter("if")
 		lexer.nextToken(input)
 
-		assertFailsWith(EOFException::class) { lexer.nextToken(input) }
+		assertEquals(null, lexer.nextToken(input))
 	}
 
 	@Test fun testNoMatchWithIgnored() {

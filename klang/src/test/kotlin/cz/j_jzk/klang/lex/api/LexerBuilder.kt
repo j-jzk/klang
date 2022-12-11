@@ -82,5 +82,5 @@ class LexerBuilder {
 	}
 
 	/** Builds the lexer. */
-	fun getLexer() = LexerWrapper(Lexer(tokenDefs), onNoMatchHandler ?: { _, _ -> })
+	fun getLexer() = LexerWrapper(Lexer(tokenDefs))
 }

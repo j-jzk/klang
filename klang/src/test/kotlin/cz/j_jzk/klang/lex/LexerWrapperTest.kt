@@ -7,6 +7,7 @@ import cz.j_jzk.klang.lex.api.lexer
 import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.testutils.iter
 import cz.j_jzk.klang.testutils.FToken
+import cz.j_jzk.klang.parse.UnexpectedCharacter
 
 class LexerWrapperTest {
 	private val lexer = lexer {
@@ -22,7 +23,6 @@ class LexerWrapperTest {
 				FToken("INT", "23"),
 				FToken("INT", "4"),
 			),
-			0
 		)
 	}
 
@@ -35,7 +35,6 @@ class LexerWrapperTest {
 				FToken("INT", "4"),
 				null,
 			),
-			0
 		)
 	}
 
@@ -45,22 +44,28 @@ class LexerWrapperTest {
 			listOf(
 				FToken("INT", "1"),
 				FToken("INT", "23"),
+				FToken(UnexpectedCharacter, "x"),
 				FToken("INT", "4"),
-				null,
+				FToken(UnexpectedCharacter, "x"),
 			),
-			2
 		)
 	}
 
 	@Test fun testNoMatch() {
-		testIterator("abc", listOf(null), 3)
+		testIterator(
+			"abc",
+			listOf(
+				FToken(UnexpectedCharacter, "a"),
+				FToken(UnexpectedCharacter, "b"),
+				FToken(UnexpectedCharacter, "c"),
+			),
+		)
 	}
 
-	private fun testIterator(input: String, expectedTokens: List<FToken?>, expectedInvalidChars: Int) {
-		var invalidChars = 0
+	private fun testIterator(input: String, expectedTokens: List<FToken?>) {
 		val inputIterator = iter(input)
 		val expectedTokensIterator = expectedTokens.iterator()
-		val lexerWrapper = LexerWrapper(lexer.lexer) { _, _ -> invalidChars++ }
+		val lexerWrapper = LexerWrapper(lexer.lexer)
 
 		// check that all the tokens match
 		while (inputIterator.input.hasNext()) {
@@ -72,9 +77,6 @@ class LexerWrapperTest {
 
 		// check that there aren't any tokens left to check
 		assertFalse(expectedTokensIterator.hasNext())
-
-		// check the number of times onNoMatch was called
-		assertEquals(expectedInvalidChars, invalidChars)
 
 		// check that there aren't any characters left in the input
 		assertFalse(inputIterator.input.hasNext())

@@ -9,13 +9,11 @@ import cz.j_jzk.klang.lex.re.fa.NFA
  * A utility class for using the lexer more easily and safely.
  * It also calls functions on certain events (currently only no match).
  */
-class LexerWrapper(val lexer: Lexer, private val onNoMatch: (Char, PositionInfo) -> Unit) {
+class LexerWrapper(val lexer: Lexer) {
 	/**
-	 * Matches one token and handles events (onNoMatch).
-	 * When there is no match, it automatically returns the next one, but can
-	 * still return null when there are no matches up to the end of input.
+	 * Matches one token. Returns null on EOF.
 	 */
-	tailrec fun nextMatch(
+	fun nextMatch(
 		input: IdentifiableInput,
 		expectedTokenTypes: Collection<NodeID<*>>,
 		ignored: Collection<NFA>
@@ -23,14 +21,6 @@ class LexerWrapper(val lexer: Lexer, private val onNoMatch: (Char, PositionInfo)
 		if (!input.input.hasNext()) return null
 
 		val match = lexer.nextToken(input, expectedTokenTypes, ignored)
-
-		if (match == null && input.input.hasNext()) { // FIXME: this will never happen
-			onNoMatch(
-				input.input.next(),
-				PositionInfo(input.id, input.input.previousIndex())
-			)
-			return nextMatch(input, expectedTokenTypes, ignored)
-		}
 
 		return match
 	}
@@ -68,5 +58,5 @@ class LexerWrapper(val lexer: Lexer, private val onNoMatch: (Char, PositionInfo)
 			} ?: throw NoSuchElementException()
 	}
 
-	override fun toString(): String = "LexerWrapper(lexer=$lexer, onNoMatch=$onNoMatch)"
+	override fun toString(): String = "LexerWrapper(lexer=$lexer)"
 }
