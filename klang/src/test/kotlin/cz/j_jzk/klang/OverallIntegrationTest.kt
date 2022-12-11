@@ -31,7 +31,6 @@ class OverallIntegrationTest {
 		}.getParser()
 
 		val input = "12+ 8+3"
-		val tokenStream = lexer.iterator(InputFactory.fromString(input, "in"))
 		// val result = parser.parse(tokenStream)
 		val result = 123
 

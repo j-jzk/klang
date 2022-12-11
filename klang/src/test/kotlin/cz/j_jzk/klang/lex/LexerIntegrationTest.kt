@@ -22,7 +22,7 @@ class LexerIntegrationTest {
 		}.getLexer()
 
 		testLex(
-			lexer.lexer,
+			lexer,
 			"if 12.34    if15 if ",
 			listOf(
 				FToken("IF", "if"),

@@ -3,7 +3,6 @@ package cz.j_jzk.klang.lex.api
 import cz.j_jzk.klang.lex.re.fa.NFA
 import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.lex.Lexer
-import cz.j_jzk.klang.lex.LexerWrapper
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.parse.NodeID
 
@@ -82,5 +81,5 @@ class LexerBuilder {
 	}
 
 	/** Builds the lexer. */
-	fun getLexer() = LexerWrapper(Lexer(tokenDefs))
+	fun getLexer() = Lexer(tokenDefs)
 }

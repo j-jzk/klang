@@ -1,6 +1,6 @@
 package cz.j_jzk.klang.parse.algo
 
-import cz.j_jzk.klang.lex.LexerWrapper
+import cz.j_jzk.klang.lex.Lexer
 import cz.j_jzk.klang.lex.Token
 import cz.j_jzk.klang.input.IdentifiableInput
 import cz.j_jzk.klang.parse.ASTNode
@@ -15,7 +15,7 @@ import cz.j_jzk.klang.lex.re.fa.NFA
  *
  * Used internally.
  */
-class LexerPPPIterator(val lexerWrapper: LexerWrapper, val input: IdentifiableInput) {
+class LexerPPPIterator(val lexer: Lexer, val input: IdentifiableInput) {
 	private val pushbackBuffer = mutableListOf<ASTNode>()
 	/**
 	 * Whether we have already output an EOF or not - we want to output it
@@ -23,7 +23,7 @@ class LexerPPPIterator(val lexerWrapper: LexerWrapper, val input: IdentifiableIn
 	 */
 	private var wasEof = false
 
-	val allNodeIDs: Collection<NodeID<*>> = ArrayList(lexerWrapper.lexer.registeredTokenTypes)
+	val allNodeIDs: Collection<NodeID<*>> = ArrayList(lexer.registeredTokenTypes)
 
 	/** Pushes the `node` back onto the input. */
 	fun pushback(node: ASTNode) { pushbackBuffer.add(node).also { wasEof = false } }
@@ -50,7 +50,7 @@ class LexerPPPIterator(val lexerWrapper: LexerWrapper, val input: IdentifiableIn
 		else if (pushbackBuffer.isNotEmpty())
 			pushbackBuffer.removeLast()
 		else
-			convertToken(lexerWrapper.nextMatch(input, expectedTokenTypes + UnexpectedCharacter, ignored))
+			convertToken(lexer.nextToken(input, expectedTokenTypes, ignored))
 
 	/**
 	 * Converts a Token into a ASTNode.Data with the data being the token's string.

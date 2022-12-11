@@ -1,7 +1,6 @@
 package cz.j_jzk.klang.sele
 
 import cz.j_jzk.klang.lex.Lexer
-import cz.j_jzk.klang.lex.LexerWrapper
 import cz.j_jzk.klang.lex.re.CompiledRegex
 import cz.j_jzk.klang.lex.re.fa.NFA
 import cz.j_jzk.klang.parse.NodeDef
@@ -161,9 +160,7 @@ class SeleBuilder<T> {
 internal class LexerDefinition {
 	val tokenDefs: LinkedHashMap<NFA, NodeID<Any?>> = linkedMapOf()
 
-	fun getLexer() = LexerWrapper(
-		Lexer(tokenDefs),
-	)
+	fun getLexer() = Lexer(tokenDefs)
 
 	fun include(other: LexerDefinition) {
 		tokenDefs.putAll(other.tokenDefs)
