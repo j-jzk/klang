@@ -5,7 +5,6 @@ import kotlin.test.Test
 import kotlin.test.Ignore
 import cz.j_jzk.klang.lex.api.lexer
 import cz.j_jzk.klang.parse.api.parser
-import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.parse.testutil.id
 

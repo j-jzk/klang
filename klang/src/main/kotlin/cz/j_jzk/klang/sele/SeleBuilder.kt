@@ -9,7 +9,6 @@ import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.parse.algo.DFA
 import cz.j_jzk.klang.parse.algo.DFABuilder
-import cz.j_jzk.klang.parse.UnexpectedCharacter
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.util.mergeSetValues
 import cz.j_jzk.klang.util.plus

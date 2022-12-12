@@ -6,7 +6,6 @@ import cz.j_jzk.klang.util.listiterator.previousString
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.input.IdentifiableInput
 import cz.j_jzk.klang.parse.NodeID
-import java.io.EOFException
 import com.google.common.collect.Multimaps
 import com.google.common.collect.ArrayListMultimap
 import cz.j_jzk.klang.lex.re.compileRegex

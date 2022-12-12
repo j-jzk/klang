@@ -6,7 +6,6 @@ import cz.j_jzk.klang.input.IdentifiableInput
 import cz.j_jzk.klang.parse.ASTNode
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.EOFNodeID
-import cz.j_jzk.klang.parse.UnexpectedCharacter
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.lex.re.fa.NFA
 

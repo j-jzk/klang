@@ -12,8 +12,6 @@ import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.lex.api.AnyNodeID
 import cz.j_jzk.klang.parse.UnexpectedCharacter
-import java.io.EOFException
-import kotlin.test.assertFailsWith
 
 /*
  * Correct matching doesn't need to be tested extensively because it is already
