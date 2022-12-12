@@ -1,8 +1,6 @@
 package cz.j_jzk.klang.prase
 
 import kotlin.test.Test
-import kotlin.test.assertTrue
-import kotlin.test.assertEquals
 
 class IdnetifierTest {
     @Test fun testIdentifier() {

@@ -90,7 +90,7 @@ complexity:
     threshold: 10
     includeStaticDeclarations: false
     includePrivateDeclarations: false
-  ComplexMethod:
+  CyclomaticComplexMethod:
     active: true
     threshold: 15
     ignoreSingleWhenExpression: false
@@ -276,9 +276,9 @@ exceptions:
       - 'Throwable'
 
 formatting:
-  active: true
+  active: false
   android: false
-  autoCorrect: true
+  autoCorrect: false
   AnnotationOnSeparateLine:
     active: false
     autoCorrect: true
@@ -290,10 +290,15 @@ formatting:
     autoCorrect: true
     indentSize: 4
     maxLineLength: 120
+  BlockCommentInitialStarAlignment:
+    active: true
   ChainWrapping:
     active: true
     autoCorrect: true
   CommentSpacing:
+    active: true
+    autoCorrect: true
+  CommentWrapping:
     active: true
     autoCorrect: true
   EnumEntryNameCase:
@@ -306,14 +311,13 @@ formatting:
     autoCorrect: true
     insertFinalNewLine: true
   ImportOrdering:
-    active: true
+    active: false
     autoCorrect: true
     layout: '*,java.**,javax.**,kotlin.**,^'
   Indentation:
-    active: true
+    active: false
     autoCorrect: true
     indentSize: 4
-    continuationIndentSize: 4
   MaximumLineLength:
     active: true
     maxLineLength: 120
@@ -365,7 +369,6 @@ formatting:
   ParameterListWrapping:
     active: true
     autoCorrect: true
-    indentSize: 4
     maxLineLength: 120
   SpacingAroundAngleBrackets:
     active: false
@@ -409,6 +412,8 @@ formatting:
   StringTemplate:
     active: true
     autoCorrect: true
+  UnnecessaryParenthesesBeforeTrailingLambda:
+    active: true
 
 naming:
   active: true
@@ -534,6 +539,8 @@ potential-bugs:
     active: false
   DuplicateCaseInWhenExpression:
     active: true
+  ElseCaseInsteadOfExhaustiveWhen:
+    active: true
   EqualsAlwaysReturnsTrueOrFalse:
     active: true
   EqualsWithHashCodeExist:
@@ -544,14 +551,6 @@ potential-bugs:
     active: true
   HasPlatformType:
     active: false
-  IgnoredReturnValue:
-    active: true
-    restrictToAnnotatedMethods: true
-    returnValueAnnotations:
-      - '*.CheckResult'
-      - '*.CheckReturnValue'
-    ignoreReturnValueAnnotations:
-      - '*.CanIgnoreReturnValue'
   ImplicitDefaultLocale:
     active: true
   ImplicitUnitReturnType:
@@ -572,12 +571,9 @@ potential-bugs:
   MissingPackageDeclaration:
     active: true
     excludes: ['**/*.kts']
-  MissingWhenCase:
-    active: true
-    allowElseExpression: true
   NullableToStringCall:
     active: false
-  RedundantElseInWhen:
+  NullCheckOnMutableProperty:
     active: true
   UnconditionalJumpStatementInLoop:
     active: true
@@ -603,13 +599,15 @@ potential-bugs:
 
 style:
   active: true
+  CanBeNonNullable:
+    active: true
   ClassOrdering:
     active: false
   CollapsibleIfStatements:
     active: false
   DataClassContainsFunctions:
     active: false
-    conversionFunctionPrefix: 'to'
+    conversionFunctionPrefix: ['to']
   DataClassShouldBeImmutable:
     active: false
   DestructuringDeclarationWithTooManyEntries:
@@ -643,12 +641,6 @@ style:
     methods:
       - 'kotlin.io.print'
       - 'kotlin.io.println'
-  ForbiddenPublicDataClass:
-    active: true
-    excludes: ['**']
-    ignorePackages:
-      - '*.internal'
-      - '*.internal.*'
   ForbiddenVoid:
     active: false
     ignoreOverridden: false
@@ -657,13 +649,7 @@ style:
     active: true
     ignoreOverridableFunction: true
     ignoreActualFunction: true
-    excludedFunctions: ''
-  LibraryCodeMustSpecifyReturnType:
-    active: true
-    excludes: ['**']
-  LibraryEntitiesShouldNotBePublic:
-    active: true
-    excludes: ['**']
+    excludedFunctions: []
   LoopWithTooManyJumpStatements:
     active: true
     maxJumpCount: 1
@@ -728,7 +714,7 @@ style:
   ReturnCount:
     active: false
     max: 2
-    excludedFunctions: 'equals'
+    excludedFunctions: ['equals']
     excludeLabeled: false
     excludeReturnFromLambda: true
     excludeGuardClauses: false
@@ -756,6 +742,8 @@ style:
   UnnecessaryFilter:
     active: true
   UnnecessaryInheritance:
+    active: true
+  UnnecessaryInnerClass:
     active: true
   UnnecessaryLet:
     active: false

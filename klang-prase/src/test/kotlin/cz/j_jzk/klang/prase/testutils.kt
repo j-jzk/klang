@@ -12,6 +12,8 @@ fun testSele(sele: Sele, shouldMatch: Map<String, Any?>, shouldNotMatch: Collect
     }
 
     for (input in shouldNotMatch) {
-        assertFailsWith<SyntaxError>("Expected syntax error for input '$input'") { sele.parse(InputFactory.fromString(input, "")) }
+        assertFailsWith<SyntaxError>("Expected syntax error for input '$input'") {
+            sele.parse(InputFactory.fromString(input, ""))
+        }
     }
 }
