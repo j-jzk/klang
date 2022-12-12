@@ -1,7 +1,6 @@
 package cz.j_jzk.klang.sele
 
 import cz.j_jzk.klang.lex.Lexer
-import cz.j_jzk.klang.lex.LexerWrapper
 import cz.j_jzk.klang.lex.re.CompiledRegex
 import cz.j_jzk.klang.lex.re.fa.NFA
 import cz.j_jzk.klang.parse.NodeDef
@@ -12,6 +11,7 @@ import cz.j_jzk.klang.parse.algo.DFA
 import cz.j_jzk.klang.parse.algo.DFABuilder
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.util.mergeSetValues
+import cz.j_jzk.klang.util.plus
 import org.apache.commons.collections4.map.LazyMap
 import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.sele.tuple.DataTuple
@@ -159,12 +159,11 @@ class SeleBuilder<T> {
 internal class LexerDefinition {
 	val tokenDefs: LinkedHashMap<NFA, NodeID<Any?>> = linkedMapOf()
 
-	var unexpectedCharacterHandler: ((Char, PositionInfo) -> Unit)? = null
-	fun getLexer() = LexerWrapper(Lexer(tokenDefs, /* ignored */), unexpectedCharacterHandler ?: { _, _ -> })
+	fun getLexer() = Lexer(tokenDefs)
 
 	fun include(other: LexerDefinition) {
 		tokenDefs.putAll(other.tokenDefs)
-		// TODO: include ignored regexes
+		// TODO: include ignored regexes?
 	}
 }
 

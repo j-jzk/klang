@@ -9,10 +9,14 @@ data class UnexpectedTokenError(
     val expectedIDs: Collection<Any>,
 ): Exception() {
     override fun toString(): String {
-        val sb = StringBuilder()
-        sb.append("Unexpected token ${got.id}, expected one of: [")
-        sb.append(expectedIDs.joinToString(", "))
-        sb.append("].")
-        return sb.toString()
+        if (got.id == UnexpectedCharacter && got is ASTNode.Data) {
+            return "Unexpected character '${got.data}'"
+        } else {
+            val sb = StringBuilder()
+            sb.append("Unexpected token ${got.id}, expected one of: [")
+            sb.append(expectedIDs.joinToString(", "))
+            sb.append("].")
+            return sb.toString()
+        }
     }
 }

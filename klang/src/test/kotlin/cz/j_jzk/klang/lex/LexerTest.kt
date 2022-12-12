@@ -11,8 +11,7 @@ import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.lex.api.AnyNodeID
-import java.io.EOFException
-import kotlin.test.assertFailsWith
+import cz.j_jzk.klang.parse.UnexpectedCharacter
 
 /*
  * Correct matching doesn't need to be tested extensively because it is already
@@ -42,14 +41,14 @@ class LexerTest {
 
 	@Test fun testNoMatch() {
 		val input = iter("xyz")
-		assertEquals(null, lexer.nextToken(input))
+		assertEquals<Any?>(FToken(UnexpectedCharacter, "x"), lexer.nextToken(input))
 	}
 
 	@Test fun testEndOfInput() {
 		val input = iter("if")
 		lexer.nextToken(input)
 
-		assertFailsWith(EOFException::class) { lexer.nextToken(input) }
+		assertEquals(null, lexer.nextToken(input))
 	}
 
 	@Test fun testNoMatchWithIgnored() {
@@ -58,7 +57,10 @@ class LexerTest {
 		)
 
 		val input = iter("   a")
-		assertEquals(null, lexer.nextToken(input, lexer.registeredTokenTypes, listOf(compileRegex(" ").fa)))
+		assertEquals<Any?>(
+			FToken(UnexpectedCharacter, "a"),
+			lexer.nextToken(input, lexer.registeredTokenTypes, listOf(compileRegex(" ").fa))
+		)
 	}
 
 	@Test fun testMaximalMunch() {
@@ -114,6 +116,22 @@ class LexerTest {
 				Token(AnyNodeID("INT"), "0", PositionInfo("a", 9))
 			),
 			listOf("\\s"),
+		)
+	}
+
+	@Test fun testUnexpectedCharacterPrecedence() {
+		// test that the UnexpectedCharacter is really emitted as a last resort
+		testLex(
+			Lexer(linkedMapOf(
+				re("[a-z]") to AnyNodeID("letter"),
+			)),
+			"a1-",
+			listOf(
+				FToken("letter", "a"),
+				// <ignored character>,
+				FToken(UnexpectedCharacter, "-"),
+			),
+			listOf("[0-9]"),
 		)
 	}
 }

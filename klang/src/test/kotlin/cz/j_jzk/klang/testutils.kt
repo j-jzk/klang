@@ -6,6 +6,7 @@ import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.lex.Lexer
 import cz.j_jzk.klang.lex.Token
 import cz.j_jzk.klang.lex.api.AnyNodeID
+import cz.j_jzk.klang.parse.NodeID
 import kotlin.test.assertEquals
 
 fun re(str: String) = compileRegex(str).fa
@@ -35,15 +36,13 @@ fun testLexWithPositions(
  * A fake token class for when you don't care about the position info
  */
 data class FToken(
-    val id: String,
+    val id: NodeID<*>,
     val value: String
 ) {
+    constructor(id: String, value: String): this(AnyNodeID(id), value)
+
     override fun equals(other: Any?) =
-        if (other is FToken)
+        if (other is Token)
             this.id == other.id && this.value == other.value
-        else if (other is Token)
-            other.id.let { id ->
-                id is AnyNodeID && this.id == id.v && this.value == other.value
-            }
         else false
 }

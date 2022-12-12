@@ -5,7 +5,6 @@ import kotlin.test.Test
 import kotlin.test.Ignore
 import cz.j_jzk.klang.lex.api.lexer
 import cz.j_jzk.klang.parse.api.parser
-import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.parse.testutil.id
 
@@ -16,7 +15,7 @@ import cz.j_jzk.klang.parse.testutil.id
 		ignore("\\s")
 	}.getLexer()
 
-	private fun input(inp: String) = lexer.iterator(InputFactory.fromString(inp, "in"))
+	// private fun input(inp: String) = lexer.iterator(InputFactory.fromString(inp, "in"))
 
 	@Test fun testErrorRecoveryInWrapper() {
 		var numberOfErrors = 0
@@ -41,7 +40,7 @@ import cz.j_jzk.klang.parse.testutil.id
 			}
 		}.getParser()
 
-		val input = input("12 ++ 8 + 3")
+		// val input = input("12 ++ 8 + 3")
 
 		// assertFailsWith(SyntaxError::class) { parser.parse(input) }
 		assertEquals(1, numberOfErrors)
@@ -62,7 +61,7 @@ import cz.j_jzk.klang.parse.testutil.id
 			topNode = id("top")
 		}.getParser()
 
-		val input = input("12 ++ 8 + 3")
+		// val input = input("12 ++ 8 + 3")
 		// assertFailsWith(SyntaxError::class) { parser.parse(input) }
 	}
 

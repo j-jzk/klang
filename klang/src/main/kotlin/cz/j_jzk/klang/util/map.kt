@@ -9,3 +9,10 @@ internal fun <K, V> LazyMap<K, MutableSet<V>>.mergeSetValues(source: Map<K, Set<
     for ((key, set) in source)
         this[key]!!.addAll(set)
 }
+
+internal operator fun <K, V> LinkedHashMap<K, V>.plus(element: Pair<K, V>): LinkedHashMap<K, V> {
+    val result = LinkedHashMap<K, V>()
+    result.putAll(this)
+    result[element.first] = element.second
+    return result
+}
