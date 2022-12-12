@@ -14,4 +14,7 @@ object EOFNodeID: NodeID<Nothing>() {
     override fun toString() = "EOF"
 }
 
+/**
+ * A special NodeID representing an unexpected character in the input.
+ */
 object UnexpectedCharacter: NodeID<String>()
