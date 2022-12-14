@@ -17,7 +17,7 @@ import cz.j_jzk.klang.util.PositionInfo
  *       for this, but you may as well use anything you want
  *   D - The type of the data stored in the AST
  */
-fun parser(init: ParserBuilder.() -> Unit) = ParserBuilder().also { it.init() }
+fun parser(init: ParserBuilder.() -> Unit) = ParserBuilder().apply { init() }
 
 data class AnyNodeID(val v: Any): NodeID<Any>()
 

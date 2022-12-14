@@ -151,7 +151,7 @@ class DFABuilder(
 		}
 	}
 
-	@Suppress("NestedBlockDepth") // Performance is more important than readability here
+	@Suppress("CognitiveComplexMethod", "NestedBlockDepth") // Performance is more important than readability here
 	private fun computeSigma(itemBeingExpanded: LR1Item): Set<NodeID<*>> {
 		if (itemBeingExpanded.dotBefore + 1 == itemBeingExpanded.nodeDef.elements.size) {
 			return itemBeingExpanded.sigma

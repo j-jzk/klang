@@ -22,7 +22,7 @@ import cz.j_jzk.klang.sele.tuple.dataTupleFromList
  */
 // TODO: add an example to the documentation
 fun <T> sele(init: SeleBuilder<T>.() -> Unit): SeleBuilder<T> =
-		SeleBuilder<T>().also { it.init() }
+		SeleBuilder<T>().apply { init() }
 
 /**
  * An interface for defining a sele. You most probably don't want to create
@@ -140,7 +140,7 @@ class SeleBuilder<T> {
 					),
 
 					nodeList.firstOrNull { it.position.character != -1 }
-							?.position ?: PositionInfo("__undefined", -1)
+						?.position ?: PositionInfo("__undefined", -1)
 			)
 		else
 			ASTNode.Erroneous(nodeID, nodeList.first().position)
