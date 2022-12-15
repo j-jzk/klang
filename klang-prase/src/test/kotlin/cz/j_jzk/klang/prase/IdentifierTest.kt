@@ -2,10 +2,10 @@ package cz.j_jzk.klang.prase
 
 import kotlin.test.Test
 
-class IdnetifierTest {
+class IdentifierTest {
     @Test fun testIdentifier() {
-        testSele(
-            identifier().getSele(),
+        testLesana(
+            identifier().getLesana(),
             mapOf(
                 "identifier" to "identifier",
                 "ClassName" to "ClassName",

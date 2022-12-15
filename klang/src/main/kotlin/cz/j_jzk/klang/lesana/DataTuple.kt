@@ -1,6 +1,6 @@
 @file:Suppress("MagicNumber", "MaxLineLength")
 
-package cz.j_jzk.klang.sele.tuple
+package cz.j_jzk.klang.lesana.tuple
 
 /** A type-safe tuple class */
 sealed class DataTuple<out T1, out T2, out T3, out T4, out T5, out T6, out T7, out T8, out T9, out T10, > {

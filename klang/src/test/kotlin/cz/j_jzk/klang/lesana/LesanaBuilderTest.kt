@@ -1,4 +1,4 @@
-package cz.j_jzk.klang.sele
+package cz.j_jzk.klang.lesana
 
 import cz.j_jzk.klang.parse.testutil.s
 import cz.j_jzk.klang.parse.NodeID
@@ -7,12 +7,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-class SeleBuilderTest {
+class LesanaBuilderTest {
 	private val int = NodeID<Int>()
 	private val sum = NodeID<Int>()
 
 	@Test fun testBasicBuild() {
-		val sele = sele<Int> {
+		val lesana = lesana<Int> {
 			int to def<String, Int>(re("\\d+")) { (it) -> it.toInt() }
 			sum to def(int, re("\\+"), int) { (a, _, b) -> a + b }
 
@@ -20,22 +20,22 @@ class SeleBuilderTest {
 
 			errorRecovering(sum)
 			setTopNode(sum)
-		}.getSele()
+		}.getLesana()
 
 		// TODO: compare the output with an expected value when all the basic features are complete
-		println(sele)
+		println(lesana)
 		// assertTrue(false)
 	}
 
 	@Test fun testBasicIgnores() {
 		// test that ignores added after a definition have effect
-		val sele = sele<Int> {
+		val lesana = lesana<Int> {
 			ignoreRegexes("before")
 			int to def(int) { (int) -> int }
 			ignoreRegexes("after")
 
 			setTopNode(int)
-		}.getSele()
+		}.getLesana()
 
 		val expected = mapOf(
 			s(0, true) to setOf(compileRegex("before"), compileRegex("after")),
@@ -43,21 +43,21 @@ class SeleBuilderTest {
 			s(2) to emptySet(),
 		)
 
-		assertEquals(expected, sele.parser.lexerIgnores)
+		assertEquals(expected, lesana.parser.lexerIgnores)
 	}
 
 	@Test fun testImportableIgnores() {
-		val sub = sele<Int> {
+		val sub = lesana<Int> {
 			int to def(re("a")) { 0 }
 			ignoreRegexes("ignA")
 			setTopNode(int)
 		}
-		val sup = sele<Int> {
+		val sup = lesana<Int> {
 			val a = include(sub)
 			sum to def(re("b"), a) { 0 }
 			ignoreRegexes("ignB")
 			setTopNode(sum)
-		}.getSele()
+		}.getLesana()
 
 		val expected = mapOf(
 			s(0, true) to setOf(compileRegex("ignB")),
@@ -71,14 +71,14 @@ class SeleBuilderTest {
 	}
 
 	@Test fun testImportTypeSafety() {
-		val sub = sele<String> {
+		val sub = lesana<String> {
 			val id = NodeID<String>()
 
 			id to def(re("a")) { "..." }
 			setTopNode(id)
 		}
 
-		sele<Int> {
+		lesana<Int> {
 			val included = include(sub)
 			assertIs<NodeID<String>>(included)
 		}

@@ -8,7 +8,7 @@ import cz.j_jzk.klang.parse.api.parser
 import cz.j_jzk.klang.parse.api.AnyNodeID
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.input.InputFactory
-import cz.j_jzk.klang.sele.sele
+import cz.j_jzk.klang.lesana.lesana
 
 class OverallIntegrationTest {
 	@Test @Ignore fun testIntegration() {
@@ -37,8 +37,8 @@ class OverallIntegrationTest {
 		assertEquals(23, result)
 	}
 
-	@Test fun testSele() {
-		val sele = sele<Int> {
+	@Test fun testLesana() {
+		val lesana = lesana<Int> {
 			val int = NodeID<Int>()
 			val sum = NodeID<Int>()
 
@@ -52,10 +52,10 @@ class OverallIntegrationTest {
 			ignoreRegexes("\\s")
 			setTopNode(top)
 			errorRecovering(sum)
-		}.getSele()
+		}.getLesana()
 
 		val input = "  12+ 8+3"
 		val idIn = InputFactory.fromString(input, "in")
-		assertEquals(23, sele.parse(idIn))
+		assertEquals(23, lesana.parse(idIn))
 	}
 }
