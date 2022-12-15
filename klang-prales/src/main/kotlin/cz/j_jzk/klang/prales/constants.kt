@@ -38,3 +38,33 @@ fun integer(nonDecimal: Boolean = false, underscoreSeparation: Boolean = false) 
     top to def(integer) { it.v1 }
     setTopNode(top)
 }
+
+/**
+ * Defines a positive decimal constant, e.g. '12.34'
+ *
+ * @param decimalPointRe the regex to use for the decimal separator. Uses the full stop by default.
+ *  Don't forget to properly escape any special characters.
+ * @param allowEmptyIntegerPart whether to allow an empty integer part, e.g. '.123'
+ */
+fun decimal(decimalPointRe: String = "\\.", allowEmptyIntegerPart: Boolean = true) = lesana<Double> {
+    val decimal = NodeID<Double>()
+
+    // construct the number regex
+    val regex = StringBuilder(13)
+    regex.append("[0-9]")
+    if (allowEmptyIntegerPart)
+        regex.append("*")
+    else
+        regex.append("+")
+    regex.append(decimalPointRe)
+    regex.append("[0-9]+")
+
+    // precompile the decimal pt regex
+    val compiledDecimalPoint = decimalPointRe.toRegex()
+
+    decimal to def(re(regex.toString())) { str ->
+        str.v1.replace(compiledDecimalPoint, ".").toDouble()
+    }
+
+    setTopNode(decimal)
+}
