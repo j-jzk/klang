@@ -4,6 +4,8 @@ package cz.j_jzk.klang.lesana.tuple
 
 /** A type-safe tuple class */
 sealed class DataTuple<out T1, out T2, out T3, out T4, out T5, out T6, out T7, out T8, out T9, out T10, > {
+	/** A class holding 0 values of the specified data types */
+	object Tuple0: DataTuple<Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing>()
 	/** A class holding 1 value of the specified data type */
 	data class Tuple1<T1, >(val v1: T1, ): DataTuple<T1, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, >()
 	/** A class holding 2 values of the specified data types */
@@ -29,6 +31,7 @@ sealed class DataTuple<out T1, out T2, out T3, out T4, out T5, out T6, out T7, o
 
 internal fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, > dataTupleFromList(list: List<Any?>): DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, > =
 	when (list.size) {
+		0 -> DataTuple.Tuple0 as DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >
 		1 -> DataTuple.Tuple1(list[0] as T1, ) as DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >
 		2 -> DataTuple.Tuple2(list[0] as T1, list[1] as T2, ) as DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >
 		3 -> DataTuple.Tuple3(list[0] as T1, list[1] as T2, list[2] as T3, ) as DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >

@@ -34,6 +34,9 @@ class LesanaBuilder<T> {
 	private val lexerDef = LexerDefinition()
 	private val parserDef = ParserDefinition<T>()
 
+	/** Creates an epsilon node definition */
+	fun <R> def(reduction: (DataTuple.Tuple0) -> R) =
+			IntermediateNodeDefinition<R>(listOf(), reduction as (DataTuple<*,*,*,*,*,*,*,*,*,*>) -> R)
 	// GENERATED - see tuple.kt
 	/** Creates a node definition of 1 element */
 	fun <T1, R> def(id1: NodeID<T1>, reduction: (DataTuple.Tuple1<T1>) -> R) =
