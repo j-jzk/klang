@@ -708,6 +708,8 @@ style:
       - '0'
       - '1'
       - '2'
+      - '8'
+      - '16'
     ignoreHashCodeFunction: true
     ignorePropertyDeclaration: false
     ignoreLocalVariableDeclaration: false
