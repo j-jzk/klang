@@ -1,4 +1,4 @@
-package cz.j_jzk.klang.prales
+package cz.j_jzk.klang.prales.constants
 
 import cz.j_jzk.klang.lesana.Lesana
 import cz.j_jzk.klang.input.InputFactory
