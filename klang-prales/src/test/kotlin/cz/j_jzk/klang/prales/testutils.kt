@@ -1,4 +1,4 @@
-package cz.j_jzk.klang.prase
+package cz.j_jzk.klang.prales
 
 import cz.j_jzk.klang.lesana.Lesana
 import cz.j_jzk.klang.input.InputFactory

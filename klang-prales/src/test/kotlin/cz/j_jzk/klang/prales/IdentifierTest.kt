@@ -1,4 +1,4 @@
-package cz.j_jzk.klang.prase
+package cz.j_jzk.klang.prales
 
 import kotlin.test.Test
 
