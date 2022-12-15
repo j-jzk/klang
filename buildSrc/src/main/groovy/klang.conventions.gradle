@@ -1,0 +1,43 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm'
+
+    // Use Dokka for generating javadoc
+    id 'org.jetbrains.dokka'
+    // Use Detekt for static code analysis
+    id 'io.gitlab.arturbosch.detekt'
+}
+
+group = "cz.j_jzk.klang"
+version = "1.0-rc1"
+
+repositories {
+    // Prever Maven local to use libraries' development builds
+	mavenLocal()
+    mavenCentral()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.kotlin
+        }
+   }
+}
+
+dependencies {
+    // Align versions of all Kotlin components
+    implementation platform('org.jetbrains.kotlin:kotlin-bom')
+
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+
+    // Use the Kotlin JUnit integration.
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
+
+    detektPlugins 'io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0'
+}
+
+detekt {
+    config = files('../detekt.yml')
+}

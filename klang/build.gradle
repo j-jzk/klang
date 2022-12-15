@@ -1,46 +1,14 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.6.0'
-    id 'java-library'
-    id 'maven-publish'
-
-    id "io.gitlab.arturbosch.detekt" version "1.19.0"
-    id "org.jetbrains.dokka" version "1.6.10"
-}
-
-group = "cz.j_jzk.klang"
-version = "1.0-rc1"
-
-repositories {
-    // Prefer Maven local to use development builds of klang-re
-	mavenLocal()
-    mavenCentral()
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.kotlin
-        }
-   }
+    id 'klang.conventions'
 }
 
 dependencies {
-    // Align versions of all Kotlin components
-    implementation platform('org.jetbrains.kotlin:kotlin-bom')
-
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     // TODO: use a single collections library
     implementation 'org.apache.commons:commons-collections4:4.4'
     implementation 'com.google.guava:guava:31.0.1-jre'
 
 	implementation 'cz.j_jzk.klang:klang-re:1.2'
 
-    // Use the Kotlin JUnit integration.
-    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
     // MockK for mocking/stubbing
     testImplementation 'io.mockk:mockk:1.13.1'
-}
-
-detekt {
-    config = files('../detekt.yml')
 }
