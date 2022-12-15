@@ -1,4 +1,4 @@
-package cz.j_jzk.klang.sele
+package cz.j_jzk.klang.lesana
 
 import cz.j_jzk.klang.lex.Lexer
 import cz.j_jzk.klang.lex.re.CompiledRegex
@@ -11,26 +11,25 @@ import cz.j_jzk.klang.parse.algo.DFA
 import cz.j_jzk.klang.parse.algo.DFABuilder
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.util.mergeSetValues
-import cz.j_jzk.klang.util.plus
 import org.apache.commons.collections4.map.LazyMap
 import cz.j_jzk.klang.lex.re.compileRegex
-import cz.j_jzk.klang.sele.tuple.DataTuple
-import cz.j_jzk.klang.sele.tuple.dataTupleFromList
+import cz.j_jzk.klang.lesana.tuple.DataTuple
+import cz.j_jzk.klang.lesana.tuple.dataTupleFromList
 
 /**
- * A function for creating a sele.
+ * A function for creating a lesana.
  */
 // TODO: add an example to the documentation
-fun <T> sele(init: SeleBuilder<T>.() -> Unit): SeleBuilder<T> =
-		SeleBuilder<T>().apply { init() }
+fun <T> lesana(init: LesanaBuilder<T>.() -> Unit): LesanaBuilder<T> =
+		LesanaBuilder<T>().apply { init() }
 
 /**
- * An interface for defining a sele. You most probably don't want to create
- * this class directly, but instead use the `sele()` function from this package.
+ * An interface for defining a lesana. You most probably don't want to create
+ * this class directly, but instead use the `lesana()` function from this package.
  * The type parameter T is the type of the final data (topNode).
  */
 @Suppress("LongParameterList", "TooManyFunctions", "MaxLineLength") // for generated functions
-class SeleBuilder<T> {
+class LesanaBuilder<T> {
 	private val lexerDef = LexerDefinition()
 	private val parserDef = ParserDefinition<T>()
 
@@ -81,7 +80,7 @@ class SeleBuilder<T> {
 		parserDef.errorRecoveringNodes.addAll(nodes)
 	}
 
-	/** Sets the root node of this sele */
+	/** Sets the root node of this lesana */
 	fun setTopNode(node: NodeID<T>) {
 		parserDef.topNode = node
 	}
@@ -96,21 +95,21 @@ class SeleBuilder<T> {
 	}
 
 	/**
-	 * Includes another sele definition into this one.
+	 * Includes another lesana definition into this one.
 	 * Returns the top ID of the definition, which can then be used in other
 	 * node definitions.
 	 */
-	fun <U> include(subSele: SeleBuilder<U>): NodeID<U> {
-		lexerDef.include(subSele.lexerDef)
-		parserDef.include(subSele.parserDef)
-		return requireNotNull(subSele.parserDef.topNode)
+	fun <U> include(subLesana: LesanaBuilder<U>): NodeID<U> {
+		lexerDef.include(subLesana.lexerDef)
+		parserDef.include(subLesana.parserDef)
+		return requireNotNull(subLesana.parserDef.topNode)
 	}
 
 	/**
-	 * Finalizes the definition and returns the sele, which can be used to
+	 * Finalizes the definition and returns the lesana, which can be used to
 	 * do the parsing.
 	 */
-	fun getSele(): Sele = Sele(lexerDef.getLexer(), parserDef.getParser())
+	fun getLesana(): Lesana = Lesana(lexerDef.getLexer(), parserDef.getParser())
 
 	/**
 	 * Returns an altered reduction function which:
