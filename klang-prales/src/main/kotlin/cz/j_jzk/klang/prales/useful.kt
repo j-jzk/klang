@@ -13,7 +13,7 @@ import cz.j_jzk.klang.prales.util.LinkedList
 // TODO: automatically inherit ignored regexes from the parent
 fun <T> list(node: NodeID<T>, ignoredRegexes: Array<String> = emptyArray()) = lesana<List<T>> {
     val list = NodeID<LinkedList<T>>()
-    list to def(list, node) { (l, n) -> LinkedList.Node(n, l) }
+    list to def(node, list) { (n, l) -> LinkedList.Node(n, l) }
     list to def() { LinkedList.Empty }
 
     val top = NodeID<List<T>>()

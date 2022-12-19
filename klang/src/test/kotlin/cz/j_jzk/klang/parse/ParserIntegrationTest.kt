@@ -55,6 +55,24 @@ class ParserIntegrationTest {
 		assertTrue(result is ASTNode.Erroneous)
 	}
 
+	@Test fun testEpsilonReduction() {
+		val parser = parser {
+			conversions { }
+
+			topNode = id("top")
+			"top" to def("list") { it[0]!! }
+			"list" to def("list", "expr") { (it[0]!! as Int) + (it[1]!! as Int) }
+			"list" to def() { 0 }
+		}.getParser().dfa
+
+		// test if the parser doesn't throw an error and that the PositionInfos are correct
+		val ast = parser.parse(createInput("1 2"))
+		assertEquals(
+			ASTNode.Data(id("top"), 3, PositionInfo("", 0)),
+			ast
+		)
+	}
+
 	private fun createInput(input: String) =
 		fakePPPIter(input.split(" ").map { tok ->
 			if (tok == "+")
