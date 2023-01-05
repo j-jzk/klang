@@ -72,7 +72,9 @@ fun decimal(decimalPointRe: String = "\\.", allowEmptyIntegerPart: Boolean = tru
 
 /**
  * Defines a character surrounded by single quotes, e.g.:
- *  'a', ' ', '\'', '\n', '✯'
+ *  'a', ' ', '\'', '\n', '✌', '\\', '\u1234' (hexadecimal Unicode codepoint)
+ * Invalid:
+ *  ''', '\', '', '🚀' (characters that don't fit into a JVM char = >16bit)
  */
 fun character() = lesana<Char> {
     val char = NodeID<Char>()
