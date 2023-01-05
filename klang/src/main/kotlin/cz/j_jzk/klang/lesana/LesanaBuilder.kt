@@ -165,6 +165,9 @@ class LesanaBuilder<T> {
 		val definition: List<NodeID<Any?>>,
 		val reduction: (DataTuple<*,*,*,*,*,*,*,*,*,*>) -> R
 	)
+
+	// DEBUG
+	override fun toString() = "actualNodeDefs: ${parserDef.actualNodeDefs}"
 }
 
 internal class LexerDefinition {

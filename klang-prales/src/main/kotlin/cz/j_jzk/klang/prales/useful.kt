@@ -21,3 +21,45 @@ fun <T> list(node: NodeID<T>, ignoredRegexes: Array<String> = emptyArray()) = le
     setTopNode(top)
     ignoreRegexes(*ignoredRegexes)
 }
+
+/**
+ * Defines a possibly escaped character, without double or single quotes.
+ * Allowed values:
+ *  . - a literal character
+ *  \n, \t, \b, \r, \\ - an escape sequence with a defined meaning
+ *  \uXXXX - an UTF-16 encoded character, where XXXX is the character's
+ *           codeword in hexadecimal
+ * 
+ * @param specialCharacters - defines a list of special characters. They aren't
+ *  allowed as literal characters, but they can appear as escape sequences.
+ *  Special care must be taken because this string is inserted directly into
+ *  regexes, so it can't contain special characters. They are used in addition
+ *  to the predefined ones.
+ * 
+ */
+internal fun rawCharacter(specialCharacters: String = "") = lesana<Char> {
+    val char = NodeID<Char>()
+
+    char to def(re("[^$specialCharacters\\\\]")) { println("parsing specialchars $it");  it.v1[0] }
+
+    val escapes = mapOf("\\n" to '\n', "\\t" to '\t', "\\b" to '\b', "\\r" to '\r', "\\\\" to '\\')
+    char to def(re("\\\\[ntbr\\\\]")) { println("parsing predef esc $it"); escapes[it.v1] }
+
+    char to def(re("\\\\[$specialCharacters]")) { println("parsing esc specchars $it"); it.v1[1] }
+
+    char to def(re("""\\u\x{4}""")) { (escaped) ->
+        println("parsing $escaped")
+        String(
+            escaped
+                .substring(2) // strip \u
+                .chunked(2)
+                .map { it.toByte(16) }
+                .toByteArray(),
+            Charsets.UTF_16,
+        )[0]
+    }
+
+    val top = NodeID<Char>()
+    top to def(char) { it.v1 }
+    setTopNode(top)
+}
