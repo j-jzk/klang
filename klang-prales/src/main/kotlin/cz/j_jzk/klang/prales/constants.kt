@@ -2,6 +2,7 @@ package cz.j_jzk.klang.prales.constants
 
 import cz.j_jzk.klang.lesana.lesana
 import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.prales.useful.list
 import cz.j_jzk.klang.prales.useful.rawCharacter
 
 /**
@@ -80,4 +81,22 @@ fun character() = lesana<Char> {
     val char = NodeID<Char>()
     char to def(re("'"), include(rawCharacter("'\\\\")), re("'")) { (_, c, _) -> c }
     setTopNode(char)
+}
+
+/**
+ * Defines a string surrounded by quotes, e.g.:
+ *  "hello \" \n \\ 🚀 \u1234"
+ * Invalid:
+ *  "a \ " "
+ *
+ * @param quotesRe a character used for the quotes (double quotes by default).
+ *  If you use multiple characters, you might encounter issues with escaping.
+ */
+fun string(quotesRe: String = "\"") = lesana<String> {
+    val char = include(rawCharacter("$quotesRe\\\\"))
+    val charlist = include(list(char))
+    val str = NodeID<String>()
+    str to def(re(quotesRe), charlist, re(quotesRe)) { (_, str, _) -> str.joinToString("") }
+
+    setTopNode(str)
 }
