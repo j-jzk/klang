@@ -2,6 +2,7 @@ package cz.j_jzk.klang.prales.constants
 
 import cz.j_jzk.klang.lesana.lesana
 import cz.j_jzk.klang.parse.NodeID
+import cz.j_jzk.klang.prales.useful.rawCharacter
 
 /**
  * Defines an identifier: [a-zA-Z_][a-zA-Z0-9_]*
@@ -67,4 +68,14 @@ fun decimal(decimalPointRe: String = "\\.", allowEmptyIntegerPart: Boolean = tru
     }
 
     setTopNode(decimal)
+}
+
+/**
+ * Defines a character surrounded by single quotes, e.g.:
+ *  'a', ' ', '\'', '\n', '✯'
+ */
+fun character() = lesana<Char> {
+    val char = NodeID<Char>()
+    char to def(re("'"), include(rawCharacter("'\\\\")), re("'")) { (_, c, _) -> c }
+    setTopNode(char)
 }

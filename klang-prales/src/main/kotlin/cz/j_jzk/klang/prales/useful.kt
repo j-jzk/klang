@@ -37,18 +37,17 @@ fun <T> list(node: NodeID<T>, ignoredRegexes: Array<String> = emptyArray()) = le
  *  to the predefined ones.
  * 
  */
-internal fun rawCharacter(specialCharacters: String = "") = lesana<Char> {
+internal fun rawCharacter(specialCharacters: String = "\\\\") = lesana<Char> {
     val char = NodeID<Char>()
 
-    char to def(re("[^$specialCharacters\\\\]")) { println("parsing specialchars $it");  it.v1[0] }
+    char to def(re("[^$specialCharacters]")) { it.v1[0] }
 
     val escapes = mapOf("\\n" to '\n', "\\t" to '\t', "\\b" to '\b', "\\r" to '\r', "\\\\" to '\\')
-    char to def(re("\\\\[ntbr\\\\]")) { println("parsing predef esc $it"); escapes[it.v1] }
+    char to def(re("\\\\[ntbr\\\\]")) { escapes[it.v1] }
 
-    char to def(re("\\\\[$specialCharacters]")) { println("parsing esc specchars $it"); it.v1[1] }
+    char to def(re("\\\\[$specialCharacters]")) { it.v1[1] }
 
-    char to def(re("""\\u\x{4}""")) { (escaped) ->
-        println("parsing $escaped")
+    char to def(re("""\\u\x\x\x\x""")) { (escaped) ->
         String(
             escaped
                 .substring(2) // strip \u
