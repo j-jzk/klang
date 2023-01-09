@@ -12,6 +12,7 @@ import cz.j_jzk.klang.parse.algo.DFABuilder
 import cz.j_jzk.klang.util.PositionInfo
 import cz.j_jzk.klang.util.mergeSetValues
 import org.apache.commons.collections4.map.LazyMap
+import org.apache.commons.collections4.set.CompositeSet
 import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.lesana.tuple.DataTuple
 import cz.j_jzk.klang.lesana.tuple.dataTupleFromList
@@ -92,6 +93,14 @@ class LesanaBuilder<T> {
 	/** Ignore the specified regexes when reading the input */
 	fun ignoreRegexes(vararg regexes: String) {
 		parserDef.lexerIgnores.addAll(regexes.map(::compileRegex))
+	}
+
+	/**
+	 * Sets the ignored regexes for this lesana to be inherited from the parent
+	 * (includer). This is only applied when this lesana is included somewhere.
+	 */
+	fun inheritIgnoredREs() {
+		parserDef.inheritIgnores = true
 	}
 
 	/**
@@ -181,6 +190,7 @@ internal class ParserDefinition<T> {
 	var topNode: NodeID<T>? = null
 	/** Lexer ignores in the current context */
 	val lexerIgnores = mutableSetOf<CompiledRegex>()
+	var inheritIgnores = false
 
 	/** Builds and returns the parser */
 	fun getParser(): DFA {
@@ -196,7 +206,14 @@ internal class ParserDefinition<T> {
 	}
 
 	fun include(other: ParserDefinition<*>) {
-		nodeDefs.mergeSetValues(other.nodeDefs)
+		if (!other.inheritIgnores)
+			nodeDefs.mergeSetValues(other.nodeDefs)
+		else
+			// combine the ignores in the other lesana with this one
+			nodeDefs.mergeSetValues(other.actualNodeDefs.mapValues { (_, set) ->
+				set.map { NodeDef(it.elements, it.reduction, CompositeSet(this.lexerIgnores, it.lexerIgnores)) }.toSet()
+			})
+
 		errorRecoveringNodes.addAll(other.errorRecoveringNodes)
 	}
 }
