@@ -83,4 +83,36 @@ class LesanaBuilderTest {
 			assertIs<NodeID<String>>(included)
 		}
 	}
+
+	@Test fun testInheritIgnoredREs() {
+		val subId = NodeID<String>()
+		val sub = lesana<String> {
+			ignoreRegexes("sub before")
+			subId to def(re(".")) { "." }
+			ignoreRegexes("sub between")
+			inheritIgnoredREs()
+			ignoreRegexes("sub after")
+
+			setTopNode(subId)
+		}
+
+		val sup = lesana<String> {
+			ignoreRegexes("sup before")
+			val top = include(sub)
+			ignoreRegexes("sup after")
+
+			setTopNode(top)
+		}.getLesana()
+
+		val allIgnores = listOf("sub before", "sub between", "sub after", "sup before", "sup after")
+			.map(::compileRegex)
+			.toSet()
+		val expected = mapOf(
+			s(0, true) to allIgnores,
+			s(1) to allIgnores,
+			s(2) to emptySet(),
+		)
+
+		assertEquals(expected, sup.parser.lexerIgnores)
+	}
 }
