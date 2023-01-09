@@ -100,3 +100,13 @@ fun string(quotesRe: String = "\"") = lesana<String> {
 
     setTopNode(str)
 }
+
+fun boolean() = lesana<Boolean> {
+    val bool = NodeID<Boolean>()
+    bool to def(re("true")) { true }
+    bool to def(re("false")) { false }
+
+    val top = NodeID<Boolean>()
+    top to def(bool) { it.v1 }
+    setTopNode(top)
+}
