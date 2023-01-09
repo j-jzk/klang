@@ -105,7 +105,8 @@ class LesanaBuilderTest {
 		}.getLesana()
 
 		val allIgnores = listOf("sub before", "sub between", "sub after", "sup before", "sup after")
-			.map(::compileRegex).toSet()
+			.map(::compileRegex)
+			.toSet()
 		val expected = mapOf(
 			s(0, true) to allIgnores,
 			s(1) to allIgnores,
