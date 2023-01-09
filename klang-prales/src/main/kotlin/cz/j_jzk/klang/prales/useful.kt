@@ -22,7 +22,7 @@ fun <T> list(node: NodeID<T>, inheritIgnores: Boolean = true) = lesana<List<T>> 
     val top = NodeID<List<T>>()
     top to def(list) { it.v1.toKotlinList() }
     setTopNode(top)
-    
+
     if (inheritIgnores)
         inheritIgnoredREs()
 }
@@ -34,13 +34,12 @@ fun <T> list(node: NodeID<T>, inheritIgnores: Boolean = true) = lesana<List<T>> 
  *  \n, \t, \b, \r, \\ - an escape sequence with a defined meaning
  *  \uXXXX - an UTF-16 encoded character, where XXXX is the character's
  *           codeword in hexadecimal
- * 
+ *
  * @param specialCharacters - defines a list of special characters. They aren't
  *  allowed as literal characters, but they can appear as escape sequences.
  *  Special care must be taken because this string is inserted directly into
  *  regexes, so it can't contain special characters. They are used in addition
  *  to the predefined ones.
- * 
  */
 internal fun rawCharacter(specialCharacters: String = "\\\\") = lesana<Char> {
     val char = NodeID<Char>()

@@ -101,6 +101,9 @@ fun string(quotesRe: String = "\"") = lesana<String> {
     setTopNode(str)
 }
 
+/**
+ * Defines a boolean literal, i.e. `true` or `false`.
+ */
 fun boolean() = lesana<Boolean> {
     val bool = NodeID<Boolean>()
     bool to def(re("true")) { true }

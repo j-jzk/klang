@@ -9,10 +9,10 @@ class CharacterTest {
             character().getLesana(),
             mapOf(
                 "'a'" to 'a',
-                "' '" to ' ', 
+                "' '" to ' ',
                 "'\\''" to '\'',
                 "'\\n'" to '\n',
-                "'✌'" to '✌', 
+                "'✌'" to '✌',
                 "'\\\\'" to '\\',
                 "'\\u1234'" to '\u1234',
             ),
