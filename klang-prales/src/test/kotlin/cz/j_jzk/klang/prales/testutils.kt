@@ -8,7 +8,11 @@ import kotlin.test.assertFailsWith
 
 fun testLesana(lesana: Lesana, shouldMatch: Map<String, Any?>, shouldNotMatch: Collection<String>) {
     for ((input, result) in shouldMatch) {
-        assertEquals(result, lesana.parse(InputFactory.fromString(input, "")))
+        try {
+            assertEquals(result, lesana.parse(InputFactory.fromString(input, "")))
+        } catch (_: SyntaxError) {
+            throw AssertionError("Syntax error for input '$input'")
+        }
     }
 
     for (input in shouldNotMatch) {

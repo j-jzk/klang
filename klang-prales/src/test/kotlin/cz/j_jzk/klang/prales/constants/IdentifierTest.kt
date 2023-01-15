@@ -1,5 +1,6 @@
-package cz.j_jzk.klang.prales
+package cz.j_jzk.klang.prales.constants
 
+import cz.j_jzk.klang.prales.testLesana
 import kotlin.test.Test
 
 class IdentifierTest {
