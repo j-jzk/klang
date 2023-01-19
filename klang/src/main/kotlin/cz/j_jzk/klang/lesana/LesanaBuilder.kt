@@ -204,9 +204,32 @@ internal class ParserDefinition<T> {
 		// fail completely if the user hasn't specified any error-recovering nodes
 		errorRecoveringNodes += topNodeNotNull
 
-		return DFABuilder(actualNodeDefs, topNodeNotNull, errorRecoveringNodes.toList(), errorCallback ?: { })
+		require(topNodeNotNull in actualNodeDefs) { "The top node of the grammar must have at least one definition" }
+
+		return DFABuilder(actualNodeDefs, unifyNode(topNodeNotNull), errorRecoveringNodes.toList(), errorCallback ?: { })
 			.build()
 	}
+
+	/**
+	 * If there are multiple definitions of the node, unify them all and return the resulting node ID.
+	 * There must be at least one definition of the node, else this function will fail.
+	 */
+	private fun <N> unifyNode(node: NodeID<N>): NodeID<N> =
+		if (actualNodeDefs[node]!!.size > 1)
+			NodeID<N>().also { newTop ->
+				nodeDefs[newTop]!! += NodeDef(
+					listOf(node),
+					{ nodeList ->
+						val first = nodeList[0]
+						if (first is ASTNode.Data)
+							ASTNode.Data(newTop, first.data, first.position)
+						else
+							ASTNode.Erroneous(newTop, first.position)
+					}
+				)
+			}
+		else
+			node
 
 	fun include(other: ParserDefinition<*>) {
 		if (!other.inheritIgnores)
