@@ -1,10 +1,12 @@
 package cz.j_jzk.klang.lesana
 
+import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.parse.testutil.s
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.lex.re.compileRegex
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 
 class LesanaBuilderTest {
@@ -114,5 +116,24 @@ class LesanaBuilderTest {
 		)
 
 		assertEquals(expected, sup.parser.lexerIgnores)
+	}
+
+	@Test fun testMultipleTopNodeDefs() {
+		// multiple node defs
+		val l1 = lesana<String> {
+			val top = NodeID<String>()
+			top to def(re("[0-9]+")) { it.v1 }
+			top to def(re("[a-z]+")) { it.v1 }
+			setTopNode(top)
+		}.getLesana()
+		assertEquals("123", l1.parse(InputFactory.fromString("123", "in")))
+		assertEquals("abc", l1.parse(InputFactory.fromString("abc", "in")))
+
+		// no node defs
+		val l2 = lesana<String> {
+			val top = NodeID<String>()
+			top to def(re("[0-9]+")) { it.v1 }
+		}
+		assertFailsWith<IllegalArgumentException> { l2.getLesana() }
 	}
 }
