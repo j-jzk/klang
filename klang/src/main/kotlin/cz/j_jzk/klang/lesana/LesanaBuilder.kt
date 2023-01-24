@@ -84,6 +84,14 @@ class LesanaBuilder<T> {
 		parserDef.errorRecoveringNodes.addAll(nodes)
 	}
 
+	/**
+	 * Defines a function to be called when the lesana encounters an unexpected token.
+	 */
+	fun onUnexpectedToken(callback: (UnexpectedTokenError) -> Unit) {
+		require(parserDef.errorCallback == null) { "Only one `onUnexpectedToken` block is allowed" }
+		parserDef.errorCallback = callback
+	}
+
 	/** Sets the root node of this lesana */
 	fun setTopNode(node: NodeID<T>) {
 		parserDef.topNode = node
