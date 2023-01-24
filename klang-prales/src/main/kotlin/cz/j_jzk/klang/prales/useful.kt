@@ -15,7 +15,7 @@ import cz.j_jzk.klang.prales.util.LinkedList
  * the following is valid: `1 2 3`, `1`, ``.
  */
 fun <T> list(node: NodeID<T>, inheritIgnores: Boolean = true) = lesana<List<T>> {
-    val list = NodeID<LinkedList<T>>()
+    val list = NodeID<LinkedList<T>>("list($node)")
     list to def(node, list) { (n, l) -> LinkedList.Node(n, l) }
     list to def() { LinkedList.Empty }
 
@@ -42,7 +42,7 @@ fun <T> list(node: NodeID<T>, inheritIgnores: Boolean = true) = lesana<List<T>> 
  *  to the predefined ones.
  */
 internal fun rawCharacter(specialCharacters: String = "\\\\") = lesana<Char> {
-    val char = NodeID<Char>()
+    val char = NodeID<Char>("character")
 
     char to def(re("[^$specialCharacters]")) { it.v1[0] }
 
@@ -62,7 +62,5 @@ internal fun rawCharacter(specialCharacters: String = "\\\\") = lesana<Char> {
         )[0]
     }
 
-    val top = NodeID<Char>()
-    top to def(char) { it.v1 }
-    setTopNode(top)
+    setTopNode(char)
 }
