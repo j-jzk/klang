@@ -8,6 +8,7 @@ import cz.j_jzk.klang.lex.Token
 import cz.j_jzk.klang.lex.api.AnyNodeID
 import cz.j_jzk.klang.parse.NodeID
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 fun re(str: String) = compileRegex(str).fa
 fun iter(str: String) = InputFactory.fromString(str, "id")
@@ -45,4 +46,9 @@ data class FToken(
         if (other is Token)
             this.id == other.id && this.value == other.value
         else false
+}
+
+fun <T> assertElementsEqual(expected: Collection<T>, actual: Collection<T>) {
+    assertTrue(expected.containsAll(actual), "There are extra elements; expected: <$expected>, actual: <$actual>")
+    assertTrue(actual.containsAll(expected), "There are missing elements; expected: <$expected>, actual: <$actual>")
 }
