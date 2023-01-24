@@ -16,4 +16,10 @@ class LesanaTest {
 
         assertFailsWith<SyntaxError> { lesana.parse(InputFactory.fromString("abc", "")) }
     }
+
+    @Test fun testErrorCallback() {
+        val lesana = lesana<Int> {
+
+        }
+    }
 }
