@@ -40,7 +40,7 @@ sealed class Oper<E> {
 }
 
 fun <E> operators(expr: NodeID<E>, arithmetic: Boolean = true, logic: Boolean = true) = lesana<Oper<E>> {
-    // from highest priority to lowest priority
+    // from highest to lowest priority
     // ARITHMETIC OPERATIONS
     val lvl1 = NodeID<Oper<E>>()
     lvl1 to def(expr) { Oper.Id(it.v1) }
