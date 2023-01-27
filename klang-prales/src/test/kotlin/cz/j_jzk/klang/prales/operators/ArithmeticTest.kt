@@ -10,7 +10,7 @@ class OperatorTest {
         val lesana = lesana<Oper<Int>> {
             val int = NodeID<Int>()
             int to def(re("[0-9]+")) { it.v1.toInt() }
-            val operators = include(operators(int))
+            val operators = include(operators(int, true, false))
             setTopNode(operators)
             ignoreRegexes("\\s+")
         }
@@ -55,7 +55,7 @@ class OperatorTest {
         val lesana = lesana<Oper<Int>> {
             val int = NodeID<Int>()
             int to def(re("[0-9]+")) { it.v1.toInt() }
-            val operators = include(operators(int))
+            val operators = include(operators(int, false, true))
             setTopNode(operators)
             ignoreRegexes("\\s+")
         }
