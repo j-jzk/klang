@@ -6,7 +6,7 @@ package cz.j_jzk.klang.parse
  */
 data class UnexpectedTokenError(
     val got: ASTNode,
-    val expectedIDs: Collection<Any>,
+    val expectedIDs: Collection<NodeID<*>>,
 ): Exception() {
     override fun toString(): String {
         if (got.id == UnexpectedCharacter && got is ASTNode.Data) {
@@ -14,7 +14,7 @@ data class UnexpectedTokenError(
         } else {
             val sb = StringBuilder()
             sb.append("Unexpected token ${got.id}, expected one of: [")
-            sb.append(expectedIDs.joinToString(", "))
+            sb.append(expectedIDs.filter { it.show }.joinToString(", "))
             sb.append("].")
             return sb.toString()
         }

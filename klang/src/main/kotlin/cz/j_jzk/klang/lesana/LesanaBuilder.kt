@@ -97,9 +97,11 @@ class LesanaBuilder<T> {
 		parserDef.topNode = node
 	}
 
-	/** Defines a regex node */
-	fun re(regex: String): NodeID<String> =
-		RegexNodeID(regex).also { lexerDef.tokenDefs[compileRegex(regex).fa] = it }
+	/**
+	 * Defines a regex node
+	 */
+	fun re(regex: String, show: Boolean = true): NodeID<String> =
+		RegexNodeID(regex, show).also { lexerDef.tokenDefs[compileRegex(regex).fa] = it }
 
 	/** Ignore the specified regexes when reading the input */
 	fun ignoreRegexes(vararg regexes: String) {
