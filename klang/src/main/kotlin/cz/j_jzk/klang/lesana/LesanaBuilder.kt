@@ -99,6 +99,8 @@ class LesanaBuilder<T> {
 
 	/**
 	 * Defines a regex node
+	 * @param regex The regex
+	 * @param show When false, the resulting NodeID isn't shown in error messages.
 	 */
 	fun re(regex: String, show: Boolean = true): NodeID<String> =
 		RegexNodeID(regex, show).also { lexerDef.tokenDefs[compileRegex(regex).fa] = it }
