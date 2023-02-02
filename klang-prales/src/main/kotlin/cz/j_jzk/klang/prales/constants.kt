@@ -23,7 +23,7 @@ fun identifier() = lesana<String> {
  *  When true, the following is legal: 123_456, 1_2_3, 1__2, _1_
  */
 fun integer(nonDecimal: Boolean = false, underscoreSeparation: Boolean = false) = lesana<Long> {
-    val integer = NodeID<Long>("integer")
+    val integer = NodeID<Long>("integer", false)
 
     if (underscoreSeparation)
         integer to def(re("[0-9_]+")) { it.v1.replace("_", "").toLong() }
