@@ -35,7 +35,7 @@ class LesanaTest {
             ignoreRegexes("\\s")
 
             onUnexpectedToken { err ->
-                println(err) // TODO: test the error string
+                assertEquals("Unexpected character 'a'", err.toString())
                 assertEquals(UnexpectedCharacter, err.got.id)
                 assertElementsEqual(setOf(int, EOFNodeID, RegexNodeID("\\d+")), err.expectedIDs)
                 numberOfErrors++

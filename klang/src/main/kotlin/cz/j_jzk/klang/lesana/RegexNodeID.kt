@@ -6,4 +6,12 @@ import cz.j_jzk.klang.parse.NodeID
  * A node ID representing a regex node.
  * Created using `re()` in the lesana definition.
  */
-data class RegexNodeID(val regex: String): NodeID<String>()
+class RegexNodeID(val regex: String, show: Boolean = true): NodeID<String>("regex($regex)", show) {
+    override fun equals(other: Any?) =
+        if (other is RegexNodeID)
+            other.regex == this.regex
+        else
+            false
+
+    override fun hashCode() = regex.hashCode()
+}
