@@ -12,8 +12,6 @@ class RegexNodeID(val regex: String, show: Boolean = true): NodeID<String>("rege
             other.regex == this.regex
         else
             false
-    
-    override fun hashCode(): Int {
-        return regex.hashCode()
-    }
+
+    override fun hashCode() = regex.hashCode()
 }
