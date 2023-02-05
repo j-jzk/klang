@@ -4,51 +4,6 @@ import cz.j_jzk.klang.lesana.lesana
 import cz.j_jzk.klang.parse.NodeID
 
 /**
- * A class used to express arithmetic and logic operations.
- *
- * Arithmetic operations are namespaced to the sub-object `Oper.Arit`.
- * Logic operations are namespaced to the sub-object `Oper.Log`.
- *
- * The root-level subclass `Id` (identity) is used for encapsulating literal
- * operands, i.e. operands that aren't composed of other operations.
- */
-sealed class Oper<E> {
-    /** Identity (a) */
-    data class Id<E>(val a: E): Oper<E>()
-
-    /** A namespace for arithmetic operations */
-    object Arit {
-        /** Addition (a + b) */
-        data class Add<E>(val a: Oper<E>, val b: Oper<E>): Oper<E>()
-
-        /** Subtraction (a - b) */
-        data class Sub<E>(val a: Oper<E>, val b: Oper<E>): Oper<E>()
-
-        /** Multiplication (a * b) */
-        data class Mul<E>(val a: Oper<E>, val b: Oper<E>): Oper<E>()
-
-        /** Division (a / b) */
-        data class Div<E>(val a: Oper<E>, val b: Oper<E>): Oper<E>()
-
-        /** Modulo (a % b) */
-        data class Mod<E>(val a: Oper<E>, val b: Oper<E>): Oper<E>()
-
-        /** Negation (-a) */
-        data class Neg<E>(val a: Oper<E>): Oper<E>()
-    }
-
-    /** A namespace for logic operations */
-    object Log {
-        /** Negation (!a) */
-        data class Not<E>(val a: Oper<E>): Oper<E>()
-        /** Conjunction (a && b) */
-        data class And<E>(val a: Oper<E>, val b: Oper<E>): Oper<E>()
-        /** Disjunction (a || b) */
-        data class Or<E>(val a: Oper<E>, val b: Oper<E>): Oper<E>()
-    }
-}
-
-/**
  * Defines arithmetic and/or logic operations on the specified NodeID.
  *
  * The resulting nodes are of the type Oper (see the class's documentation).
@@ -126,4 +81,49 @@ fun <E> operators(expr: NodeID<E>, arithmetic: Boolean = true, logic: Boolean = 
     top to def(logTop) { it.v1 }
     setTopNode(top)
     inheritIgnoredREs()
+}
+
+/**
+ * A class used to express arithmetic and logic operations.
+ *
+ * Arithmetic operations are namespaced to the sub-object `Oper.Arit`.
+ * Logic operations are namespaced to the sub-object `Oper.Log`.
+ *
+ * The root-level subclass `Id` (identity) is used for encapsulating literal
+ * operands, i.e. operands that aren't composed of other operations.
+ */
+sealed class Oper<E> {
+    /** Identity (a) */
+    data class Id<E>(val a: E): Oper<E>()
+
+    /** A namespace for arithmetic operations */
+    object Arit {
+        /** Addition (a + b) */
+        data class Add<E>(val a: Oper<E>, val b: Oper<E>): Oper<E>()
+
+        /** Subtraction (a - b) */
+        data class Sub<E>(val a: Oper<E>, val b: Oper<E>): Oper<E>()
+
+        /** Multiplication (a * b) */
+        data class Mul<E>(val a: Oper<E>, val b: Oper<E>): Oper<E>()
+
+        /** Division (a / b) */
+        data class Div<E>(val a: Oper<E>, val b: Oper<E>): Oper<E>()
+
+        /** Modulo (a % b) */
+        data class Mod<E>(val a: Oper<E>, val b: Oper<E>): Oper<E>()
+
+        /** Negation (-a) */
+        data class Neg<E>(val a: Oper<E>): Oper<E>()
+    }
+
+    /** A namespace for logic operations */
+    object Log {
+        /** Negation (!a) */
+        data class Not<E>(val a: Oper<E>): Oper<E>()
+        /** Conjunction (a && b) */
+        data class And<E>(val a: Oper<E>, val b: Oper<E>): Oper<E>()
+        /** Disjunction (a || b) */
+        data class Or<E>(val a: Oper<E>, val b: Oper<E>): Oper<E>()
+    }
 }
