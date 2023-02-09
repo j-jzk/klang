@@ -27,6 +27,37 @@ fun <T> list(node: NodeID<T>, inheritIgnores: Boolean = true) = lesana<List<T>> 
         inheritIgnoredREs()
 }
 
+fun <T> optional(node: NodeID<T>) = lesana<T?> {
+    val optionalNode = NodeID<T?>("optional($node)")
+    optionalNode to def(node) { it.v1 }
+    optionalNode to def() { null }
+
+    setTopNode(optionalNode)
+}
+
+fun <T> separatedList(node: NodeID<T>, separator: NodeID<*>, allowTrailingSeparator: Boolean = true, inheritIgnores: Boolean = true) = lesana<List<T>> {
+    val list = NodeID<LinkedList<T>>("separated list($node)")
+    val nonEmptyList = NodeID<LinkedList<T>>(show=false)
+
+    list to def() { LinkedList.Empty }
+
+    if (allowTrailingSeparator) {
+        list to def(nonEmptyList, include(optional(separator))) { (l, _) -> l }
+    } else {
+        list to def(nonEmptyList) { (l) -> l }
+    }
+
+    nonEmptyList to def(node) { (n) -> LinkedList.Node(n, LinkedList.Empty) }
+    nonEmptyList to def(nonEmptyList, separator, node) { (l, _, n) -> LinkedList.Node(n, l) }
+
+    val top = NodeID<List<T>>(show=false)
+    top to def(list) { it.v1.toKotlinList() }
+    setTopNode(top)
+
+    if (inheritIgnores)
+        inheritIgnoredREs()
+}
+
 /**
  * Defines a possibly escaped character, without double or single quotes.
  * Allowed values:
