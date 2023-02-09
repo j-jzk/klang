@@ -36,6 +36,8 @@ class SeparatedListTest {
             onUnexpectedToken(::println)
         }.getLesana()
 
+        println(lesana.parser)
+
         testLesana(
             lesana,
             mapOf(
