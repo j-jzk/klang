@@ -48,7 +48,7 @@ fun <T> separatedList(node: NodeID<T>, separator: NodeID<*>, allowTrailingSepara
     }
 
     nonEmptyList to def(node) { (n) -> LinkedList.Node(n, LinkedList.Empty) }
-    nonEmptyList to def(nonEmptyList, separator, node) { (l, _, n) -> LinkedList.Node(n, l) }
+    nonEmptyList to def(node, separator, nonEmptyList) { (n, _, l) -> LinkedList.Node(n, l) }
 
     val top = NodeID<List<T>>(show=false)
     top to def(list) { it.v1.toKotlinList() }
