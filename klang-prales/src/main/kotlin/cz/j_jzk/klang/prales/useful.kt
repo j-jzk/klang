@@ -27,6 +27,9 @@ fun <T> list(node: NodeID<T>, inheritIgnores: Boolean = true) = lesana<List<T>> 
         inheritIgnoredREs()
 }
 
+/**
+ * Creates a definition that matches either the provided `node` or nothing.
+ */
 fun <T> optional(node: NodeID<T>) = lesana<T?> {
     val optionalNode = NodeID<T?>("optional($node)")
     optionalNode to def(node) { it.v1 }
@@ -35,17 +38,27 @@ fun <T> optional(node: NodeID<T>) = lesana<T?> {
     setTopNode(optionalNode)
 }
 
-fun <T> separatedList(node: NodeID<T>, separator: NodeID<*>, allowTrailingSeparator: Boolean = true, inheritIgnores: Boolean = true) = lesana<List<T>> {
+/**
+ * Creates a definition for a list of `node`s separated by a `separator`.
+ *
+ * An empty list is also valid.
+ *
+ * @param T the data type of the list's elements
+ * @param node the node ID of the list's elements
+ * @param separator the node the elements should be separated with
+ * @param allowTrailingSeparator whether to allow a trailing separator in the list, e.g. `1,2,3,`
+ * @param inheritIgnores whether to inherit ignored regexes from the parent lesana
+ */
+fun <T> separatedList(
+    node: NodeID<T>,
+    separator: NodeID<*>,
+    allowTrailingSeparator: Boolean = true,
+    inheritIgnores: Boolean = true
+) = lesana<List<T>> {
     val list = NodeID<LinkedList<T>>("separated list($node)")
     val nonEmptyList = NodeID<LinkedList<T>>(show=false)
 
     list to def() { LinkedList.Empty }
-
-    // if (allowTrailingSeparator) {
-    //     list to def(nonEmptyList, include(optional(separator))) { (l, _) -> l }
-    // } else {
-    //     list to def(nonEmptyList) { (l) -> l }
-    // }
     list to def(nonEmptyList) { (l) -> l }
 
     val nodeSep = NodeID<T>(show=false)
@@ -56,9 +69,6 @@ fun <T> separatedList(node: NodeID<T>, separator: NodeID<*>, allowTrailingSepara
     if (allowTrailingSeparator) {
         nonEmptyList to def(nodeSep) { (n) -> LinkedList.Node(n, LinkedList.Empty) }
     }
-
-    // nonEmptyList to def(node) { (n) -> LinkedList.Node(n, LinkedList.Empty) }
-    // nonEmptyList to def(node, separator, nonEmptyList) { (n, _, l) -> LinkedList.Node(n, l) }
 
     val top = NodeID<List<T>>(show=false)
     top to def(list) { it.v1.toKotlinList() }
