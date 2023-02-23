@@ -9,6 +9,7 @@ import cz.j_jzk.klang.parse.UnexpectedCharacter
 import cz.j_jzk.klang.parse.EOFNodeID
 import cz.j_jzk.klang.input.InputFactory
 import cz.j_jzk.klang.testutils.assertElementsEqual
+import cz.j_jzk.klang.testutils.iter
 
 class LesanaTest {
     @Test fun testUnexpectedCharacter() {
@@ -44,5 +45,25 @@ class LesanaTest {
 
         assertFailsWith<SyntaxError> { lesana.parse(InputFactory.fromString("1 2 1a1a34a5", "")) }
         assertEquals(3, numberOfErrors)
+    }
+
+    // Regression test for #83
+    @Test fun testIgnoresAfterIncluded() {
+        val sub = lesana<Int> {
+            val int = NodeID<Int>()
+            int to def(re("[0-9]")) { it.v1.toInt() }
+            setTopNode(int)
+        }
+
+        val sup = lesana<Int> {
+            val twoInts = NodeID<Int>()
+            val int = include(sub)
+            twoInts to def(int, int) { (a, b) -> a + b }
+            setTopNode(twoInts)
+            ignoreRegexes(" ")
+        }.getLesana()
+
+        assertEquals(3, sup.parse(iter("12")))
+        assertEquals(3, sup.parse(iter("1 2")))
     }
 }
