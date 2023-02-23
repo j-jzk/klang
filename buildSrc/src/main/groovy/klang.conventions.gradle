@@ -23,7 +23,15 @@ publishing {
         maven(MavenPublication) {
             from components.kotlin
         }
-   }
+    }
+
+    repositories {
+        maven {
+            name = "tmp-mvn"
+            url = uri("file:///tmp/mvn")
+
+        }
+    }
 }
 
 dependencies {
