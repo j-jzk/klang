@@ -14,6 +14,17 @@ internal data class LR1Item(
 	val nodeDef: NodeDef,
 	val dotBefore: Int, // which element of the def is the dot before
 	val sigma: Set<NodeID<*>>,
+	/**
+	 * The regexes to be ignored when the end of the item is reached.
+	 *
+	 * The reason for this is that when we reach the end of the item, the next
+	 * node, which correctly appears in the sigma set, might be behind an
+	 * ignored character.
+	 *
+	 * Thus, when we reach the end of this definition, we also need to ignore
+	 * the regexes ignored in the lesana we reduce into.
+	 */
+	val ignoreAfter: Set<CompiledRegex>,
 )
 
 /**
@@ -73,7 +84,7 @@ class DFABuilder(
 	fun build(): DFA {
 		val topNodeDef = nodeDefs[topNode]!!.first()
 		var startingSet = mutableSetOf(
-			LR1Item(topNodeDef, 0, setOf(EOFNodeID))
+			LR1Item(topNodeDef, 0, setOf(EOFNodeID), emptySet())
 		)
 		// The top state will always be error-recovering (for protection)
 		val startState = stateFactory.new(true)
@@ -117,14 +128,14 @@ class DFABuilder(
 
 		for ((char, item) in toShift) {
 			// Construct the new item set by shifting the dots to the right
-			val newItems = item.map { LR1Item(it.nodeDef, it.dotBefore + 1, it.sigma) }.toMutableSet()
+			val newItems = item.map { LR1Item(it.nodeDef, it.dotBefore + 1, it.sigma, it.ignoreAfter) }.toMutableSet()
 
 			// Add a transition from this state to the state represented by the items
 			transitions[thisState, char] = Action.Shift(getStateOrCreate(newItems))
 		}
 
 		// Assign lexer ignores to the state according to the ignores specified in the NodeDefs
-		lexerIgnores[thisState] = itemSet.map { it.nodeDef.lexerIgnores }.reduce { item, acc -> acc + item }
+		lexerIgnores[thisState] = computeStateIota(itemSet)
 	}
 
 	/** Performs an epsilon closure on the item set. It modifies the `items` in place. */
@@ -135,12 +146,13 @@ class DFABuilder(
 		while (unexpanded.isNotEmpty()) {
 			val itemBeingExpanded = unexpanded.pop()
 			val nodesToExpand = nodeDefs[itemBeingExpanded.elementAfterDot()] ?: continue
-			val sigma = computeSigma(itemBeingExpanded)
+			val (sigma, iota) = computeSigmaIota(itemBeingExpanded)
 			for (node in nodesToExpand) {
 				val item = LR1Item(
 					node,
 					0,
 					sigma,
+					iota,
 				)
 
 				if (item !in items) {
@@ -152,13 +164,15 @@ class DFABuilder(
 	}
 
 	@Suppress("CognitiveComplexMethod", "NestedBlockDepth") // Performance is more important than readability here
-	private fun computeSigma(itemBeingExpanded: LR1Item): Set<NodeID<*>> {
+	private fun computeSigmaIota(itemBeingExpanded: LR1Item): Pair<Set<NodeID<*>>, Set<CompiledRegex>> {
 		if (itemBeingExpanded.dotBefore + 1 == itemBeingExpanded.nodeDef.elements.size) {
-			return itemBeingExpanded.sigma
+			return Pair(itemBeingExpanded.sigma, itemBeingExpanded.ignoreAfter)
 		}
 
 		val sigma = mutableSetOf<NodeID<*>>()
 		val unexpanded = ArrayDeque<NodeID<*>>()
+		val iota = mutableSetOf<CompiledRegex>()
+		iota.addAll(itemBeingExpanded.nodeDef.lexerIgnores)
 
 		unexpanded.add(itemBeingExpanded.nodeDef.elements[itemBeingExpanded.dotBefore + 1])
 
@@ -176,12 +190,26 @@ class DFABuilder(
 
 					if (i == definition.elements.size) // The whole sequence is nullable
 						sigma.addAll(itemBeingExpanded.sigma)
+
+					iota.addAll(definition.lexerIgnores)
 				}
 			}
 		}
 
-		return sigma
+		return Pair(sigma, iota)
 	}
+
+	/** Computes the set of lexer ignores for a state (set of LR(1) items) */
+	private fun computeStateIota(itemSet: Set<LR1Item>): Set<CompiledRegex> =
+		itemSet
+			.map {
+				it.nodeDef.lexerIgnores +
+					if (it.dotBefore == it.nodeDef.elements.size)
+						it.ignoreAfter
+					else
+						emptySet()
+			}
+			.reduce { item, acc -> acc + item }
 
 	/**
 	 * Checks if a state represented by the items already exists. If it
