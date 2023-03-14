@@ -28,6 +28,57 @@ fun <T> list(node: NodeID<T>, inheritIgnores: Boolean = true) = lesana<List<T>> 
 }
 
 /**
+ * Creates a definition that matches either the provided `node` or nothing.
+ */
+fun <T> optional(node: NodeID<T>) = lesana<T?> {
+    val optionalNode = NodeID<T?>("optional($node)")
+    optionalNode to def(node) { it.v1 }
+    optionalNode to def() { null }
+
+    setTopNode(optionalNode)
+}
+
+/**
+ * Creates a definition for a list of `node`s separated by a `separator`.
+ *
+ * An empty list is also valid.
+ *
+ * @param T the data type of the list's elements
+ * @param node the node ID of the list's elements
+ * @param separator the node the elements should be separated with
+ * @param allowTrailingSeparator whether to allow a trailing separator in the list, e.g. `1,2,3,`
+ * @param inheritIgnores whether to inherit ignored regexes from the parent lesana
+ */
+fun <T> separatedList(
+    node: NodeID<T>,
+    separator: NodeID<*>,
+    allowTrailingSeparator: Boolean = true,
+    inheritIgnores: Boolean = true
+) = lesana<List<T>> {
+    val list = NodeID<LinkedList<T>>("separated list($node)")
+    val nonEmptyList = NodeID<LinkedList<T>>(show=false)
+
+    list to def() { LinkedList.Empty }
+    list to def(nonEmptyList) { (l) -> l }
+
+    val nodeSep = NodeID<T>(show=false)
+    nodeSep to def(node, separator) { (n, _) -> n }
+
+    nonEmptyList to def(nodeSep, nonEmptyList) { (n, l) -> LinkedList.Node(n, l) }
+    nonEmptyList to def(node) { (n) -> LinkedList.Node(n, LinkedList.Empty) }
+    if (allowTrailingSeparator) {
+        nonEmptyList to def(nodeSep) { (n) -> LinkedList.Node(n, LinkedList.Empty) }
+    }
+
+    val top = NodeID<List<T>>(show=false)
+    top to def(list) { it.v1.toKotlinList() }
+    setTopNode(top)
+
+    if (inheritIgnores)
+        inheritIgnoredREs()
+}
+
+/**
  * Defines a possibly escaped character, without double or single quotes.
  * Allowed values:
  *  . - a literal character
