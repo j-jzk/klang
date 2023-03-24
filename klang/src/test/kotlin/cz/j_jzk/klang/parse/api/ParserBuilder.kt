@@ -4,9 +4,9 @@ import org.apache.commons.collections4.map.LazyMap
 import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.ASTNode
-import cz.j_jzk.klang.parse.ParserWrapper
 import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.parse.algo.DFABuilder
+import cz.j_jzk.klang.parse.algo.DFA
 import cz.j_jzk.klang.util.PositionInfo
 
 /**
@@ -72,7 +72,7 @@ class ParserBuilder {
 	}
 
 	/** Builds and returns the parser */
-	fun getParser(): ParserWrapper {
+	fun getParser(): DFA {
 		val topNodeNotNull = topNode;
 		requireNotNull(topNodeNotNull) { "The top node of the grammar must be set" }
 		val nullSafeConversions = requireNotNull(conversionsMap) {
@@ -83,9 +83,8 @@ class ParserBuilder {
 		// fail completely if the user hasn't specified any error-recovering nodes
 		errorRecoveringNodes += topNodeNotNull
 
-		val dfa = DFABuilder(actualNodeDefs, topNodeNotNull, errorRecoveringNodes.toList(), errorCallback ?: { })
+		return DFABuilder(actualNodeDefs, topNodeNotNull, errorRecoveringNodes.toList(), errorCallback ?: { })
 			.build()
-		return ParserWrapper(dfa, nullSafeConversions)
 	}
 
 	/**
