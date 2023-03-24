@@ -19,17 +19,17 @@ import cz.j_jzk.klang.lesana.tuple.dataTupleFromList
 
 /**
  * A function for creating a lesana.
- * 
+ *
  * Typical usage:
  * ```kotlin
  * val lesana = lesana<Int> {
  * 	// create a new ID for representing nodes in the grammar
  * 	val sum = NodeID<Int>()
- * 
+ *
  * 	// use include() to include predefined parts of the grammar - for example
  * 	// from klang-prales (integer() is an example function returing a LesanaBuilder)
  * 	val number = include(integer())
- * 
+ *
  * 	// assign a definition to `sum`.
  * 	//  - def() takes as parameters the parts that the grammar item is made of
  * 	//  - re() creates a new grammar item corresponding to the specified regular
@@ -38,10 +38,10 @@ import cz.j_jzk.klang.lesana.tuple.dataTupleFromList
  * 	//    the nodes specified on the right side of the definition to the resulting
  * 	//    node (the left side, before `to`)
  * 	sum to def(sum, re("\\+"), number) { (a, _, b) -> a + b }
- * 
+ *
  * 	// a node ID may have multiple definitions associated with it
  * 	sum to def(number) { (num) -> num }
- * 
+ *
  * 	// use ignoreRegexes() to ignore some specified regular expressions in the
  * 	// input
  * 	ignoreRegexes(" ", "\t", "\n")
@@ -49,7 +49,7 @@ import cz.j_jzk.klang.lesana.tuple.dataTupleFromList
  * 	// use setTopNode() to set the top node of the grammar (and of the resulting
  * 	// syntax tree)
  * 	setTopNode(sum)
- * 
+ *
  * 	// the callback specified by onUnexpectedToken is called whenever a syntax
  * 	// error is found in the input
  * 	onUnexpectedToken { err ->
@@ -64,7 +64,7 @@ fun <T> lesana(init: LesanaBuilder<T>.() -> Unit): LesanaBuilder<T> =
 /**
  * An interface for defining a lesana. You most probably don't want to create
  * this class directly, but instead use the [lesana] function.
- * 
+ *
  * @param T The type of the final data (the type of the data stored in topNode).
  */
 @Suppress("LongParameterList", "TooManyFunctions", "MaxLineLength") // for generated functions
@@ -212,7 +212,7 @@ class LesanaBuilder<T> {
 	/**
 	 * A structure used internally to represent a node definition. (This is
 	 * used to allow for a syntax with fewer braces.)
-	 * 
+	 *
 	 * This class is what the function [def] returns.
 	 */
 	data class IntermediateNodeDefinition<R>(

@@ -10,10 +10,10 @@ import cz.j_jzk.klang.input.IdentifiableInput
 /**
  * Represents a **Le**xical-**s**emantic **ana**lyzer.
  * The main point of interaction when processing an input.
- * 
+ *
  * You probably don't want to create this object directly, but instead use the
  * builder function [lesana].
- * 
+ *
  * @constructor Creates a new lesana with the specified lexer and parser.
  */
 class Lesana(val lexer: Lexer, val parser: DFA) {

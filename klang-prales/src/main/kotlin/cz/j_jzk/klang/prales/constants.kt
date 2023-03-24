@@ -73,7 +73,7 @@ fun decimal(decimalPointRe: String = "\\.", allowEmptyIntegerPart: Boolean = tru
 
 /**
  * Defines a character surrounded by single quotes.
- * 
+ *
  * Valid examples: \
  *  `'a'`, `' '`, `'\''`, `'\n'`, `'✌'`, `'\\'`, `'\u1234'` (hexadecimal Unicode codepoint)
  *

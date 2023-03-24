@@ -21,7 +21,7 @@ import cz.j_jzk.klang.parse.NodeID
  *  3. `!a`
  *  4. `a && b`
  *  5. `a || b`
- * 
+ *
  * Parenthesization can be used to override operator priority: `(a+b)*c`
  *
  * All the operators are left-associative, meaning:
