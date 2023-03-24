@@ -3,6 +3,10 @@ package cz.j_jzk.klang.parse
 /**
  * This class includes information about an unexpected token error -
  * what tokens were expected and what did we get
+ *
+ * @property got What did we get - the unexpected token (also contains information
+ *  about its position = the position of the error)
+ * @property expectedIDs What did we expect
  */
 data class UnexpectedTokenError(
     val got: ASTNode,

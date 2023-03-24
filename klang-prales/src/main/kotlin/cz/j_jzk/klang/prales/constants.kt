@@ -6,7 +6,7 @@ import cz.j_jzk.klang.prales.useful.list
 import cz.j_jzk.klang.prales.useful.rawCharacter
 
 /**
- * Defines an identifier: [a-zA-Z_][a-zA-Z0-9_]*
+ * Defines an identifier: `[a-zA-Z_][a-zA-Z0-9_]*`
  */
 fun identifier() = lesana<String> {
     val identifier = NodeID<String>("identifier")
@@ -15,12 +15,12 @@ fun identifier() = lesana<String> {
 }
 
 /**
- * Defines a positive integer constant, e.g. 123
+ * Defines a positive integer constant, e.g. `123`
  *
  * @param nonDecimal whether to allow the binary, octal and hexadecimal number systems.
- *  When true, the following is legal: 0b01101, 0o321, 0xff, 0xFF
+ *  When true, the following is legal: `0b01101`, `0o321`, `0xff`, `0xFF`
  * @param underscoreSeparation whether to allow underscore separation - only in decimal constants
- *  When true, the following is legal: 123_456, 1_2_3, 1__2, _1_
+ *  When true, the following is legal: `123_456`, `1_2_3`, `1__2`, `_1_`
  */
 fun integer(nonDecimal: Boolean = false, underscoreSeparation: Boolean = false) = lesana<Long> {
     val integer = NodeID<Long>("integer", false)
@@ -42,11 +42,11 @@ fun integer(nonDecimal: Boolean = false, underscoreSeparation: Boolean = false) 
 }
 
 /**
- * Defines a positive decimal constant, e.g. '12.34'
+ * Defines a positive decimal constant, e.g. `12.34`
  *
  * @param decimalPointRe the regex to use for the decimal separator. Uses the full stop by default.
  *  Don't forget to properly escape any special characters.
- * @param allowEmptyIntegerPart whether to allow an empty integer part, e.g. '.123'
+ * @param allowEmptyIntegerPart whether to allow an empty integer part, e.g. `.123`
  */
 fun decimal(decimalPointRe: String = "\\.", allowEmptyIntegerPart: Boolean = true) = lesana<Double> {
     val decimal = NodeID<Double>("decimal constant")
@@ -72,10 +72,13 @@ fun decimal(decimalPointRe: String = "\\.", allowEmptyIntegerPart: Boolean = tru
 }
 
 /**
- * Defines a character surrounded by single quotes, e.g.:
- *  'a', ' ', '\'', '\n', '✌', '\\', '\u1234' (hexadecimal Unicode codepoint)
- * Invalid:
- *  ''', '\', '', '🚀' (characters that don't fit into a JVM char = >16bit)
+ * Defines a character surrounded by single quotes.
+ *
+ * Valid examples: \
+ *  `'a'`, `' '`, `'\''`, `'\n'`, `'✌'`, `'\\'`, `'\u1234'` (hexadecimal Unicode codepoint)
+ *
+ * Invalid: \
+ *  `'''`, `'\'`, `''`, `'🚀'` (characters that don't fit into a JVM char = >16bit)
  */
 fun character() = lesana<Char> {
     val char = NodeID<Char>("character constant")
@@ -85,9 +88,10 @@ fun character() = lesana<Char> {
 
 /**
  * Defines a string surrounded by quotes, e.g.:
- *  "hello \" \n \\ 🚀 \u1234"
+ *  `"hello \" \n \\ 🚀 \u1234"`
+ *
  * Invalid:
- *  "a \ " "
+ *  `"a \ " "`
  *
  * @param quotesRe a character used for the quotes (double quotes by default).
  *  If you use multiple characters, you might encounter issues with escaping.

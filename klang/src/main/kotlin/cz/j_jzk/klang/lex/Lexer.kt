@@ -12,14 +12,9 @@ import cz.j_jzk.klang.lex.re.compileRegex
 import cz.j_jzk.klang.parse.UnexpectedCharacter
 
 /**
- * The class that does the lexing. You probably don't want to create or use this
- * object directly, but instead use a builder (`cz.j_jzk.klang.lex.api.lexer()`),
- * which returns a LexerWrapper.
+ * The class that does the lexing.
  *
- * The type parameter `T` is the token type identifier. Enums are the most
- * suitable to this, but you may as well use anything you want.
- *
- * The lexer isn't tied to an input stream, so you can use the same lexer object
+ * The lexer isn't tied to an input stream, so the same lexer object can be used
  * to parse multiple inputs in parallel.
  */
 class Lexer(regexToId: LinkedHashMap<NFA, NodeID<*>>) {

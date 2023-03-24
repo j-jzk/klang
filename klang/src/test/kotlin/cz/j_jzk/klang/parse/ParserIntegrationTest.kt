@@ -25,7 +25,7 @@ class ParserIntegrationTest {
 	@Test fun testBasicParser() {
 		val input = createInput("5 + 10 + 1")
 
-		val result = additionParser.dfa.parse(input)
+		val result = additionParser.parse(input)
 		assertTrue(result is ASTNode.Data)
 		assertEquals(16, result.data)
 	}
@@ -51,7 +51,7 @@ class ParserIntegrationTest {
 	// throws OutOfMemoryError - don't know why, but we are going to refactor error handling anyway
 	@Test @Ignore fun testParserWithErroneousInput() {
 		val input = createInput("5 + 1 2 + 3")
-		val result = additionParser.dfa.parse(input)
+		val result = additionParser.parse(input)
 		assertTrue(result is ASTNode.Erroneous)
 	}
 
@@ -63,7 +63,7 @@ class ParserIntegrationTest {
 			"top" to def("list") { it[0]!! }
 			"list" to def("list", "expr") { (it[0]!! as Int) + (it[1]!! as Int) }
 			"list" to def() { 0 }
-		}.getParser().dfa
+		}.getParser()
 
 		// test if the parser doesn't throw an error and that the PositionInfos are correct
 		val ast = parser.parse(createInput("1 2"))

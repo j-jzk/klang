@@ -27,8 +27,7 @@ sealed interface ASTNode {
 	): ASTNode
 
 	/**
-	 * An AST node that has no value (usually used for interoperability
-	 * between the lexer and the parser)
+	 * An AST node that has no value (used historically, now used to handle EOF)
 	 */
 	data class NoValue(
 		override val id: NodeID<*>,

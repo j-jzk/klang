@@ -12,7 +12,7 @@ import cz.j_jzk.klang.prales.util.LinkedList
  * can be turned off using the parameter `inheritIgnores`.
  *
  * For example, when the node type is an int and when whitespace is ignored,
- * the following is valid: `1 2 3`, `1`, ``.
+ * the following is valid: "`1 2 3`", "`1`", "` `".
  */
 fun <T> list(node: NodeID<T>, inheritIgnores: Boolean = true) = lesana<List<T>> {
     val list = NodeID<LinkedList<T>>("list($node)")

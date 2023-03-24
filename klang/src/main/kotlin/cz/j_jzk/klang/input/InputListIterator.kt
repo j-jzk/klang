@@ -4,14 +4,14 @@ import java.io.InputStream
 import java.util.LinkedList
 
 /**
- * This class is a ListIterator implementation that gets its elements from a
- * `java.io.InputStream`.
+ * This class is a [ListIterator] implementation that gets its elements from a
+ * [java.io.InputStream].
  *
- * ListIterator is used to supply characters to the lexer, and this class makes
- * it possible to create a ListIterator from an InputStream such as STDIN or a
- * file.
+ * ListIterator is used to supply characters to the lesana (specifically, the lexer),
+ * and this class makes it possible to create a ListIterator from an InputStream such
+ * as STDIN or a file.
  *
- * Several factory functions for the usual types of input are in the InputFactory
+ * Several factory functions for the usual types of input are in the [InputFactory]
  * object.
  */
 class InputListIterator(val input: InputStream): ListIterator<Char> {

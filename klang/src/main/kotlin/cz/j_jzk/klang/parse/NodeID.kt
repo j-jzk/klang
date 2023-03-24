@@ -1,7 +1,7 @@
 package cz.j_jzk.klang.parse
 
 /**
- * An AST node ID. All node IDs must extend this class.
+ * An AST node ID. All node IDs must extend this class (or be instances of it).
  *
  * @param D represents the data type that will be stored in nodes with this ID.
  * @property name An optional human-readable name, used in error messages.

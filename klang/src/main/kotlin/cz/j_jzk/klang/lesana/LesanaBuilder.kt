@@ -19,15 +19,53 @@ import cz.j_jzk.klang.lesana.tuple.dataTupleFromList
 
 /**
  * A function for creating a lesana.
+ *
+ * Typical usage:
+ * ```kotlin
+ * val lesana = lesana<Int> {
+ * 	// create a new ID for representing nodes in the grammar
+ * 	val sum = NodeID<Int>()
+ *
+ * 	// use include() to include predefined parts of the grammar - for example
+ * 	// from klang-prales (integer() is an example function returing a LesanaBuilder)
+ * 	val number = include(integer())
+ *
+ * 	// assign a definition to `sum`.
+ * 	//  - def() takes as parameters the parts that the grammar item is made of
+ * 	//  - re() creates a new grammar item corresponding to the specified regular
+ * 	//    expression
+ * 	//  - the last parameter of def() is a conversion function which transforms
+ * 	//    the nodes specified on the right side of the definition to the resulting
+ * 	//    node (the left side, before `to`)
+ * 	sum to def(sum, re("\\+"), number) { (a, _, b) -> a + b }
+ *
+ * 	// a node ID may have multiple definitions associated with it
+ * 	sum to def(number) { (num) -> num }
+ *
+ * 	// use ignoreRegexes() to ignore some specified regular expressions in the
+ * 	// input
+ * 	ignoreRegexes(" ", "\t", "\n")
+ *
+ * 	// use setTopNode() to set the top node of the grammar (and of the resulting
+ * 	// syntax tree)
+ * 	setTopNode(sum)
+ *
+ * 	// the callback specified by onUnexpectedToken is called whenever a syntax
+ * 	// error is found in the input
+ * 	onUnexpectedToken { err ->
+ * 		println(err)
+ * 	}
+ * }.getLesana()  // use getLesana() to finalize the definition
+ * ```
  */
-// TODO: add an example to the documentation
 fun <T> lesana(init: LesanaBuilder<T>.() -> Unit): LesanaBuilder<T> =
 		LesanaBuilder<T>().apply { init() }
 
 /**
  * An interface for defining a lesana. You most probably don't want to create
- * this class directly, but instead use the `lesana()` function from this package.
- * The type parameter T is the type of the final data (topNode).
+ * this class directly, but instead use the [lesana] function.
+ *
+ * @param T The type of the final data (the type of the data stored in topNode).
  */
 @Suppress("LongParameterList", "TooManyFunctions", "MaxLineLength") // for generated functions
 class LesanaBuilder<T> {
@@ -98,7 +136,8 @@ class LesanaBuilder<T> {
 	}
 
 	/**
-	 * Defines a regex node
+	 * Defines a node that corresponds to a regular expression in the input.
+	 *
 	 * @param regex The regex
 	 * @param show When false, the resulting NodeID isn't shown in error messages.
 	 */
@@ -112,7 +151,7 @@ class LesanaBuilder<T> {
 
 	/**
 	 * Sets the ignored regexes for this lesana to be inherited from the parent
-	 * (includer). This is only applied when this lesana is included somewhere.
+	 * (includer). This is only useful when this lesana is [include]d somewhere.
 	 */
 	fun inheritIgnoredREs() {
 		parserDef.inheritIgnores = true
@@ -120,6 +159,7 @@ class LesanaBuilder<T> {
 
 	/**
 	 * Includes another lesana definition into this one.
+	 *
 	 * Returns the top ID of the definition, which can then be used in other
 	 * node definitions.
 	 */
@@ -172,6 +212,8 @@ class LesanaBuilder<T> {
 	/**
 	 * A structure used internally to represent a node definition. (This is
 	 * used to allow for a syntax with fewer braces.)
+	 *
+	 * This class is what the function [def] returns.
 	 */
 	data class IntermediateNodeDefinition<R>(
 		val definition: List<NodeID<Any?>>,
@@ -186,13 +228,12 @@ internal class LexerDefinition {
 
 	fun include(other: LexerDefinition) {
 		tokenDefs.putAll(other.tokenDefs)
-		// TODO: include ignored regexes?
 	}
 }
 
 /**
  * This class stores the parser part of the definition.
- * The type parameter T is the type of data in the topNode.
+ * @param T The type of data in the topNode.
  */
 internal class ParserDefinition<T> {
 	/** The actual node definition data */
