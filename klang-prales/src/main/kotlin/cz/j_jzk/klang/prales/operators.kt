@@ -6,26 +6,27 @@ import cz.j_jzk.klang.parse.NodeID
 /**
  * Defines arithmetic and/or logic operations on the specified NodeID.
  *
- * The resulting nodes are of the type Oper (see the class's documentation).
+ * The resulting nodes are of the type [Oper] (see the class' documentation).
  * Because of the type system, raw nodes are wrapped in the special operation
- * `Oper.Id` (identity). For example, if `expr` is `NodeID<Int>`, then a `123` in
+ * [Oper.Id] (identity). For example, if `expr` is `NodeID<Int>`, then a `123` in
  * the source becomes `Oper.Id<Int>(123)`.
  *
  * The following operators are supported:
- *  - ARITHMETIC: a+b, a-b, -a, a*b, a/b, a%b
- *  - LOGIC: a && b, a || b, !a
+ *  - **arithmetic**: `a+b`, `a-b`, `-a`, `a*b`, `a/b`, `a%b`
+ *  - **logic**: `a && b`, `a || b`, `!a`
  *
  * Operator priority works in accordance to convention:
- *  1. a*b, a/b, a%b
- *  2. a+b, a-b, -a
- *  3. !a
- *  4. a && b
- *  5. a || b
- * Parenthesization can be used to override operator priority: (a+b)*c
+ *  1. `a*b`, `a/b`, `a%b`
+ *  2. `a+b`, `a-b`, `-a`
+ *  3. `!a`
+ *  4. `a && b`
+ *  5. `a || b`
+ * 
+ * Parenthesization can be used to override operator priority: `(a+b)*c`
  *
  * All the operators are left-associative, meaning:
- *     a+b+c = (a+b)+c
- *     a+b-c+d = ((a+b)-c)+d
+ *  - a+b+c = (a+b)+c
+ *  - a+b-c+d = ((a+b)-c)+d
  *
  * @param E The data type of the operands
  * @param expr The node ID to define the operations on
@@ -86,10 +87,10 @@ fun <E> operators(expr: NodeID<E>, arithmetic: Boolean = true, logic: Boolean = 
 /**
  * A class used to express arithmetic and logic operations.
  *
- * Arithmetic operations are namespaced to the sub-object `Oper.Arit`.
- * Logic operations are namespaced to the sub-object `Oper.Log`.
+ * Arithmetic operations are namespaced to the sub-object [Oper.Arit].
+ * Logic operations are namespaced to the sub-object [Oper.Log].
  *
- * The root-level subclass `Id` (identity) is used for encapsulating literal
+ * The root-level subclass [Oper.Id] (identity) is used for encapsulating literal
  * operands, i.e. operands that aren't composed of other operations.
  */
 sealed class Oper<E> {
