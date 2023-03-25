@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "cz.j_jzk.klang"
-version = "1.0-rc1"
+version = "1.0-rc2"
 
 repositories {
     // Prever Maven local to use libraries' development builds
