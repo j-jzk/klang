@@ -18,21 +18,42 @@ repositories {
     mavenCentral()
 }
 
+tasks.register('dokkaJavadocJar', Jar.class) {
+    dependsOn(dokkaJavadoc)
+    from(dokkaJavadoc)
+    archiveClassifier.set("javadoc")
+}
+tasks.register('dokkaHtmlJar', Jar.class) {
+    dependsOn(dokkaHtml)
+    from(dokkaHtml)
+    archiveClassifier.set("html-docs")
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
             from components.kotlin
+	    // does not work - maybe try to publish a sources.jar instead (???)
+	    artifact dokkaJavadocJar
+	    artifact dokkaHtmlJar
         }
     }
 
     repositories {
         maven {
             name = "tmp-mvn"
-            url = uri("file:///tmp/mvn")
+            url = uri("file:///C:\\Users\\j.jezek.st\\Desktop\\maven")
 
         }
     }
 }
+
+/*
+java {
+	withJavadocJar()
+	withSourcesJar()
+}*/
+
 
 dependencies {
     // Align versions of all Kotlin components
