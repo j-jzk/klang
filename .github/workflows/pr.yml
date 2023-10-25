@@ -1,4 +1,4 @@
-name: Run code analysis
+name: Run code analysis & build
 on: pull_request
 
 jobs:
@@ -12,7 +12,7 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
 
-    - name: Run Detekt
+    - name: Run Detekt and tests, build
       uses: gradle/gradle-build-action@4137be6a8bf7d7133955359dbd952c0ca73b1021
       with:
-        arguments: detekt
+        arguments: check build
