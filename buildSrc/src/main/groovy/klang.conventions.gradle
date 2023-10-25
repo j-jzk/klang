@@ -14,8 +14,11 @@ version = "1.0-rc2"
 
 repositories {
     // Prever Maven local to use libraries' development builds
-	mavenLocal()
+    mavenLocal()
     mavenCentral()
+    maven {
+        url = "https://j-jzk.cz/dl/maven"
+    }
 }
 
 publishing {
