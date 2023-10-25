@@ -8,7 +8,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 
 class LesanaBuilderTest {
 	private val int = NodeID<Int>()
@@ -165,7 +164,7 @@ class LesanaBuilderTest {
 			s(0, true) to allIgnores,
 			s(1) to allIgnores,
 			s(2) to emptySet(),
-			s(3) to allIgnores,
+			s(3) to emptySet(),
 			s(4) to emptySet(),
 		)
 
