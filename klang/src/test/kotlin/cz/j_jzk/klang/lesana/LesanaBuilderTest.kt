@@ -25,7 +25,7 @@ class LesanaBuilderTest {
 		}.getLesana()
 
 		// TODO: compare the output with an expected value when all the basic features are complete
-		println(lesana)
+		// println(lesana)
 		// assertTrue(false)
 	}
 
@@ -135,5 +135,42 @@ class LesanaBuilderTest {
 			top to def(re("[0-9]+")) { it.v1 }
 		}
 		assertFailsWith<IllegalArgumentException> { l2.getLesana() }
+	}
+
+	@Test fun testNestedInheritIgnoredREs() {
+		val c = lesana<String> {
+			val node = NodeID<String>("C")
+			node to def(re("x"), re("y")) { "." }
+
+			setTopNode(node)
+		}
+
+		val b = lesana<String> {
+			val node = NodeID<String>("B")
+			node to def(include(c)) { it.v1 }
+			inheritIgnoredREs()
+			setTopNode(node)
+		}
+
+		val a = lesana<String> {
+			val top = include(b)
+			ignoreRegexes("ign")
+
+			setTopNode(top)
+		}.getLesana()
+
+		val allIgnores = setOf(compileRegex("ign"))
+		val expected = mapOf(
+			s(0, true) to allIgnores,
+			s(1) to allIgnores,
+			s(2) to emptySet(),
+			s(3) to emptySet(),
+			s(4) to emptySet(),
+		)
+
+		println(a.parser)
+
+		assertEquals(expected, a.parser.lexerIgnores)
+		// assertTrue(false)
 	}
 }

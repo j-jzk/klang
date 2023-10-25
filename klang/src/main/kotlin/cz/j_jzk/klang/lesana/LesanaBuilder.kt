@@ -240,6 +240,14 @@ internal class ParserDefinition<T> {
 	val actualNodeDefs: MutableMap<NodeID<Any?>, MutableSet<NodeDef>> = mutableMapOf()
 	/** Used for simpler code - returns an empty set when a node ID isn't defined */
 	val nodeDefs: LazyMap<NodeID<Any?>, MutableSet<NodeDef>> = LazyMap.lazyMap(actualNodeDefs) { -> mutableSetOf() }
+
+	/**
+	 * This map is used for node defs included from lesanas that have inheritIgnores set to false
+	 * = these nodeDefs' ignores shouldn't be modified when including this lesana somewhere
+	 */
+	val actualIncludedNodeDefs: MutableMap<NodeID<Any?>, MutableSet<NodeDef>> = mutableMapOf()
+	val includedNodeDefs = LazyMap.lazyMap(actualIncludedNodeDefs) { -> mutableSetOf() }
+
 	val errorRecoveringNodes: MutableSet<NodeID<Any?>> = mutableSetOf()
 	var errorCallback: ((UnexpectedTokenError) -> Unit)? = null
 	/** The top node of the grammar (the root of the AST) */
@@ -256,6 +264,9 @@ internal class ParserDefinition<T> {
 		// Add the top node to the error-recovering nodes so the parser doesn't
 		// fail completely if the user hasn't specified any error-recovering nodes
 		errorRecoveringNodes += topNodeNotNull
+
+		// Merge includedNodeDefs and nodeDefs, we don't need the distinction and need them in one map
+		nodeDefs.mergeSetValues(actualIncludedNodeDefs)
 
 		require(topNodeNotNull in actualNodeDefs) { "The top node of the grammar must have at least one definition" }
 
@@ -285,13 +296,16 @@ internal class ParserDefinition<T> {
 			node
 
 	fun include(other: ParserDefinition<*>) {
-		if (!other.inheritIgnores)
-			nodeDefs.mergeSetValues(other.actualNodeDefs)
-		else
+		if (!other.inheritIgnores) {
+			includedNodeDefs.mergeSetValues(other.actualNodeDefs)
+		} else {
 			// combine the ignores in the other lesana with this one
 			nodeDefs.mergeSetValues(other.actualNodeDefs.mapValues { (_, set) ->
 				set.map { NodeDef(it.elements, it.reduction, CompositeSet(this.lexerIgnores, it.lexerIgnores)) }.toSet()
 			})
+			// but not includedIgnores (whose ignores shouldn't be inherited)
+			includedNodeDefs.mergeSetValues(other.actualIncludedNodeDefs)
+		}
 
 		errorRecoveringNodes.addAll(other.errorRecoveringNodes)
 	}
