@@ -298,6 +298,7 @@ internal class ParserDefinition<T> {
 	fun include(other: ParserDefinition<*>) {
 		if (!other.inheritIgnores) {
 			includedNodeDefs.mergeSetValues(other.actualNodeDefs)
+			includedNodeDefs.mergeSetValues(other.actualIncludedNodeDefs)
 		} else {
 			// combine the ignores in the other lesana with this one
 			nodeDefs.mergeSetValues(other.actualNodeDefs.mapValues { (_, set) ->
