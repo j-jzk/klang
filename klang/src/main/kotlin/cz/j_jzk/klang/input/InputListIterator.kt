@@ -1,6 +1,7 @@
 package cz.j_jzk.klang.input
 
 import java.io.InputStream
+import java.io.Reader
 import java.util.LinkedList
 
 /**
@@ -14,7 +15,7 @@ import java.util.LinkedList
  * Several factory functions for the usual types of input are in the [InputFactory]
  * object.
  */
-class InputListIterator(val input: InputStream): ListIterator<Char> {
+class InputListIterator(val input: Reader): ListIterator<Char> {
 	/* Buffers for moving backwards and forwards.
 	 *
 	 * When moving forwards, the forwardBuffer is filled with characters from
