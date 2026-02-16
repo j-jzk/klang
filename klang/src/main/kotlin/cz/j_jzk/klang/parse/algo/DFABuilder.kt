@@ -183,10 +183,11 @@ class DFABuilder(
 				for (definition in nodeDefs[node] ?: emptySet()) {
 					// Add the first node of the definition, and if it is nullable, add the second one, and so on
 					var i = 0
-					if (definition.elements.isNotEmpty())
-						do {
-							unexpanded += definition.elements[i]
-						} while (i < definition.elements.size && isNullable(definition.elements[i++]))
+                    while (i < definition.elements.size) {
+                        unexpanded += definition.elements[i]
+                        if (!isNullable(definition.elements[i])) break
+                        i++
+                    }
 
 					if (i == definition.elements.size) // The whole sequence is nullable
 						sigma.addAll(itemBeingExpanded.sigma)

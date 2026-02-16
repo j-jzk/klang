@@ -1,5 +1,6 @@
 package cz.j_jzk.klang.parse.algo
 
+import cz.j_jzk.klang.lex.api.AnyNodeID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import cz.j_jzk.klang.parse.NodeDef
@@ -7,6 +8,7 @@ import cz.j_jzk.klang.parse.NodeID
 import cz.j_jzk.klang.util.set
 import cz.j_jzk.klang.parse.testutil.*
 import cz.j_jzk.klang.lex.re.CompiledRegex
+import cz.j_jzk.klang.parse.ASTNode
 
 /* TODO: make this less hacky
  * Specifically, find a way to structurally compare DFAs (this class currently
@@ -176,6 +178,36 @@ class DFABuilderTest {
 
 		assertEquals(expected, dfa)
 	}
+
+    /*
+     * Regression test for an off-by-one error in DFABuilder (we would overrun
+     * the node definition element list when computing sigma if _nullable_ nodes
+     * would be used in a specific pattern).
+     */
+    @Test fun testNullableNodeDefs() {
+        val expr1Reduction: (List<ASTNode>) -> ASTNode =
+            { ASTNode.Data(e, ASTData.Nonterminal(it), it[0].position) }
+        val lpReduction: (List<ASTNode>) -> ASTNode =
+            { ASTNode.Data(lp, ASTData.Nonterminal(it), it[0].position) }
+        val grammar: Map<NodeID<*>, Set<NodeDef>> = mapOf(
+            top to setOf(NodeDef(listOf(lp, e2), topReduction)),
+            e2 to setOf(
+                NodeDef(listOf(e), exprReduction),
+            ),
+            // e is nullable
+            e to setOf(
+                NodeDef(listOf(p), expr1Reduction),
+                NodeDef(emptyList(), expr1Reduction),
+            ),
+            // we need to make _lp_ nonterminal
+            lp to setOf(NodeDef(listOf(rp), lpReduction))
+        )
+
+
+        val builder = DFABuilder(grammar, top, emptyList(), emptyFun)
+        // only check that this doesn't fail
+        builder.build()
+    }
 
 	private fun emptyIgnoreMap(maxStateId: Int, erStates: Set<Int> = setOf(0)): Map<State, Set<CompiledRegex>> {
 		val map = mutableMapOf<State, Set<CompiledRegex>>()
