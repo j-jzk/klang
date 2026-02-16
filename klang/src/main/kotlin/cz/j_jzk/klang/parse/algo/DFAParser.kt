@@ -61,7 +61,8 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 
 		dfa.onUnexpectedToken(UnexpectedTokenError(
 			gotToken,
-			expectedIDs()
+			expectedIDs(),
+            nodeStack.toList(),
 		))
 
 		// Search the stack for an error-recovering state.

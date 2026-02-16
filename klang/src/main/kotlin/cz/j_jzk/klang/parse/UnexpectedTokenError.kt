@@ -7,10 +7,13 @@ package cz.j_jzk.klang.parse
  * @property got What did we get - the unexpected token (also contains information
  *  about its position = the position of the error)
  * @property expectedIDs What did we expect
+ * @property nodeStack For advanced debugging purposes; the parser's node stack
+ *  at the time of the error (top of the stack is last).
  */
 data class UnexpectedTokenError(
     val got: ASTNode,
     val expectedIDs: Collection<NodeID<*>>,
+    val nodeStack: List<ASTNode>,
 ): Exception() {
     override fun toString(): String {
         if (got.id == UnexpectedCharacter && got is ASTNode.Data) {
