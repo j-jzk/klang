@@ -11,7 +11,7 @@ import java.io.FileInputStream
  */
 @Suppress("UndocumentedPublicFunction")
 object InputFactory {
-    fun fromFile(path: String) = IdentifiableInput(path, InputListIterator(FileInputStream(path)))
-	fun fromStdin() = IdentifiableInput("STDIN", InputListIterator(System.`in`))
+    fun fromFile(path: String) = IdentifiableInput(path, InputListIterator(FileInputStream(path).bufferedReader()))
+	fun fromStdin() = IdentifiableInput("STDIN", InputListIterator(System.`in`.bufferedReader()))
 	fun fromString(string: String, id: String) = IdentifiableInput(id, string.toList().listIterator())
 }
