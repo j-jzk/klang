@@ -122,6 +122,8 @@ class DFABuilder(
 			)
 
 			for (possibleLookahead in item.sigma) {
+                if (transitions.contains(thisState, possibleLookahead))
+                    warnConflict(possibleLookahead, transitions[thisState, possibleLookahead]!!, action)
 				transitions[thisState, possibleLookahead] = action
 			}
 		}
@@ -131,7 +133,10 @@ class DFABuilder(
 			val newItems = item.map { LR1Item(it.nodeDef, it.dotBefore + 1, it.sigma, it.ignoreAfter) }.toMutableSet()
 
 			// Add a transition from this state to the state represented by the items
-			transitions[thisState, char] = Action.Shift(getStateOrCreate(newItems))
+            val action = Action.Shift(getStateOrCreate(newItems))
+            if (transitions.contains(thisState, char))
+                warnConflict(char, transitions[thisState, char]!!, action)
+			transitions[thisState, char] = action
 		}
 
 		// Assign lexer ignores to the state according to the ignores specified in the NodeDefs
@@ -145,11 +150,11 @@ class DFABuilder(
 
 		while (unexpanded.isNotEmpty()) {
 			val itemBeingExpanded = unexpanded.pop()
-			val nodesToExpand = nodeDefs[itemBeingExpanded.elementAfterDot()] ?: continue
+			val expandedNodeDefs = nodeDefs[itemBeingExpanded.elementAfterDot()] ?: continue
 			val (sigma, iota) = computeSigmaIota(itemBeingExpanded)
-			for (node in nodesToExpand) {
+			for (nodeDef in expandedNodeDefs) {
 				val item = LR1Item(
-					node,
+					nodeDef,
 					0,
 					sigma,
 					iota,
@@ -163,6 +168,8 @@ class DFABuilder(
 		}
 	}
 
+    // note to self: mám podezření, že tahle funkce je celá špatně (proč používáme dotBefore+1?), ale budu to muset
+    // důkladně promyslet
 	@Suppress("CognitiveComplexMethod", "NestedBlockDepth") // Performance is more important than readability here
 	private fun computeSigmaIota(itemBeingExpanded: LR1Item): Pair<Set<NodeID<*>>, Set<CompiledRegex>> {
 		if (itemBeingExpanded.dotBefore + 1 == itemBeingExpanded.nodeDef.elements.size) {
@@ -239,4 +246,14 @@ class DFABuilder(
 
 	/** Checks if a node is nullable (if it can resolve to epsilon) */
 	private fun isNullable(node: NodeID<*>) = nodeDefs[node]?.any { it.elements.isEmpty() } ?: false
+
+    private fun warnConflict(lookahead: NodeID<*>, oldAction: Action, newAction: Action) {
+        fun getType(action: Action) = when (action) {
+            is Action.Reduce -> "reduce"
+            is Action.Shift -> "shift"
+        }
+
+        // TODO: better logging
+        println("[klang] WARN: ${getType(oldAction)}-${getType(newAction)} conflict (for lookahead $lookahead) - $oldAction will be replaced by $newAction")
+    }
 }
