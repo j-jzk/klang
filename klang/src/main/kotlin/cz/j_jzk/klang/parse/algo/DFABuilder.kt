@@ -8,7 +8,10 @@ import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.parse.EOFNodeID
 import cz.j_jzk.klang.util.set
 import cz.j_jzk.klang.lex.re.CompiledRegex
+import org.apache.commons.collections4.map.LazyMap
 import java.util.ArrayDeque
+import kotlin.collections.mutableSetOf
+import kotlin.io.path.Path
 
 internal data class LR1Item(
 	val nodeDef: NodeDef,
@@ -37,7 +40,6 @@ private fun LR1Item.elementAfterDot(): NodeID<*>? =
 /**
  * This class builds a parser from the formal grammar.
  */
-// TODO: precompute & memoize everything we can
 class DFABuilder(
 	/** The formal grammar */
 	val nodeDefs: Map<NodeID<Any?>, Set<NodeDef>>,
@@ -79,6 +81,73 @@ class DFABuilder(
 		 */
 		val identityReduction: (List<ASTNode>) -> ASTNode = { it[0] }
 	}
+
+    /** The NULLABLE set from literature, that is, which NodeIDs can resolve to the empty word (epsilon) */
+    private val nullableNodeIds: Set<NodeID<*>>
+    /** The FIRST set from literature. FIRST(X) contains all the terminals that X can begin with. */
+    private val firstTerminals: Map<NodeID<*>, Set<NodeID<*>>>
+    init {
+        /// initialize FIRST and NULLABLE
+        val nullable = mutableSetOf<NodeID<*>>()
+        val first = LazyMap.lazyMap(mutableMapOf<NodeID<*>, MutableSet<NodeID<*>>>()) { _ -> mutableSetOf() }
+
+        val allNodeIds = mutableSetOf<NodeID<*>>().apply {
+            addAll(nodeDefs.keys)
+            addAll(nodeDefs.values.asSequence().flatten().flatMap { it.elements })
+        }
+
+        // for a description of the algorithm, see the Dragon book (1988 ed.), page 189
+        var somethingChanged = false
+        fun Boolean.registerChange() { somethingChanged = this || somethingChanged }
+        do {
+            somethingChanged = false
+
+            val nodesToRemove = mutableSetOf<NodeID<*>>()
+            for (nodeId in allNodeIds) {
+                // 1. if X is terminal, then FIRST(X) = {X}
+                if (isTerminal(nodeId)) {
+                    first[nodeId]!!.add(nodeId).registerChange()
+                    // remove from allNodeIds so we don't needlessly iterate over it again
+                    // (we can't remove items from a list while iterating over it)
+                    nodesToRemove.add(nodeId)
+                    continue
+                }
+
+                for (def in nodeDefs[nodeId]!!) {
+                    // 2. if X -> ε is a production, then mark X nullable
+                    if (def.elements.isEmpty()) {
+                        nullable.add(nodeId).registerChange()
+                        continue
+                    }
+
+                    // 3. (modified) if X -> Y1 Y2 ... Yk is a production:
+                    //  - add all of FIRST(Y1) to FIRST(X)
+                    //  - if Y1 is nullable, add FIRST(Y2) to FIRST(X) and so on
+                    var defIsNullable = true
+                    for (defElement in def.elements) {
+                        first[nodeId]!!.addAll(first[defElement]!!).registerChange()
+                        // traditionally, FIRST contains only terminals, but we need nonterminals for constructing
+                        // lexer ignore (iota) sets
+                        first[nodeId]!!.add(defElement).registerChange()
+
+                        if (defElement !in nullable) {
+                            defIsNullable = false
+                            break
+                        }
+                    }
+                    // if the whole definition is nullable, mark X as nullable
+                    if (defIsNullable)
+                        nullable.add(nodeId).registerChange()
+                }
+            }
+
+            allNodeIds.removeAll(nodesToRemove)
+            nodesToRemove.clear()
+        } while (somethingChanged)
+
+        nullableNodeIds = nullable
+        firstTerminals = first
+    }
 
 	/** This function constructs the parser and returns it. */
 	fun build(): DFA {
@@ -151,7 +220,9 @@ class DFABuilder(
 		while (unexpanded.isNotEmpty()) {
 			val itemBeingExpanded = unexpanded.pop()
 			val expandedNodeDefs = nodeDefs[itemBeingExpanded.elementAfterDot()] ?: continue
-			val (sigma, iota) = computeSigmaIota(itemBeingExpanded)
+            val sigma = computeSigma(itemBeingExpanded)
+            val iota = computeIota(itemBeingExpanded)
+
 			for (nodeDef in expandedNodeDefs) {
 				val item = LR1Item(
 					nodeDef,
@@ -168,44 +239,56 @@ class DFABuilder(
 		}
 	}
 
-    // note to self: mám podezření, že tahle funkce je celá špatně (proč používáme dotBefore+1?), ale budu to muset
-    // důkladně promyslet
-	@Suppress("CognitiveComplexMethod", "NestedBlockDepth") // Performance is more important than readability here
-	private fun computeSigmaIota(itemBeingExpanded: LR1Item): Pair<Set<NodeID<*>>, Set<CompiledRegex>> {
-		if (itemBeingExpanded.dotBefore + 1 == itemBeingExpanded.nodeDef.elements.size) {
-			return Pair(itemBeingExpanded.sigma, itemBeingExpanded.ignoreAfter)
-		}
+    /**
+     * Computes the sigma set for an LR1 item, that is, what symbols may appear after it (for lookahead)
+     */
+	private fun computeSigma(itemBeingExpanded: LR1Item): Set<NodeID<*>> {
+//		if (itemBeingExpanded.dotBefore + 1 == itemBeingExpanded.nodeDef.elements.size) {
+//			return itemBeingExpanded.sigma
+//		}
 
-		val sigma = mutableSetOf<NodeID<*>>()
-		val unexpanded = ArrayDeque<NodeID<*>>()
-		val iota = mutableSetOf<CompiledRegex>()
-		iota.addAll(itemBeingExpanded.nodeDef.lexerIgnores)
+        val sigma = mutableSetOf<NodeID<*>>()
 
-		unexpanded.add(itemBeingExpanded.nodeDef.elements[itemBeingExpanded.dotBefore + 1])
+        var isWholeSequenceNullable = true
+        for (i in itemBeingExpanded.dotBefore+1 until itemBeingExpanded.nodeDef.elements.size) {
+            val currentSymbol = itemBeingExpanded.nodeDef.elements[i]
+            sigma.addAll(firstTerminals[currentSymbol]!!)
+            if (currentSymbol !in nullableNodeIds) {
+                isWholeSequenceNullable = false
+                break
+            }
+        }
 
-		while (unexpanded.isNotEmpty()) {
-			val node = unexpanded.pop()
-			if (node !in sigma) {
-				sigma += node
-				for (definition in nodeDefs[node] ?: emptySet()) {
-					// Add the first node of the definition, and if it is nullable, add the second one, and so on
-					var i = 0
-                    while (i < definition.elements.size) {
-                        unexpanded += definition.elements[i]
-                        if (!isNullable(definition.elements[i])) break
-                        i++
-                    }
+        if (isWholeSequenceNullable) {
+            sigma.addAll(itemBeingExpanded.sigma)
+        }
 
-					if (i == definition.elements.size) // The whole sequence is nullable
-						sigma.addAll(itemBeingExpanded.sigma)
-
-					iota.addAll(definition.lexerIgnores)
-				}
-			}
-		}
-
-		return Pair(sigma, iota)
+        return sigma
 	}
+
+    /**
+     * Computes the iota set for an LR1 item, that is, which lexer ignores should be applied
+     * in this item's state
+     */
+    // TODO: precompute this?
+    private fun computeIota(itemBeingExpanded: LR1Item): Set<CompiledRegex> {
+        if (itemBeingExpanded.dotBefore + 1 == itemBeingExpanded.nodeDef.elements.size) {
+            return itemBeingExpanded.ignoreAfter
+        }
+
+        val symbolAfterNext = itemBeingExpanded.nodeDef.elements[itemBeingExpanded.dotBefore + 1]
+
+        val iota = mutableSetOf<CompiledRegex>()
+        iota.addAll(itemBeingExpanded.nodeDef.lexerIgnores)
+        iota.addAll(
+            firstTerminals[symbolAfterNext]!!
+                .map { nodeDefs[it] ?: emptySet() }
+                .flatten()
+                .flatMap { it.lexerIgnores }
+        )
+
+        return iota
+    }
 
 	/** Computes the set of lexer ignores for a state (set of LR(1) items) */
 	private fun computeStateIota(itemSet: Set<LR1Item>): Set<CompiledRegex> =
@@ -244,8 +327,7 @@ class DFABuilder(
 	private fun isErrorRecovering(itemSet: Set<LR1Item>) =
 		itemSet.any { it.elementAfterDot() in errorRecoveringNodes }
 
-	/** Checks if a node is nullable (if it can resolve to epsilon) */
-	private fun isNullable(node: NodeID<*>) = nodeDefs[node]?.any { it.elements.isEmpty() } ?: false
+    private fun isTerminal(node: NodeID<*>) = node !in nodeDefs
 
     private fun warnConflict(lookahead: NodeID<*>, oldAction: Action, newAction: Action) {
         fun getType(action: Action) = when (action) {
