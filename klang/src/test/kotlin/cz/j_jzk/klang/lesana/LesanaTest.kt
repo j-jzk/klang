@@ -38,13 +38,19 @@ class LesanaTest {
             onUnexpectedToken { err ->
                 assertEquals("Unexpected character 'a'", err.toString())
                 assertEquals(UnexpectedCharacter, err.got.id)
-                assertElementsEqual(setOf(int, EOFNodeID, RegexNodeID("\\d+")), err.expectedIDs)
+                assertElementsEqual(setOf(EOFNodeID, RegexNodeID("\\d+")), err.expectedIDs)
                 numberOfErrors++
             }
         }.getLesana()
 
+        // test it works
+        assertEquals(33, lesana.parse(InputFactory.fromString("5 6 10 12", "")))
+        assertEquals(0, numberOfErrors)
+
+        // test error reporting works
         assertFailsWith<SyntaxError> { lesana.parse(InputFactory.fromString("1 2 1a1a34a5", "")) }
         assertEquals(3, numberOfErrors)
+
     }
 
     // Regression tests for #83
@@ -109,5 +115,16 @@ class LesanaTest {
         assertEquals(3, sup.parse(iter("12")))
         assertEquals(3, sup.parse(iter("1 2")))
         assertEquals(3, sup.parse(iter("1a 2")))
+    }
+
+    // this is a reminder to fix it (= add a warning) :D
+    @Test fun testNullableRegexesDontWork() {
+        val lsn = lesana<String> {
+            val top = NodeID<String>()
+            top to def(re("a"), re(""), re("b")) { (a, _, b) -> a + b }
+            setTopNode(top)
+        }.getLesana()
+
+        assertFailsWith<SyntaxError> { lsn.parse(iter("ab")) }
     }
 }

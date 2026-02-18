@@ -9,6 +9,7 @@ import cz.j_jzk.klang.util.set
 import cz.j_jzk.klang.parse.testutil.*
 import cz.j_jzk.klang.lex.re.CompiledRegex
 import cz.j_jzk.klang.parse.ASTNode
+import kotlin.test.assertTrue
 
 /* TODO: make this less hacky
  * Specifically, find a way to structurally compare DFAs (this class currently
@@ -185,8 +186,6 @@ class DFABuilderTest {
      * would be used in a specific pattern).
      */
     @Test fun testNullableNodeDefs() {
-        val expr1Reduction: (List<ASTNode>) -> ASTNode =
-            { ASTNode.Data(e, ASTData.Nonterminal(it), it[0].position) }
         val lpReduction: (List<ASTNode>) -> ASTNode =
             { ASTNode.Data(lp, ASTData.Nonterminal(it), it[0].position) }
         val grammar: Map<NodeID<*>, Set<NodeDef>> = mapOf(
@@ -207,6 +206,87 @@ class DFABuilderTest {
         val builder = DFABuilder(grammar, top, emptyList(), emptyFun)
         // only check that this doesn't fail
         builder.build()
+    }
+
+    @Test fun testRecursionWithEpsilon() {
+        val grammar: Map<NodeID<*>, Set<NodeDef>> = mapOf(
+            top to setOf(NodeDef(listOf(e2), topReduction)),
+            e2 to setOf(
+                NodeDef(listOf(e2, e), exprReduction),
+                NodeDef(listOf(), exprReduction),
+            )
+        )
+
+        val builder = DFABuilder(grammar, top, emptyList(), emptyFun)
+        val dfa = builder.build()
+
+        val expected = DFA(
+            mapOf<Pair<State, NodeID<*>>, Action>(
+                (s(0, true) to e2) to shift(1),
+                (s(0, true) to eof) to Action.Reduce(0, exprReduction),
+                (s(0, true) to e) to Action.Reduce(0, exprReduction),
+                (s(0, true) to top) to shift(3),
+                (s(1) to eof) to Action.Reduce(1, topReduction),
+                (s(1) to e) to shift(2),
+                (s(2) to eof) to Action.Reduce(2, exprReduction),
+                (s(2) to e) to Action.Reduce(2, exprReduction),
+                (s(3) to eof) to Action.Reduce(1, DFABuilder.identityReduction),
+            ).toTable(),
+            top,
+            s(0, true),
+            emptyList(),
+            emptyFun,
+            emptyIgnoreMap(3),
+        )
+
+        assertEquals(expected, dfa)
+    }
+
+    /*
+     * Regression test for a wrong FIRST & NULLABLE set computation
+     * (checks if sigma computation works properly even if the nullability of a
+     * node is indirect)
+     */
+    @Test fun testRecursionWithDeepEpsilon() {
+        val grammar: Map<NodeID<*>, Set<NodeDef>> = mapOf(
+            top to setOf(NodeDef(listOf(e2), topReduction)),
+            e2 to setOf(
+                NodeDef(listOf(e2, p), exprReduction),
+                NodeDef(listOf(e, e, lp), exprReduction),
+            ),
+            e to setOf(
+                NodeDef(listOf(), expr1Reduction),
+            ),
+        )
+
+        val builder = DFABuilder(grammar, top, emptyList(), emptyFun)
+        val dfa = builder.build()
+
+        val expected = DFA(
+            mapOf<Pair<State, NodeID<*>>, Action>(
+                (s(0, true) to e2) to shift(1),
+                (s(0, true) to e) to shift(3),
+                (s(0, true) to lp) to Action.Reduce(0, expr1Reduction),
+                (s(0, true) to top) to shift(6),
+                (s(1) to eof) to Action.Reduce(1, topReduction),
+                (s(1) to p) to shift(2),
+                (s(2) to eof) to Action.Reduce(2, exprReduction),
+                (s(2) to p) to Action.Reduce(2, exprReduction),
+                (s(3) to lp) to Action.Reduce(0, expr1Reduction),
+                (s(3) to e) to shift(4),
+                (s(4) to lp) to shift(5),
+                (s(5) to eof) to Action.Reduce(3, exprReduction),
+                (s(5) to p) to Action.Reduce(3, exprReduction),
+                (s(6) to eof) to Action.Reduce(1, DFABuilder.identityReduction),
+            ).toTable(),
+            top,
+            s(0, true),
+            emptyList(),
+            emptyFun,
+            emptyIgnoreMap(6),
+        )
+
+        assertEquals(expected, dfa)
     }
 
 	private fun emptyIgnoreMap(maxStateId: Int, erStates: Set<Int> = setOf(0)): Map<State, Set<CompiledRegex>> {

@@ -15,6 +15,7 @@ import cz.j_jzk.klang.parse.UnexpectedTokenError
 import cz.j_jzk.klang.parse.api.AnyNodeID
 import com.google.common.collect.Table
 import com.google.common.collect.HashBasedTable
+import cz.j_jzk.klang.parse.algo.DFA
 // import org.mockito.kotlin.mock
 // import org.mockito.ArgumentMatchers
 import io.mockk.mockk
@@ -39,14 +40,10 @@ val topReduction: (List<ASTNode>) -> ASTNode =
 	{ ASTNode.Data(top, ASTData.Nonterminal(it), it[0].position) }
 val exprReduction: (List<ASTNode>) -> ASTNode =
 	{ ASTNode.Data(e2, ASTData.Nonterminal(it), it[0].position) }
+val expr1Reduction: (List<ASTNode>) -> ASTNode =
+    { ASTNode.Data(e, ASTData.Nonterminal(it), it[0].position) }
 val identityReduction: (List<ASTNode>) -> ASTNode =
 	{ it[0] }
-/**
- * A reduction function meant to be used in the parser builder, since it uses
- * Any instead of ASTNode.
- */
-val builderReduction: (List<Any?>) -> Any =
-	{ 0 }
 
 val leftRecursiveGrammar: Map<NodeID<*>, Set<NodeDef>> = mapOf(
 	top to setOf(NodeDef(listOf(e2), topReduction)),
@@ -105,3 +102,36 @@ fun fakePPPIter(nodes: List<ASTNode?>): LexerPPPIterator =
 		every { mock.hasNext() } answers { ppIter.hasNext() }
 		every { mock.allNodeIDs } answers { nodes.mapNotNull { it?.id } }
 	}
+
+/**
+ * Useful for manual DFA debugging
+ */
+fun DFA.actionTableToString(): String {
+    val sb = StringBuilder()
+    for ((state, actions) in actionTable.rowMap()) {
+        sb.appendLine("${state.toString()} {")
+        for ((lookahead, action) in actions) {
+            sb.append('\t')
+            sb.append(
+                if (lookahead is AnyNodeID) "\"${lookahead.v}\"" else lookahead.toString()
+            )
+            sb.append(": ")
+            when (action) {
+                is Action.Shift -> sb.append("shift(nextState=${action.nextState.id})")
+                is Action.Reduce -> {
+                    sb.append("reduce(n=${action.nNodes}, ")
+                    sb.append(when (action.reduction) {
+                        topReduction -> "topReduction"
+                        exprReduction -> "exprReduction"
+                        expr1Reduction -> "expr1Reduction"
+                        else -> "???"
+                    })
+                    sb.append(")")
+                }
+            }
+            sb.appendLine()
+        }
+        sb.appendLine("}")
+    }
+    return sb.toString()
+}

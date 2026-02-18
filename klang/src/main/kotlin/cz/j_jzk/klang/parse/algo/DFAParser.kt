@@ -104,7 +104,6 @@ internal class DFAParser(val input: LexerPPPIterator, val dfa: DFA) {
 		return null
 	}
 
-	// TODO: this should maybe be precomputed
 	private fun expectedIDs(): List<NodeID<*>> =
 		dfa.actionTable.row(stateStack.last()).keys.toList()
 
