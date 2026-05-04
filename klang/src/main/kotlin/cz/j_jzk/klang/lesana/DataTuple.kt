@@ -29,6 +29,7 @@ sealed class DataTuple<out T1, out T2, out T3, out T4, out T5, out T6, out T7, o
 
 }
 
+@Suppress("UNCHECKED_CAST")
 internal fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, > dataTupleFromList(list: List<Any?>): DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, > =
 	when (list.size) {
 		0 -> DataTuple.Tuple0 as DataTuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, >

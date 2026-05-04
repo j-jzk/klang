@@ -67,7 +67,7 @@ fun <T> lesana(init: LesanaBuilder<T>.() -> Unit): LesanaBuilder<T> =
  *
  * @param T The type of the final data (the type of the data stored in topNode).
  */
-@Suppress("LongParameterList", "TooManyFunctions", "MaxLineLength") // for generated functions
+@Suppress("LongParameterList", "TooManyFunctions", "MaxLineLength", "UNCHECKED_CAST") // for generated functions
 class LesanaBuilder<T> {
 	private val lexerDef = LexerDefinition()
 	private val parserDef = ParserDefinition<T>()
