@@ -1,15 +1,12 @@
 package cz.j_jzk.klang.parse.algo
 
-import cz.j_jzk.klang.lex.api.AnyNodeID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import cz.j_jzk.klang.parse.NodeDef
 import cz.j_jzk.klang.parse.NodeID
-import cz.j_jzk.klang.util.set
 import cz.j_jzk.klang.parse.testutil.*
 import cz.j_jzk.klang.lex.re.CompiledRegex
 import cz.j_jzk.klang.parse.ASTNode
-import kotlin.test.assertTrue
 
 /* TODO: make this less hacky
  * Specifically, find a way to structurally compare DFAs (this class currently

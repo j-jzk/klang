@@ -67,7 +67,7 @@ import cz.j_jzk.klang.parse.testutil.id
 
 	/* Regression test for https://github.com/j-jzk/klang/issues/43 */
 	@Test fun testEpsilonReduction() {
-		val wrapper = parser {
+		parser {
 			conversions {
 				"int" to { it.toInt() }
 			}

@@ -26,7 +26,6 @@ class Lexer(regexToId: LinkedHashMap<NFA, NodeID<*>>) {
 	/** All the token IDs known to this lexer */
 	val registeredTokenTypes = this.regexToId.values
 
-	private val allNFAs = this.regexToId.keys
 	private val precedenceTable: Map<NFA, Int>
 	init {
 		var i = 0

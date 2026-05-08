@@ -75,7 +75,7 @@ class ParserBuilder {
 	fun getParser(): DFA {
 		val topNodeNotNull = topNode;
 		requireNotNull(topNodeNotNull) { "The top node of the grammar must be set" }
-		val nullSafeConversions = requireNotNull(conversionsMap) {
+		requireNotNull(conversionsMap) {
 			"A `conversions` block must be present to define the conversions between the tokens and node values"
 		}
 

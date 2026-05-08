@@ -11,7 +11,6 @@ import cz.j_jzk.klang.lex.re.CompiledRegex
 import org.apache.commons.collections4.map.LazyMap
 import java.util.ArrayDeque
 import kotlin.collections.mutableSetOf
-import kotlin.io.path.Path
 
 internal data class LR1Item(
 	val nodeDef: NodeDef,

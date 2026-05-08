@@ -22,7 +22,7 @@ class UnexpectedTokenErrorTest {
     @Test fun testUnnamed() {
         assertTrue (
             Regex(
-                "Unexpected token a, expected one of: \\[b, cz\\.j_jzk\\.klang\\.parse\\.NodeID@[0-9a-f]+]\\."
+                """Unexpected token a, expected one of: \[b, cz\.j_jzk\.klang\.parse\.NodeID@[0-9a-f]+]\."""
             ).matches(
                 UnexpectedTokenError(ASTNode.NoValue(aId, PositionInfo("", 0)), listOf(bId, unnamedId), emptyList())
                     .toString(),
@@ -33,14 +33,22 @@ class UnexpectedTokenErrorTest {
     @Test fun testHidden() {
         assertEquals(
             "Unexpected token a, expected one of: [b].",
-            UnexpectedTokenError(ASTNode.NoValue(aId, PositionInfo("", 0)), listOf(bId, hiddenId), emptyList()).toString(),
+            UnexpectedTokenError(
+                ASTNode.NoValue(aId, PositionInfo("", 0)),
+                listOf(bId, hiddenId),
+                emptyList(),
+            ).toString(),
         )
     }
 
     @Test fun testUnexpectedHidden() {
         assertEquals(
             "Unexpected token d, expected one of: [a, b].",
-            UnexpectedTokenError(ASTNode.NoValue(hiddenId, PositionInfo("", 0)), listOf(aId, bId), emptyList()).toString(),
+            UnexpectedTokenError(
+                ASTNode.NoValue(hiddenId, PositionInfo("", 0)),
+                listOf(aId, bId),
+                emptyList(),
+            ).toString(),
         )
     }
 }
